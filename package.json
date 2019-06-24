@@ -1,0 +1,66 @@
+{
+  "name": "kampos",
+  "version": "0.1.0",
+  "description": "Tiny and fast effects compositor on WebGL",
+  "registry": "https://registry.npmjs.org/",
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w",
+    "demo": "cd demo && rollup -c && cd -",
+    "watch:demo": "cd demo && rollup -c -w && cd -",
+    "test:unit": "npm run test:unit:build && npm run test:unit:run",
+    "test:unit:run": "floss --path test/unit.js",
+    "test:unit:build": "cd test && rollup -c rollup.unit.js && cd -",
+    "test:e2e": "npm run build && npm run test:e2e:run",
+    "test:e2e:run": "ava test/e2e/*.js",
+    "test": "npm run test:unit && npm run build && npm run test:e2e",
+    "docs": "documentation build src/kampos.js -f html -o docs -c documentation.yml",
+    "check": "npm-check -u"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wix-incubator/kampos.git"
+  },
+  "keywords": [
+    "effects",
+    "media",
+    "video",
+    "filters",
+    "webgl",
+    "compositor"
+  ],
+  "author": "Yehonatan Daniv",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wix-incubator/kampos/issues"
+  },
+  "homepage": "https://github.com/wix-incubator/kampos#readme",
+  "ava": {
+    "babel": {
+      "testOptions": {
+        "babelrc": false
+      }
+    }
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "ava": "^2.1.0",
+    "documentation": "^11.0.1",
+    "electron": "^5.0.4",
+    "finalhandler": "^1.1.2",
+    "floss": "^3.0.0",
+    "get-port": "^5.0.0",
+    "npm-check": "^5.9.0",
+    "pify": "^4.0.1",
+    "pixelmatch": "^5.0.2",
+    "pngjs": "^3.4.0",
+    "puppeteer": "^1.17.0",
+    "rollup": "^1.15.6",
+    "rollup-plugin-babel": "^4.3.2",
+    "rollup-plugin-filesize": "^6.1.1",
+    "rollup-plugin-progress": "^1.1.1",
+    "serve-static": "^1.14.1"
+  }
+}

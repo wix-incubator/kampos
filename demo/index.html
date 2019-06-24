@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <title>Transparent Video WebGL</title>
+    <style>
+        body {
+            margin: 0;
+            background: #ffffff linear-gradient(to bottom, chocolate, goldenrod, silver, lightslategray);
+            display: grid;
+            grid-template: "video-url video-url settings" auto
+                           "mask-url mask-url settings" auto
+                           "canvas canvas settings" auto
+                           "canvas canvas settings" auto / 2fr 2fr 1fr;
+            min-height: 100vh;
+        }
+
+        video,
+        canvas {
+            display: block;
+            vertical-align: top;
+        }
+
+        canvas {
+            grid-area: canvas;
+            width: 704px;
+            height: 992px;
+        }
+
+        video {
+            display: none;
+        }
+
+        aside {
+            grid-area: settings;
+            z-index: 1;
+        }
+
+        #video-url-container {
+            grid-area: video-url;
+        }
+
+        #alpha-mask-container {
+            grid-area: mask-url;
+        }
+
+        #video-url,
+        #alpha-mask-url {
+            width: 80%;
+            height: 2em;
+        }
+    </style>
+</head>
+<body>
+<!--<video id="video" src="https://s3-eu-west-1.amazonaws.com/ireland-video-output/alpha/v-1920x1080-60fps.mp4" loop muted preload="auto" crossorigin="anonymous" playsinline></video>-->
+<video id="video" src="https://video.wixstatic.com/video/11062b_8264b3fe5e9e4df68dd8c1213f80cd18/720p/mp4/file.mp4" loop muted preload="auto" crossorigin="anonymous" playsinline></video>
+<!--<video id="video" src="metalwheels.mp4" loop muted preload="auto" crossorigin="anonymous" autoplay playsinline></video>-->
+<!--<video id="video" src="https://video.wixstatic.com/video/11062b_7c6c697505584ae18cb0a2a47b53cf22/720p/mp4/file.mp4" loop muted preload="auto" crossorigin="anonymous" playsinline></video>-->
+<!--<video id="video" src="https://video.wixstatic.com/video/11062b_26ab0e4151b142f7a212532fe505c868/720p/mp4/file.mp4" loop muted preload="auto" crossorigin="anonymous" playsinline></video>-->
+<fieldset id="video-url-container">
+    <legend>Video URL</legend>
+    <input type="url" id="video-url" value="https://video.wixstatic.com/video/11062b_8264b3fe5e9e4df68dd8c1213f80cd18/720p/mp4/file.mp4"/>
+</fieldset>
+<fieldset id="alpha-mask-container">
+    <legend>Alpha mask URL</legend>
+    <input type="url" id="alpha-mask-url" value="https://static.wixstatic.com/shapes/2fc6253d53dc4925aab74c224256d7f8.svg"/>
+</fieldset>
+<canvas id="target"></canvas>
+<aside>
+    <fieldset>
+        <legend>Background settings</legend>
+
+        <p>
+            <input type="checkbox" id="toggle-background-color" name="toggle-background-color"/>
+            <label for="toggle-background-color">Background color</label>
+            <input type="color" id="background-color" name="background-color"
+                   value="#ffffff"/>
+            <span class="value">#ffffff</span>
+        </p>
+
+        <!--p>
+            <input type="radio" id="toggle-background-gradient" name="toggle-background-gradient" checked/>
+            <label for="background-gradient">Background gradient</label>
+            <input type="color" id="background-gradient" name="background-gradient"
+                   value="#000000"/>
+            <span class="value">#000000</span>
+        </p-->
+    </fieldset>
+    <fieldset>
+        <legend>Effect settings</legend>
+
+        <p>
+            <label for="toggle-alphamask">Apply alpha mask</label>
+            <input type="checkbox" id="toggle-alphamask" name="toggle-alphamask" checked/>
+        </p>
+
+        <p>
+            <label for="brightness">Brightness</label>
+            <input type="range" id="brightness" name="brightness"
+                   value="1" min="0" max="10" step="0.1"/>
+            <span class="value">1</span>
+        </p>
+
+        <p>
+            <label for="contrast">Contrast</label>
+            <input type="range" id="contrast" name="contrast"
+                   value="1" min="0" max="10" step="0.1"/>
+            <span class="value">1</span>
+        </p>
+
+        <p>
+            <label for="hue">Hue</label>
+            <input type="range" id="hue" name="hue"
+                   value="0.0" min="-180.0" max="180.0" step="1.0"/>
+            <span class="value">0.0</span>
+        </p>
+
+        <p>
+            <label for="saturation">Saturation</label>
+            <input type="range" id="saturation" name="saturation"
+                   value="1" min="0" max="10" step="0.1"/>
+            <span class="value">1</span>
+        </p>
+
+        <p>
+            <label for="toggle-duotone">Apply duotone</label>
+            <input type="checkbox" id="toggle-duotone" name="toggle-duotone" checked/>
+        </p>
+
+        <p>
+            <label for="duotone-light">Duotone light</label>
+            <input type="color" id="duotone-light" name="duotone-light"
+                   value="#fcbb0d"/>
+            <span class="value">#fcbb0d</span>
+        </p>
+
+        <p>
+            <label for="duotone-dark">Duotone dark</label>
+            <input type="color" id="duotone-dark" name="duotone-dark"
+                   value="#bd0b91"/>
+            <span class="value">#bd0b91</span>
+        </p>
+
+        <p>
+            <input type="button" id="duotone-switch" value="Switch colors"/>
+        </p>
+    </fieldset>
+</aside>
+<script src="index.js?v=4"></script>
+</body>
+</html>
