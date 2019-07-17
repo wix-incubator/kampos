@@ -1,6 +1,22 @@
+/**
+ * @function hueSaturation
+ * @returns {hueSaturationEffect}
+ * @example hueSaturation()
+ */
 export default function () {
+    /**
+     * @typedef {Object} hueSaturationEffect
+     * @property {number} hue
+     * @property {number} saturation
+     * @property {boolean} hueDisabled
+     * @property {boolean} saturationDisabled
+     *
+     * @example
+     * effect.hue = 45;
+     * effect.saturation = 0.8;
+     */
     return {
-        vertexSrc: {
+        vertex: {
             uniform: {
                 u_hue: 'float',
                 u_saturation: 'float'
@@ -32,7 +48,7 @@ const mat3 satmat = mat3(
     v_hueRotation = lummat + cos(angle) * cosmat + sin(angle) * sinmat;
     v_saturation = lummat + satmat * u_saturation;`
         },
-        fragmentSrc: {
+        fragment: {
             uniform: {
                 u_hueEnabled: 'bool',
                 u_satEnabled: 'bool',
@@ -76,55 +92,35 @@ const mat3 satmat = mat3(
             this.uniforms[3].data[0] = parseFloat(Math.max(0, s));
         },
         get hueDisabled () {
-            return !this.uniforms[0].data;
+            return !this.uniforms[0].data[0];
         },
         set hueDisabled (b) {
-            return this.uniforms[0].data[0] = +!b;
+            this.uniforms[0].data[0] = +!b;
         },
         get saturationDisabled () {
-            return !this.uniforms[1].data;
+            return !this.uniforms[1].data[0];
         },
         set saturationDisabled (b) {
-            return this.uniforms[1].data[0] = +!b;
+            this.uniforms[1].data[0] = +!b;
         },
         uniforms: [
             {
                 name: 'u_hueEnabled',
-                size: 1,
                 type: 'i',
                 data: [1]
             },
             {
                 name: 'u_satEnabled',
-                size: 1,
                 type: 'i',
                 data: [1]
             },
-            /**
-             * 0.0 is no change.
-             * -180.0 is -180deg hue rotation.
-             * 180.0 is +180deg hue rotation.
-             *
-             * @min -180.0
-             * @max 180.0
-             * @default 0.0
-             */
             {
                 name: 'u_hue',
-                size: 1,
                 type: 'f',
                 data: [0.0]
             },
-            /**
-             * 1.0 is no change.
-             * 0.0 is grayscale.
-             *
-             * @min 0.0
-             * @default 1.0
-             */
             {
                 name: 'u_saturation',
-                size: 1,
                 type: 'f',
                 data: [1.0]
             }

@@ -4,5 +4,25 @@ toc:
   - kamposConfig
   - kamposSource
   - effectConfig
+  - shaderConfig
   - Attribute
   - Uniform
+  - textureConfig
+  - name: effects
+    children:
+      - brightnessContrast
+      - hueSaturation
+      - alphaMask
+      - duotone
+      - displacement
+  - brightnessContrastEffect
+  - hueSaturationEffect
+  - alphaMaskEffect
+  - duotoneEffect
+  - displacementEffect
+  - name: transitions
+    children:
+      - fadeTransition
+      - displacementTransition
+  - fadeTransitionEffect
+  - displacementTransitionEffect

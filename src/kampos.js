@@ -6,6 +6,12 @@ import Ticker from './ticker';
  *
  * @class Kampos
  * @param {kamposConfig} config
+ * @example
+ * import {Ticker, Kampos, effects} from 'kampos';
+ * const ticker = new Ticker();
+ * const target = document.querySelector('#canvas');
+ * const hueSat = effects.hueSaturation();
+ * const kampos = new Kampos({ticker, target, effects: [hueSat]});
  */
 class Kampos {
     /**
@@ -91,6 +97,9 @@ class Kampos {
      * Set the source config.
      *
      * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap|kamposSource} source
+     * @example
+     * const media = document.querySelector('#video');
+     * kampos.setSource(media);
      */
     setSource (source) {
         if ( ! source ) return;
@@ -133,6 +142,8 @@ class Kampos {
 
     /**
      * Starts the animation loop.
+     *
+     * If using a {@see Ticker} this instance will be added to that {@see Ticker}.
      */
     play () {
         if ( this.ticker ) {
@@ -158,6 +169,8 @@ class Kampos {
 
     /**
      * Stops the animation loop.
+     *
+     * If using a {@see Ticker} this instance will be removed from that {@see Ticker}.
      */
     stop () {
         if ( this.animationFrameId ) {
@@ -231,12 +244,16 @@ class Kampos {
 
     _createTextures () {
         this.data && this.data.textures.forEach((texture, i) => {
-            this.data.textures[i].texture = core.createTexture(this.gl, {
+            const data = this.data.textures[i];
+            data.texture = core.createTexture(this.gl, {
                 width: this.dimensions.width,
                 height: this.dimensions.height,
                 format: texture.format,
                 data: texture.image
             }).texture;
+
+            data.format = texture.format;
+            data.update = texture.update;
         });
     }
 }
@@ -257,8 +274,8 @@ class Kampos {
 
 /**
  * @typedef {Object} effectConfig
- * @property {shaderConfig} vertexSrc
- * @property {shaderConfig} fragmentSrc
+ * @property {shaderConfig} vertex
+ * @property {shaderConfig} fragment
  * @property {Attribute[]} attributes
  * @property {Uniform[]} uniforms
  * @property {Object} varying
@@ -268,14 +285,17 @@ class Kampos {
 /**
  * @typedef {Object} shaderConfig
  * @property {string} [main]
+ * @property {string} [source]
  * @property {string} [constant]
- * @property {Object} [uniform]
- * @property {Object} [attribute]
+ * @property {Object} [uniform] mapping name of variable to type
+ * @property {Object} [attribute] mapping name of variable to type
  */
 
 /**
  * @typedef {Object} textureConfig
  * @property {string} format
+ * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} [image]
+ * @property {boolean} [update] defaults to `false`
  */
 
 /**
@@ -289,7 +309,7 @@ class Kampos {
 /**
  * @typedef {Object} Uniform
  * @property {string} name
- * @property {number} size
+ * @property {number} [size] defaults to `data.length`
  * @property {string} type
  * @property {Array} data
  */

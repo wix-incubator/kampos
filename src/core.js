@@ -34,7 +34,8 @@ const fragmentTemplate = ({
     uniform = '',
     varying = '',
     constant = '',
-    main = ''
+    main = '',
+    source = ''
 }) => `
 precision mediump float;
 ${varying}
@@ -45,7 +46,9 @@ uniform sampler2D u_source;
 const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);
 ${constant}
 void main() {
-    vec4 pixel = texture2D(u_source, v_texCoord);
+    vec2 sourceCoord = v_texCoord;
+    ${source}
+    vec4 pixel = texture2D(u_source, sourceCoord);
     vec3 color = pixel.rgb;
     float alpha = pixel.a;
     ${main}
@@ -160,7 +163,18 @@ function draw (gl, media, data, dimensions) {
     if ( textures ) {
         for ( let i = -1; i < textures.length; i++ ) {
             gl.activeTexture(gl.TEXTURE0 + (i + 1));
-            gl.bindTexture(gl.TEXTURE_2D, i === -1 ? source.texture : textures[i].texture);
+
+            if (i === -1) {
+                gl.bindTexture(gl.TEXTURE_2D, source.texture);
+            }
+            else {
+                const tex = textures[i];
+                gl.bindTexture(gl.TEXTURE_2D, tex.texture);
+
+                if (tex.update) {
+                    gl.texImage2D(gl.TEXTURE_2D, 0,gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.image);
+                }
+            }
         }
     }
 
@@ -203,14 +217,14 @@ function _initProgram (gl, effects) {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
     const data = _mergeEffectsData(effects);
-    const vertexSrc = _stringifyShaderSrc(data.vertexSrc, vertexTemplate);
-    const fragmentSrc = _stringifyShaderSrc(data.fragmentSrc, fragmentTemplate);
+    const vertexSrc = _stringifyShaderSrc(data.vertex, vertexTemplate);
+    const fragmentSrc = _stringifyShaderSrc(data.fragment, fragmentTemplate);
 
     // compile the GLSL program
     const {program, vertexShader, fragmentShader, error, type} = _getWebGLProgram(gl, vertexSrc, fragmentSrc);
 
     if ( error ) {
-        throw new Error(`${type} error:: ${error}`);
+        throw new Error(`${type} error:: ${error}\n${fragmentSrc}`);
     }
 
     // setup the vertex data
@@ -234,7 +248,7 @@ function _mergeEffectsData (effects) {
     return effects.reduce((result, config) => {
         const {attributes = [], uniforms = [], textures = [], varying = {}} = config;
         const merge = shader => Object.keys(config[shader]).forEach(key => {
-            if ( key === 'constant' || key === 'main' ) {
+            if ( key === 'constant' || key === 'main' || key === 'source' ) {
                 result[shader][key] += config[shader][key] + '\n';
             }
             else {
@@ -242,8 +256,8 @@ function _mergeEffectsData (effects) {
             }
         });
 
-        merge('vertexSrc');
-        merge('fragmentSrc');
+        merge('vertex');
+        merge('fragment');
 
         attributes.forEach(attribute => {
             const found = result.attributes.some((attr, n) => {
@@ -261,23 +275,24 @@ function _mergeEffectsData (effects) {
         result.uniforms.push(...uniforms);
         result.textures.push(...textures);
 
-        Object.assign(result.vertexSrc.varying, varying);
-        Object.assign(result.fragmentSrc.varying, varying);
+        Object.assign(result.vertex.varying, varying);
+        Object.assign(result.fragment.varying, varying);
 
         return result;
     }, {
-        vertexSrc: {
+        vertex: {
             uniform: {},
             attribute: {},
             varying: {},
             constant: '',
             main: ''
         },
-        fragmentSrc: {
+        fragment: {
             uniform: {},
             varying: {},
             constant: '',
-            main: ''
+            main: '',
+            source: ''
         },
         /*
          * Default attributes
@@ -310,7 +325,6 @@ function _mergeEffectsData (effects) {
         uniforms: [
             {
                 name: 'u_source',
-                size: 1,
                 type: 'i',
                 data: [0]
             }
@@ -433,7 +447,7 @@ function createTexture (gl, {width=1, height=1, data=null, format='RGBA'}={}) {
         gl.texImage2D(gl.TEXTURE_2D, 0, gl[format], width, height, 0, gl[format], gl.UNSIGNED_BYTE, null);
     }
 
-    return {texture, width, height};
+    return {texture, width, height, format};
 }
 
 function _createBuffer (gl, program, name, data) {
@@ -466,7 +480,7 @@ function _initUniforms (gl, program, uniforms) {
 
         return {
             location,
-            size: uniform.size,
+            size: uniform.size || uniform.data.length,
             type: uniform.type,
             data: uniform.data
         };

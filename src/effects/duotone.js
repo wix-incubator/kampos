@@ -1,7 +1,22 @@
+/**
+ * @function duotone
+ * @returns {duotoneEffect}
+ * @example duotone()
+ */
 export default function () {
+    /**
+     * @typedef {Object} duotoneEffect
+     * @property {number[]} light Array of 4 numbers normalized (0.0 - 1.0)
+     * @property {number[]} dark Array of 4 numbers normalized (0.0 - 1.0)
+     * @property {boolean} disabled
+     *
+     * @example
+     * effect.light = [1.0, 1.0, 0.8];
+     * effect.dark = [0.2, 0.6, 0.33];
+     */
     return {
-        vertexSrc: {},
-        fragmentSrc: {
+        vertex: {},
+        fragment: {
             uniform: {
                 u_duotoneEnabled: 'bool',
                 u_light: 'vec4',
@@ -34,34 +49,24 @@ export default function () {
             });
         },
         get disabled () {
-            return !this.uniforms[0].data;
+            return !this.uniforms[0].data[0];
         },
         set disabled (b) {
-            return this.uniforms[0].data[0] = +!b;
+            this.uniforms[0].data[0] = +!b;
         },
         uniforms: [
             {
                 name: 'u_duotoneEnabled',
-                size: 1,
                 type: 'i',
                 data: [1]
             },
-            /**
-             * Light tone
-             */
             {
                 name: 'u_light',
-                size: 4,
                 type: 'f',
                 data: [0.9882352941, 0.7333333333, 0.05098039216, 1]
             },
-            /**
-             * Dark tone
-             *
-             */
             {
                 name: 'u_dark',
-                size: 4,
                 type: 'f',
                 data: [0.7411764706, 0.0431372549, 0.568627451, 1]
             }

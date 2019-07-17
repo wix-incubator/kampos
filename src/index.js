@@ -2,6 +2,9 @@ import alphaMask from './effects/alpha-mask';
 import brightnessContrast from './effects/brightness-contrast';
 import hueSaturation from './effects/hue-saturation';
 import duotone from './effects/duotone';
+import displacement from './effects/displacement';
+import fade from './transitions/fade';
+import displacementTransition from './transitions/displacement';
 import {Kampos, Ticker} from './kampos';
 
 export default {
@@ -9,7 +12,12 @@ export default {
         alphaMask,
         brightnessContrast,
         hueSaturation,
-        duotone
+        duotone,
+        displacement
+    },
+    transitions: {
+        fade,
+        displacement: displacementTransition
     },
     Kampos,
     Ticker

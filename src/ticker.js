@@ -47,6 +47,7 @@ class Ticker {
 
         if ( ! ~ index ) {
             this.pool.push(instance);
+            instance.playing = true;
         }
     }
 
@@ -60,6 +61,7 @@ class Ticker {
 
         if ( ~ index ) {
             this.pool.splice(index, 1);
+            instance.playing = false;
         }
     }
 }

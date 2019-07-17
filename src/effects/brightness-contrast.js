@@ -1,7 +1,24 @@
+/**
+ * @function brightnessContrast
+ * @returns {brightnessContrastEffect}
+ * @example brightnessContrast()
+ */
 export default function () {
+    /**
+     * @typedef {Object} brightnessContrastEffect
+     * @property {number} brightness
+     * @property {number} contrast
+     * @property {boolean} brightnessDisabled
+     * @property {boolean} contrastDisabled
+     *
+     * @example
+     * effect.brightness = 1.5;
+     * effect.contrast = 0.9;
+     * effect.contrastDisabled = true;
+     */
     return {
-        vertexSrc: {},
-        fragmentSrc: {
+        vertex: {},
+        fragment: {
             uniform: {
                 u_brEnabled: 'bool',
                 u_ctEnabled: 'bool',
@@ -23,63 +40,45 @@ export default function () {
         get brightness () {
             return this.uniforms[2].data[0];
         },
-        set brightness (b) {
-            this.uniforms[2].data[0] = parseFloat(Math.max(0, b));
+        set brightness (value) {
+            this.uniforms[2].data[0] = parseFloat(Math.max(0, value));
         },
         get contrast () {
             return this.uniforms[3].data[0];
         },
-        set contrast (c) {
-            this.uniforms[3].data[0] = parseFloat(Math.max(0, c));
+        set contrast (value) {
+            this.uniforms[3].data[0] = parseFloat(Math.max(0, value));
         },
         get brightnessDisabled () {
-            return !this.uniforms[0].data;
+            return !this.uniforms[0].data[0];
         },
-        set brightnessDisabled (b) {
-            return this.uniforms[0].data[0] = +!b;
+        set brightnessDisabled (toggle) {
+            this.uniforms[0].data[0] = +!toggle;
         },
         get contrastDisabled () {
-            return !this.uniforms[1].data;
+            return !this.uniforms[1].data[0];
         },
-        set contrastDisabled (b) {
-            return this.uniforms[1].data[0] = +!b;
+        set contrastDisabled (toggle) {
+            this.uniforms[1].data[0] = +!toggle;
         },
         uniforms: [
             {
                 name: 'u_brEnabled',
-                size: 1,
                 type: 'i',
                 data: [1]
             },
             {
                 name: 'u_ctEnabled',
-                size: 1,
                 type: 'i',
                 data: [1]
             },
-            /**
-             * 0.0 is completely black.
-             * 1.0 is no change.
-             *
-             * @min 0.0
-             * @default 1.0
-             */
             {
                 name: 'u_brightness',
-                size: 1,
                 type: 'f',
                 data: [1.0]
             },
-            /**
-             * 0.0 is completely gray.
-             * 1.0 is no change.
-             *
-             * @min 0.0
-             * @default 1.0
-             */
             {
                 name: 'u_contrast',
-                size: 1,
                 type: 'f',
                 data: [1.0]
             }

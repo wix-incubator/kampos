@@ -4,16 +4,32 @@
     (global = global || self, global.kampos = factory());
 }(this, function () { 'use strict';
 
+    /**
+     * @function alphaMask
+     * @returns {alphaMaskEffect}
+     * @example alphaMask()
+     */
     function alphaMask () {
+        /**
+         * @typedef {Object} alphaMaskEffect
+         * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} mask
+         * @property {boolean} disabled
+         *
+         * @example
+         * const img = new Image();
+         * img.src = 'picture.png';
+         * effect.mask = img;
+         * effect.disabled = true;
+         */
         return {
-            vertexSrc: {
+            vertex: {
                 attribute: {
                     a_alphaMaskTexCoord: 'vec2'
                 },
                 main: `
     v_alphaMaskTexCoord = a_alphaMaskTexCoord;`
             },
-            fragmentSrc: {
+            fragment: {
                 uniform: {
                     u_alphaMaskEnabled: 'bool',
                     u_mask: 'sampler2D'
@@ -24,10 +40,16 @@
     }`
             },
             get disabled () {
-                return !this.uniforms[0].data;
+                return !this.uniforms[0].data[0];
             },
             set disabled (b) {
-                return this.uniforms[0].data[0] = +!b;
+                this.uniforms[0].data[0] = +!b;
+            },
+            get mask () {
+                return this.textures[0].image;
+            },
+            set mask (img) {
+                this.textures[0].image = img;
             },
             varying: {
                 v_alphaMaskTexCoord: 'vec2'
@@ -35,13 +57,11 @@
             uniforms: [
                 {
                     name: 'u_alphaMaskEnabled',
-                    size: 1,
                     type: 'i',
                     data: [1]
                 },
                 {
                     name: 'u_mask',
-                    size: 1,
                     type: 'i',
                     data: [1]
                 }
@@ -66,10 +86,27 @@
         };
     }
 
+    /**
+     * @function brightnessContrast
+     * @returns {brightnessContrastEffect}
+     * @example brightnessContrast()
+     */
     function brightnessContrast () {
+        /**
+         * @typedef {Object} brightnessContrastEffect
+         * @property {number} brightness
+         * @property {number} contrast
+         * @property {boolean} brightnessDisabled
+         * @property {boolean} contrastDisabled
+         *
+         * @example
+         * effect.brightness = 1.5;
+         * effect.contrast = 0.9;
+         * effect.contrastDisabled = true;
+         */
         return {
-            vertexSrc: {},
-            fragmentSrc: {
+            vertex: {},
+            fragment: {
                 uniform: {
                     u_brEnabled: 'bool',
                     u_ctEnabled: 'bool',
@@ -91,63 +128,45 @@
             get brightness () {
                 return this.uniforms[2].data[0];
             },
-            set brightness (b) {
-                this.uniforms[2].data[0] = parseFloat(Math.max(0, b));
+            set brightness (value) {
+                this.uniforms[2].data[0] = parseFloat(Math.max(0, value));
             },
             get contrast () {
                 return this.uniforms[3].data[0];
             },
-            set contrast (c) {
-                this.uniforms[3].data[0] = parseFloat(Math.max(0, c));
+            set contrast (value) {
+                this.uniforms[3].data[0] = parseFloat(Math.max(0, value));
             },
             get brightnessDisabled () {
-                return !this.uniforms[0].data;
+                return !this.uniforms[0].data[0];
             },
-            set brightnessDisabled (b) {
-                return this.uniforms[0].data[0] = +!b;
+            set brightnessDisabled (toggle) {
+                this.uniforms[0].data[0] = +!toggle;
             },
             get contrastDisabled () {
-                return !this.uniforms[1].data;
+                return !this.uniforms[1].data[0];
             },
-            set contrastDisabled (b) {
-                return this.uniforms[1].data[0] = +!b;
+            set contrastDisabled (toggle) {
+                this.uniforms[1].data[0] = +!toggle;
             },
             uniforms: [
                 {
                     name: 'u_brEnabled',
-                    size: 1,
                     type: 'i',
                     data: [1]
                 },
                 {
                     name: 'u_ctEnabled',
-                    size: 1,
                     type: 'i',
                     data: [1]
                 },
-                /**
-                 * 0.0 is completely black.
-                 * 1.0 is no change.
-                 *
-                 * @min 0.0
-                 * @default 1.0
-                 */
                 {
                     name: 'u_brightness',
-                    size: 1,
                     type: 'f',
                     data: [1.0]
                 },
-                /**
-                 * 0.0 is completely gray.
-                 * 1.0 is no change.
-                 *
-                 * @min 0.0
-                 * @default 1.0
-                 */
                 {
                     name: 'u_contrast',
-                    size: 1,
                     type: 'f',
                     data: [1.0]
                 }
@@ -155,9 +174,25 @@
         };
     }
 
+    /**
+     * @function hueSaturation
+     * @returns {hueSaturationEffect}
+     * @example hueSaturation()
+     */
     function hueSaturation () {
+        /**
+         * @typedef {Object} hueSaturationEffect
+         * @property {number} hue
+         * @property {number} saturation
+         * @property {boolean} hueDisabled
+         * @property {boolean} saturationDisabled
+         *
+         * @example
+         * effect.hue = 45;
+         * effect.saturation = 0.8;
+         */
         return {
-            vertexSrc: {
+            vertex: {
                 uniform: {
                     u_hue: 'float',
                     u_saturation: 'float'
@@ -189,7 +224,7 @@ const mat3 satmat = mat3(
     v_hueRotation = lummat + cos(angle) * cosmat + sin(angle) * sinmat;
     v_saturation = lummat + satmat * u_saturation;`
             },
-            fragmentSrc: {
+            fragment: {
                 uniform: {
                     u_hueEnabled: 'bool',
                     u_satEnabled: 'bool',
@@ -233,55 +268,35 @@ const mat3 satmat = mat3(
                 this.uniforms[3].data[0] = parseFloat(Math.max(0, s));
             },
             get hueDisabled () {
-                return !this.uniforms[0].data;
+                return !this.uniforms[0].data[0];
             },
             set hueDisabled (b) {
-                return this.uniforms[0].data[0] = +!b;
+                this.uniforms[0].data[0] = +!b;
             },
             get saturationDisabled () {
-                return !this.uniforms[1].data;
+                return !this.uniforms[1].data[0];
             },
             set saturationDisabled (b) {
-                return this.uniforms[1].data[0] = +!b;
+                this.uniforms[1].data[0] = +!b;
             },
             uniforms: [
                 {
                     name: 'u_hueEnabled',
-                    size: 1,
                     type: 'i',
                     data: [1]
                 },
                 {
                     name: 'u_satEnabled',
-                    size: 1,
                     type: 'i',
                     data: [1]
                 },
-                /**
-                 * 0.0 is no change.
-                 * -180.0 is -180deg hue rotation.
-                 * 180.0 is +180deg hue rotation.
-                 *
-                 * @min -180.0
-                 * @max 180.0
-                 * @default 0.0
-                 */
                 {
                     name: 'u_hue',
-                    size: 1,
                     type: 'f',
                     data: [0.0]
                 },
-                /**
-                 * 1.0 is no change.
-                 * 0.0 is grayscale.
-                 *
-                 * @min 0.0
-                 * @default 1.0
-                 */
                 {
                     name: 'u_saturation',
-                    size: 1,
                     type: 'f',
                     data: [1.0]
                 }
@@ -289,10 +304,25 @@ const mat3 satmat = mat3(
         };
     }
 
+    /**
+     * @function duotone
+     * @returns {duotoneEffect}
+     * @example duotone()
+     */
     function duotone () {
+        /**
+         * @typedef {Object} duotoneEffect
+         * @property {number} light
+         * @property {number} dark
+         * @property {boolean} disabled
+         *
+         * @example
+         * effect.light = [1.0, 1.0, 0.8];
+         * effect.dark = [0.2, 0.6, 0.33];
+         */
         return {
-            vertexSrc: {},
-            fragmentSrc: {
+            vertex: {},
+            fragment: {
                 uniform: {
                     u_duotoneEnabled: 'bool',
                     u_light: 'vec4',
@@ -325,36 +355,343 @@ const mat3 satmat = mat3(
                 });
             },
             get disabled () {
-                return !this.uniforms[0].data;
+                return !this.uniforms[0].data[0];
             },
             set disabled (b) {
-                return this.uniforms[0].data[0] = +!b;
+                this.uniforms[0].data[0] = +!b;
             },
             uniforms: [
                 {
                     name: 'u_duotoneEnabled',
-                    size: 1,
                     type: 'i',
                     data: [1]
                 },
-                /**
-                 * Light tone
-                 */
                 {
                     name: 'u_light',
-                    size: 4,
                     type: 'f',
                     data: [0.9882352941, 0.7333333333, 0.05098039216, 1]
                 },
-                /**
-                 * Dark tone
-                 *
-                 */
                 {
                     name: 'u_dark',
-                    size: 4,
                     type: 'f',
                     data: [0.7411764706, 0.0431372549, 0.568627451, 1]
+                }
+            ]
+        };
+    }
+
+    /**
+     * @function displacement
+     * @returns {displacementEffect}
+     * @example displacement()
+     */
+    function displacement () {
+        /**
+         * @typedef {Object} displacementEffect
+         * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map
+         * @property {{x: {number}, y: {number}} scale
+         * @property {boolean} disabled
+         *
+         * @example
+         * const img = new Image();
+         * img.src = 'disp.jpg';
+         * effect.map = img;
+         * effect.scale = {x: 0.4};
+         */
+        return {
+            vertex: {
+                attribute: {
+                    a_displacementMapTexCoord: 'vec2'
+                },
+                main: `
+    v_displacementMapTexCoord = a_displacementMapTexCoord;`
+            },
+            fragment: {
+                uniform: {
+                    u_displacementEnabled: 'bool',
+                    u_dispMap: 'sampler2D',
+                    u_dispScale: 'vec2'
+                },
+                source: `
+    if (u_displacementEnabled) {
+        vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb - 0.5;
+        vec2 dispVec = vec2(v_texCoord.x + u_dispScale.x * dispMap.r, v_texCoord.y + u_dispScale.y * dispMap.g);
+        sourceCoord = clamp(dispVec, 0.0, 1.0);
+    }`
+            },
+            get disabled () {
+                return !this.uniforms[0].data[0];
+            },
+            set disabled (b) {
+                return this.uniforms[0].data[0] = +!b;
+            },
+            get scale () {
+                const [x, y] = this.uniforms[2].data;
+                return {x, y};
+            },
+            set scale ({x, y}) {
+                if (typeof x !== 'undefined')
+                    this.uniforms[2].data[0] = x;
+                if (typeof y !== 'undefined')
+                    this.uniforms[2].data[1] = y;
+            },
+            get map () {
+                return this.textures[0].image;
+            },
+            set map (img) {
+                this.textures[0].image = img;
+            },
+            varying: {
+                v_displacementMapTexCoord: 'vec2'
+            },
+            uniforms: [
+                {
+                    name: 'u_displacementEnabled',
+                    type: 'i',
+                    data: [1]
+                },
+                {
+                    name: 'u_dispMap',
+                    type: 'i',
+                    data: [1]
+                },
+                {
+                    name: 'u_dispScale',
+                    type: 'f',
+                    data: [0.0, 0.0]
+                }
+            ],
+            attributes: [
+                {
+                    name: 'a_displacementMapTexCoord',
+                    data: new Float32Array([
+                        0.0, 0.0,
+                        0.0, 1.0,
+                        1.0, 0.0,
+                        1.0, 1.0]),
+                    size: 2,
+                    type: 'FLOAT'
+                }
+            ],
+            textures: [
+                {
+                    format: 'RGB'
+                }
+            ]
+        };
+    }
+
+    function fade () {
+        return {
+            vertex: {
+                attribute: {
+                    a_transitionToTexCoord: 'vec2'
+                },
+                main: `
+    v_transitionToTexCoord = a_transitionToTexCoord;`
+            },
+            fragment: {
+                uniform: {
+                    u_transitionEnabled: 'bool',
+                    u_transitionTo: 'sampler2D'
+                },
+                main: `
+    if (u_transitionEnabled) {
+        vec4 targetPixel = texture2D(u_transitionTo, v_transitionToTexCoord);
+        color = mix(color, targetPixel.rgb, u_transitionProgress);
+        alpha = mix(alpha, targetPixel.a, u_transitionProgress);
+    }`
+            },
+            get disabled () {
+                return !this.uniforms[0].data[0];
+            },
+            set disabled (b) {
+                this.uniforms[0].data[0] = +!b;
+            },
+            varying: {
+                v_transitionToTexCoord: 'vec2'
+            },
+            uniforms: [
+                {
+                    name: 'u_transitionEnabled',
+                    type: 'i',
+                    data: [1]
+                },
+                {
+                    name: 'u_transitionTo',
+                    type: 'i',
+                    data: [1]
+                },
+                {
+                    name: 'u_transitionProgress',
+                    type: 'f',
+                    data: [0]
+                }
+            ],
+            attributes: [
+                {
+                    name: 'a_transitionToTexCoord',
+                    data: new Float32Array([
+                        0.0, 0.0,
+                        0.0, 1.0,
+                        1.0, 0.0,
+                        1.0, 1.0]),
+                    size: 2,
+                    type: 'FLOAT'
+                }
+            ],
+            textures: [
+                {
+                    format: 'RGBA',
+                    update: true
+                }
+            ]
+        };
+    }
+
+    function displacementTransition () {
+        return {
+            vertex: {
+                attribute: {
+                    a_transitionToTexCoord: 'vec2',
+                    a_transitionDispMapTexCoord: 'vec2'
+                },
+                main: `
+    v_transitionToTexCoord = a_transitionToTexCoord;
+    v_transitionDispMapTexCoord = a_transitionDispMapTexCoord;`
+            },
+            fragment: {
+                uniform: {
+                    u_transitionEnabled: 'bool',
+                    u_transitionTo: 'sampler2D',
+                    u_transitionDispMap: 'sampler2D',
+                    u_transitionProgress: 'float',
+                    u_sourceDispScale: 'vec2',
+                    u_toDispScale: 'vec2'
+                },
+                source: `
+    vec3 transDispMap = vec3(1.0);
+    vec2 transDispVec = vec2(0.0);
+
+    if (u_transitionEnabled) {
+        // read the displacement texture once and create the displacement map
+        transDispMap = texture2D(u_transitionDispMap, v_transitionDispMapTexCoord).rgb - 0.5;
+
+        // prepare the source coordinates for sampling
+        transDispVec = vec2(u_sourceDispScale.x * transDispMap.r, u_sourceDispScale.y * transDispMap.g);
+        sourceCoord = clamp(v_texCoord + transDispVec * u_transitionProgress, 0.0, 1.0);
+    }`,
+                main: `
+    if (u_transitionEnabled) {
+        // prepare the target coordinates for sampling
+        transDispVec = vec2(u_toDispScale.x * transDispMap.r, u_toDispScale.y * transDispMap.g);
+        vec2 targetCoord = clamp(v_transitionToTexCoord + transDispVec * (1.0 - u_transitionProgress), 0.0, 1.0);
+
+        // sample the target
+        vec4 targetPixel = texture2D(u_transitionTo, targetCoord);
+
+        // mix the results of source and target
+        color = mix(color, targetPixel.rgb, u_transitionProgress);
+        alpha = mix(alpha, targetPixel.a, u_transitionProgress);
+    }`
+            },
+            get disabled () {
+                return !this.uniforms[0].data[0];
+            },
+            set disabled (b) {
+                this.uniforms[0].data[0] = +!b;
+            },
+            get progress () {
+                return this.uniforms[3].data[0];
+            },
+            set progress (p) {
+                this.uniforms[3].data[0] = p;
+            },
+            get sourceScale () {
+                const [x, y] = this.uniforms[4].data;
+                return {x, y};
+            },
+            set sourceScale ({x, y}) {
+                if (typeof x !== 'undefined')
+                    this.uniforms[4].data[0] = x;
+                if (typeof y !== 'undefined')
+                    this.uniforms[4].data[1] = y;
+            },
+            get toScale () {
+                const [x, y] = this.uniforms[5].data;
+                return {x, y};
+            },
+            set toScale ({x, y}) {
+                if (typeof x !== 'undefined')
+                    this.uniforms[5].data[0] = x;
+                if (typeof y !== 'undefined')
+                    this.uniforms[5].data[1] = y;
+            },
+            varying: {
+                v_transitionToTexCoord: 'vec2',
+                v_transitionDispMapTexCoord: 'vec2'
+            },
+            uniforms: [
+                {
+                    name: 'u_transitionEnabled',
+                    type: 'i',
+                    data: [1]
+                },
+                {
+                    name: 'u_transitionTo',
+                    type: 'i',
+                    data: [1]
+                },
+                {
+                    name: 'u_transitionDispMap',
+                    type: 'i',
+                    data: [2]
+                },
+                {
+                    name: 'u_transitionProgress',
+                    type: 'f',
+                    data: [0]
+                },
+                {
+                    name: 'u_sourceDispScale',
+                    type: 'f',
+                    data: [0.0, 0.0]
+                },
+                {
+                    name: 'u_toDispScale',
+                    type: 'f',
+                    data: [0.0, 0.0]
+                }
+            ],
+            attributes: [
+                {
+                    name: 'a_transitionToTexCoord',
+                    data: new Float32Array([
+                        0.0, 0.0,
+                        0.0, 1.0,
+                        1.0, 0.0,
+                        1.0, 1.0]),
+                    size: 2,
+                    type: 'FLOAT'
+                },
+                {
+                    name: 'a_transitionDispMapTexCoord',
+                    data: new Float32Array([
+                        0.0, 0.0,
+                        0.0, 1.0,
+                        1.0, 0.0,
+                        1.0, 1.0]),
+                    size: 2,
+                    type: 'FLOAT'
+                }
+            ],
+            textures: [
+                {
+                    format: 'RGBA',
+                    update: true
+                },
+                {
+                    format: 'RGB'
                 }
             ]
         };
@@ -396,7 +733,8 @@ void main() {
         uniform = '',
         varying = '',
         constant = '',
-        main = ''
+        main = '',
+        source = ''
     }) => `
 precision mediump float;
 ${varying}
@@ -407,7 +745,9 @@ uniform sampler2D u_source;
 const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);
 ${constant}
 void main() {
-    vec4 pixel = texture2D(u_source, v_texCoord);
+    vec2 sourceCoord = v_texCoord;
+    ${source}
+    vec4 pixel = texture2D(u_source, sourceCoord);
     vec3 color = pixel.rgb;
     float alpha = pixel.a;
     ${main}
@@ -522,7 +862,18 @@ void main() {
         if ( textures ) {
             for ( let i = -1; i < textures.length; i++ ) {
                 gl.activeTexture(gl.TEXTURE0 + (i + 1));
-                gl.bindTexture(gl.TEXTURE_2D, i === -1 ? source.texture : textures[i].texture);
+
+                if (i === -1) {
+                    gl.bindTexture(gl.TEXTURE_2D, source.texture);
+                }
+                else {
+                    const tex = textures[i];
+                    gl.bindTexture(gl.TEXTURE_2D, tex.texture);
+
+                    if (tex.update) {
+                        gl.texImage2D(gl.TEXTURE_2D, 0,gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.image);
+                    }
+                }
             }
         }
 
@@ -565,14 +916,14 @@ void main() {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
 
         const data = _mergeEffectsData(effects);
-        const vertexSrc = _stringifyShaderSrc(data.vertexSrc, vertexTemplate);
-        const fragmentSrc = _stringifyShaderSrc(data.fragmentSrc, fragmentTemplate);
+        const vertexSrc = _stringifyShaderSrc(data.vertex, vertexTemplate);
+        const fragmentSrc = _stringifyShaderSrc(data.fragment, fragmentTemplate);
 
         // compile the GLSL program
         const {program, vertexShader, fragmentShader, error, type} = _getWebGLProgram(gl, vertexSrc, fragmentSrc);
 
         if ( error ) {
-            throw new Error(`${type} error:: ${error}`);
+            throw new Error(`${type} error:: ${error}\n${fragmentSrc}`);
         }
 
         // setup the vertex data
@@ -596,7 +947,7 @@ void main() {
         return effects.reduce((result, config) => {
             const {attributes = [], uniforms = [], textures = [], varying = {}} = config;
             const merge = shader => Object.keys(config[shader]).forEach(key => {
-                if ( key === 'constant' || key === 'main' ) {
+                if ( key === 'constant' || key === 'main' || key === 'source' ) {
                     result[shader][key] += config[shader][key] + '\n';
                 }
                 else {
@@ -604,8 +955,8 @@ void main() {
                 }
             });
 
-            merge('vertexSrc');
-            merge('fragmentSrc');
+            merge('vertex');
+            merge('fragment');
 
             attributes.forEach(attribute => {
                 const found = result.attributes.some((attr, n) => {
@@ -623,23 +974,24 @@ void main() {
             result.uniforms.push(...uniforms);
             result.textures.push(...textures);
 
-            Object.assign(result.vertexSrc.varying, varying);
-            Object.assign(result.fragmentSrc.varying, varying);
+            Object.assign(result.vertex.varying, varying);
+            Object.assign(result.fragment.varying, varying);
 
             return result;
         }, {
-            vertexSrc: {
+            vertex: {
                 uniform: {},
                 attribute: {},
                 varying: {},
                 constant: '',
                 main: ''
             },
-            fragmentSrc: {
+            fragment: {
                 uniform: {},
                 varying: {},
                 constant: '',
-                main: ''
+                main: '',
+                source: ''
             },
             /*
              * Default attributes
@@ -672,7 +1024,6 @@ void main() {
             uniforms: [
                 {
                     name: 'u_source',
-                    size: 1,
                     type: 'i',
                     data: [0]
                 }
@@ -795,7 +1146,7 @@ void main() {
             gl.texImage2D(gl.TEXTURE_2D, 0, gl[format], width, height, 0, gl[format], gl.UNSIGNED_BYTE, null);
         }
 
-        return {texture, width, height};
+        return {texture, width, height, format};
     }
 
     function _createBuffer (gl, program, name, data) {
@@ -828,7 +1179,7 @@ void main() {
 
             return {
                 location,
-                size: uniform.size,
+                size: uniform.size || uniform.data.length,
                 type: uniform.type,
                 data: uniform.data
             };
@@ -925,6 +1276,7 @@ void main() {
 
             if ( ! ~ index ) {
                 this.pool.push(instance);
+                instance.playing = true;
             }
         }
 
@@ -938,6 +1290,7 @@ void main() {
 
             if ( ~ index ) {
                 this.pool.splice(index, 1);
+                instance.playing = false;
             }
         }
     }
@@ -1074,6 +1427,8 @@ void main() {
 
         /**
          * Starts the animation loop.
+         *
+         * If using a {@see Ticker} this instance will be added to that {@see Ticker}.
          */
         play () {
             if ( this.ticker ) {
@@ -1099,6 +1454,8 @@ void main() {
 
         /**
          * Stops the animation loop.
+         *
+         * If using a {@see Ticker} this instance will be removed from that {@see Ticker}.
          */
         stop () {
             if ( this.animationFrameId ) {
@@ -1172,12 +1529,16 @@ void main() {
 
         _createTextures () {
             this.data && this.data.textures.forEach((texture, i) => {
-                this.data.textures[i].texture = core.createTexture(this.gl, {
+                const data = this.data.textures[i];
+                data.texture = core.createTexture(this.gl, {
                     width: this.dimensions.width,
                     height: this.dimensions.height,
                     format: texture.format,
                     data: texture.image
                 }).texture;
+
+                data.format = texture.format;
+                data.update = texture.update;
             });
         }
     }
@@ -1187,7 +1548,12 @@ void main() {
             alphaMask,
             brightnessContrast,
             hueSaturation,
-            duotone
+            duotone,
+            displacement
+        },
+        transitions: {
+            fade,
+            displacement: displacementTransition
         },
         Kampos,
         Ticker
