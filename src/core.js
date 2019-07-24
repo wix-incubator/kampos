@@ -71,12 +71,16 @@ function init (gl, effects, dimensions) {
     return {gl, data: programData, dimensions: dimensions || {}};
 }
 
+let WEBGL_CONTEXT_SUPPORTED = false;
+
 /**
  * Get a webgl context for the given canvas element.
  *
+ * Will return `null` if can not get a context.
+ *
  * @private
  * @param {HTMLCanvasElement} canvas
- * @return {WebGLRenderingContext}
+ * @return {WebGLRenderingContext|null}
  */
 function getWebGLContext (canvas) {
     let context;
@@ -90,8 +94,14 @@ function getWebGLContext (canvas) {
 
     context = canvas.getContext('webgl', config);
 
-    if ( ! context ) {
+    if ( context ) {
+        WEBGL_CONTEXT_SUPPORTED = true;
+    }
+    else if ( ! WEBGL_CONTEXT_SUPPORTED ) {
         context = canvas.getContext('experimental-webgl', config);
+    }
+    else {
+        return null;
     }
 
     return context;
@@ -164,14 +174,14 @@ function draw (gl, media, data, dimensions) {
         for ( let i = -1; i < textures.length; i++ ) {
             gl.activeTexture(gl.TEXTURE0 + (i + 1));
 
-            if (i === -1) {
+            if ( i === -1 ) {
                 gl.bindTexture(gl.TEXTURE_2D, source.texture);
             }
             else {
                 const tex = textures[i];
                 gl.bindTexture(gl.TEXTURE_2D, tex.texture);
 
-                if (tex.update) {
+                if ( tex.update ) {
                     gl.texImage2D(gl.TEXTURE_2D, 0,gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.image);
                 }
             }

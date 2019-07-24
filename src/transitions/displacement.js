@@ -83,9 +83,9 @@ export default function () {
             return {x, y};
         },
         set sourceScale ({x, y}) {
-            if (typeof x !== 'undefined')
+            if ( typeof x !== 'undefined' )
                 this.uniforms[4].data[0] = x;
-            if (typeof y !== 'undefined')
+            if ( typeof y !== 'undefined' )
                 this.uniforms[4].data[1] = y;
         },
         get toScale () {
@@ -93,9 +93,9 @@ export default function () {
             return {x, y};
         },
         set toScale ({x, y}) {
-            if (typeof x !== 'undefined')
+            if ( typeof x !== 'undefined' )
                 this.uniforms[5].data[0] = x;
-            if (typeof y !== 'undefined')
+            if ( typeof y !== 'undefined' )
                 this.uniforms[5].data[1] = y;
         },
         get to () {

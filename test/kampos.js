@@ -320,5 +320,47 @@ describe('kampos', function() {
             canvas = null;
             video = null;
         });
-    })
+    });
+
+    describe('Kampos#_contextCreationError', function () {
+        let canvas, video;
+
+        beforeEach(function () {
+            canvas = {
+                getContext() {
+                    return null;
+                },
+                addEventListener() {}
+            };
+            video = document.createElement('video');
+        });
+
+        it('should bail out when getContext() fails', function () {
+            assert.throws(() => new Kampos({target: canvas, effects: [brightnessContrast]}));
+        });
+
+        it('should bail out when preventContextCreation is true', function () {
+            canvas = document.createElement('canvas');
+
+            Kampos.preventContextCreation = true;
+
+            assert.throws(() => new Kampos({target: canvas, effects: [brightnessContrast]}));
+        });
+
+        it('should bail out after context creation error event was fired', function () {
+            canvas = document.createElement('canvas');
+
+            const instance = new Kampos({target: canvas, effects: [brightnessContrast]});
+
+            instance._contextCreationError();
+
+            assert.throws(() => new Kampos({target: canvas, effects: [brightnessContrast]}));
+        });
+
+        afterEach(function () {
+            Kampos.preventContextCreation = false;
+            canvas = null;
+            video = null;
+        });
+    });
 });

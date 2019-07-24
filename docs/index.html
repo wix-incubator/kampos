@@ -458,7 +458,7 @@ This is called inside the constructor,
 but can be called again after effects have changed
 or after <a href="Kampos#desotry()">Kampos#desotry()</a>.</p>
 
-    <div class='pre p1 fill-light mt0'>init(config: <a href="#kamposconfig">kamposConfig</a>?)</div>
+    <div class='pre p1 fill-light mt0'>init(config: <a href="#kamposconfig">kamposConfig</a>?): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
   
   
 
@@ -488,6 +488,14 @@ or after <a href="Kampos#desotry()">Kampos#desotry()</a>.</p>
 
   
 
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>:
+        success whether initializing of the context and program were successful
+
+      
+    
   
 
   
@@ -792,7 +800,7 @@ kampos.setSource(media);</pre>
   <p>Restore a lost WebGL context fot the given target.
 This will replace canvas DOM element with a fresh clone.</p>
 
-    <div class='pre p1 fill-light mt0'>restoreContext()</div>
+    <div class='pre p1 fill-light mt0'>restoreContext(): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
   
   
 
@@ -807,6 +815,14 @@ This will replace canvas DOM element with a fresh clone.</p>
 
   
 
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>:
+        success whether forcing a context restore was successful
+
+      
+    
   
 
   
@@ -1202,6 +1218,24 @@ This will replace canvas DOM element with a fresh clone.</p>
       
         <div class='space-bottom0'>
           <span class='code bold'>ticker</span> <code class='quiet'>(<a href="#ticker">Ticker</a>?)</code>
+          
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>onContextLost</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function">function</a>?)</code>
+          
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>onContextRestored</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function">function</a>?)</code>
+          
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>onContextCreationError</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function">function</a>?)</code>
           
           
         </div>

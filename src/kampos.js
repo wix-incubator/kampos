@@ -18,13 +18,37 @@ class Kampos {
      * @constructor
      */
     constructor (config) {
-        this.init(config);
+        if ( ! config || ! config.target ) {
+            throw new Error('A target canvas was not provided');
+        }
+
+        if ( Kampos.preventContextCreation )
+            throw new Error('Context creation is prevented');
+
+        this._contextCreationError = function () {
+            Kampos.preventContextCreation = true;
+
+            if ( config && config.onContextCreationError ) {
+                config.onContextCreationError.call(this, config);
+            }
+        };
+
+        config.target.addEventListener('webglcontextcreationerror', this._contextCreationError, false);
+
+        const success = this.init(config);
+
+        if ( ! success )
+            throw new Error('Could not create context');
 
         this._restoreContext = (e) => {
             e && e.preventDefault();
+
             this.config.target.removeEventListener('webglcontextrestored', this._restoreContext, true);
 
-            this.init();
+            const success = this.init();
+
+            if ( ! success )
+                return false;
 
             if ( this._source ) {
                 this.setSource(this._source);
@@ -32,15 +56,17 @@ class Kampos {
 
             delete this._source;
 
-            if (config && config.onContextRestored) {
+            if ( config && config.onContextRestored ) {
                 config.onContextRestored.call(this, config);
             }
+
+            return true;
         };
 
         this._loseContext = (e) => {
             e.preventDefault();
 
-            if (this.gl && this.gl.isContextLost()) {
+            if ( this.gl && this.gl.isContextLost() ) {
 
                 this.lostContext = true;
 
@@ -48,7 +74,7 @@ class Kampos {
 
                 this.destroy(true);
 
-                if (config && config.onContextLost) {
+                if ( config && config.onContextLost ) {
                     config.onContextLost.call(this, config);
                 }
             }
@@ -64,19 +90,33 @@ class Kampos {
      * or after {@link Kampos#desotry()}.
      *
      * @param {kamposConfig} [config] defaults to `this.config`
+     * @return {boolean} success whether initializing of the context and program were successful
      */
     init (config) {
         config = config || this.config;
         let {target, effects, ticker} = config;
 
+        if ( Kampos.preventContextCreation )
+            return false;
+
         this.lostContext = false;
 
         let gl = core.getWebGLContext(target);
 
-        if (gl.isContextLost()) {
-            this.restoreContext();
+        if ( ! gl )
+            return false;
+
+        if ( gl.isContextLost() ) {
+            const success = this.restoreContext();
+
+            if ( ! success )
+                return false;
+
             // get new context from the fresh clone
             gl = core.getWebGLContext(this.config.target);
+
+            if ( ! gl )
+                return false;
         }
 
         const {data} = core.init(gl, effects, this.dimensions);
@@ -91,6 +131,8 @@ class Kampos {
             this.ticker = ticker;
             ticker.add(this);
         }
+
+        return true;
     }
 
     /**
@@ -105,7 +147,9 @@ class Kampos {
         if ( ! source ) return;
 
         if ( this.lostContext ) {
-            this.restoreContext();
+            const success = this.restoreContext();
+
+            if ( ! success ) return;
         }
 
         let media, width, height;
@@ -134,7 +178,9 @@ class Kampos {
      */
     draw () {
         if ( this.lostContext ) {
-            this.restoreContext();
+            const success = this.restoreContext();
+
+            if ( ! success ) return;
         }
 
         core.draw(this.gl, this.media, this.data, this.dimensions);
@@ -207,6 +253,7 @@ class Kampos {
         }
         else {
             this.config.target.removeEventListener('webglcontextlost', this._loseContext, true);
+            this.config.target.removeEventListener('webglcontextcreationerror', this._contextCreationError, false);
 
             this.config = null;
             this.dimensions = null;
@@ -221,8 +268,13 @@ class Kampos {
     /**
      * Restore a lost WebGL context fot the given target.
      * This will replace canvas DOM element with a fresh clone.
+     *
+     * @return {boolean} success whether forcing a context restore was successful
      */
     restoreContext () {
+        if ( Kampos.preventContextCreation )
+            return false;
+
         const canvas = this.config.target;
         const clone = this.config.target.cloneNode(true);
         const parent = canvas.parentNode;
@@ -235,11 +287,15 @@ class Kampos {
 
         canvas.removeEventListener('webglcontextlost', this._loseContext, true);
         canvas.removeEventListener('webglcontextrestored', this._restoreContext, true);
+        canvas.removeEventListener('webglcontextcreationerror', this._contextCreationError, false);
         clone.addEventListener('webglcontextlost', this._loseContext, true);
+        clone.addEventListener('webglcontextcreationerror', this._contextCreationError, false);
 
-        if (this.lostContext) {
-            this._restoreContext();
+        if ( this.lostContext ) {
+            return this._restoreContext();
         }
+
+        return true;
     }
 
     _createTextures () {
@@ -263,6 +319,9 @@ class Kampos {
  * @property {HTMLCanvasElement} target
  * @property {effectConfig[]} effects
  * @property {Ticker} [ticker]
+ * @property {function} [onContextLost]
+ * @property {function} [onContextRestored]
+ * @property {function} [onContextCreationError]
  */
 
 /**

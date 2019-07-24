@@ -312,8 +312,8 @@ const mat3 satmat = mat3(
     function duotone () {
         /**
          * @typedef {Object} duotoneEffect
-         * @property {number} light
-         * @property {number} dark
+         * @property {number[]} light Array of 4 numbers normalized (0.0 - 1.0)
+         * @property {number[]} dark Array of 4 numbers normalized (0.0 - 1.0)
          * @property {boolean} disabled
          *
          * @example
@@ -389,7 +389,7 @@ const mat3 satmat = mat3(
         /**
          * @typedef {Object} displacementEffect
          * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map
-         * @property {{x: {number}, y: {number}} scale
+         * @property {{x: number, y: number}} scale
          * @property {boolean} disabled
          *
          * @example
@@ -430,9 +430,9 @@ const mat3 satmat = mat3(
                 return {x, y};
             },
             set scale ({x, y}) {
-                if (typeof x !== 'undefined')
+                if ( typeof x !== 'undefined' )
                     this.uniforms[2].data[0] = x;
-                if (typeof y !== 'undefined')
+                if ( typeof y !== 'undefined' )
                     this.uniforms[2].data[1] = y;
             },
             get map () {
@@ -481,7 +481,22 @@ const mat3 satmat = mat3(
         };
     }
 
+    /**
+     * @function fadeTransition
+     * @returns {fadeTransitionEffect}
+     * @example fadeTransition()
+     */
     function fade () {
+        /**
+         * @typedef {Object} fadeTransitionEffect
+         * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
+         * @property {number} progress number between 0.0 and 1.0
+         * @property {boolean} disabled
+         *
+         * @example
+         * effect.to = document.querySelector('#video-to');
+         * effect.progress = 0.5;
+         */
         return {
             vertex: {
                 attribute: {
@@ -507,6 +522,12 @@ const mat3 satmat = mat3(
             },
             set disabled (b) {
                 this.uniforms[0].data[0] = +!b;
+            },
+            get to () {
+                return this.textures[0].image;
+            },
+            set to (media) {
+                this.textures[0].image = media;
             },
             varying: {
                 v_transitionToTexCoord: 'vec2'
@@ -549,7 +570,29 @@ const mat3 satmat = mat3(
         };
     }
 
+    /**
+     * @function displacementTransition
+     * @returns {displacementTransitionEffect}
+     * @example displacementTransition()
+     */
     function displacementTransition () {
+        /**
+         * @typedef {Object} displacementTransitionEffect
+         * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
+         * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map displacement map to use
+         * @property {number} progress number between 0.0 and 1.0
+         * @property {{x: number, y: number}} sourceScale
+         * @property {{x: number, y: number}} toScale
+         * @property {boolean} disabled
+         *
+         * @example
+         * const img = new Image();
+         * img.src = 'disp.jpg';
+         * effect.map = img;
+         * effect.to = document.querySelector('#video-to');
+         * effect.sourceScale = {x: 0.4};
+         * effect.toScale = {x: 0.8};
+         */
         return {
             vertex: {
                 attribute: {
@@ -612,9 +655,9 @@ const mat3 satmat = mat3(
                 return {x, y};
             },
             set sourceScale ({x, y}) {
-                if (typeof x !== 'undefined')
+                if ( typeof x !== 'undefined' )
                     this.uniforms[4].data[0] = x;
-                if (typeof y !== 'undefined')
+                if ( typeof y !== 'undefined' )
                     this.uniforms[4].data[1] = y;
             },
             get toScale () {
@@ -622,10 +665,22 @@ const mat3 satmat = mat3(
                 return {x, y};
             },
             set toScale ({x, y}) {
-                if (typeof x !== 'undefined')
+                if ( typeof x !== 'undefined' )
                     this.uniforms[5].data[0] = x;
-                if (typeof y !== 'undefined')
+                if ( typeof y !== 'undefined' )
                     this.uniforms[5].data[1] = y;
+            },
+            get to () {
+                return this.textures[0].image;
+            },
+            set to (media) {
+                this.textures[0].image = media;
+            },
+            get map () {
+                return this.textures[1].image;
+            },
+            set map (img) {
+                this.textures[1].image = img;
             },
             varying: {
                 v_transitionToTexCoord: 'vec2',
@@ -770,12 +825,16 @@ void main() {
         return {gl, data: programData, dimensions: dimensions || {}};
     }
 
+    let WEBGL_CONTEXT_SUPPORTED = false;
+
     /**
      * Get a webgl context for the given canvas element.
      *
+     * Will return `null` if can not get a context.
+     *
      * @private
      * @param {HTMLCanvasElement} canvas
-     * @return {WebGLRenderingContext}
+     * @return {WebGLRenderingContext|null}
      */
     function getWebGLContext (canvas) {
         let context;
@@ -789,8 +848,14 @@ void main() {
 
         context = canvas.getContext('webgl', config);
 
-        if ( ! context ) {
+        if ( context ) {
+            WEBGL_CONTEXT_SUPPORTED = true;
+        }
+        else if ( ! WEBGL_CONTEXT_SUPPORTED ) {
             context = canvas.getContext('experimental-webgl', config);
+        }
+        else {
+            return null;
         }
 
         return context;
@@ -863,14 +928,14 @@ void main() {
             for ( let i = -1; i < textures.length; i++ ) {
                 gl.activeTexture(gl.TEXTURE0 + (i + 1));
 
-                if (i === -1) {
+                if ( i === -1 ) {
                     gl.bindTexture(gl.TEXTURE_2D, source.texture);
                 }
                 else {
                     const tex = textures[i];
                     gl.bindTexture(gl.TEXTURE_2D, tex.texture);
 
-                    if (tex.update) {
+                    if ( tex.update ) {
                         gl.texImage2D(gl.TEXTURE_2D, 0,gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.image);
                     }
                 }
@@ -1300,19 +1365,49 @@ void main() {
      *
      * @class Kampos
      * @param {kamposConfig} config
+     * @example
+     * import {Ticker, Kampos, effects} from 'kampos';
+     * const ticker = new Ticker();
+     * const target = document.querySelector('#canvas');
+     * const hueSat = effects.hueSaturation();
+     * const kampos = new Kampos({ticker, target, effects: [hueSat]});
      */
     class Kampos {
         /**
          * @constructor
          */
         constructor (config) {
-            this.init(config);
+            if ( ! config || ! config.target ) {
+                throw new Error('A target canvas was not provided');
+            }
+
+            if ( Kampos.preventContextCreation )
+                throw new Error('Context creation is prevented');
+
+            this._contextCreationError = function () {
+                Kampos.preventContextCreation = true;
+
+                if ( config && config.onContextCreationError ) {
+                    config.onContextCreationError.call(this, config);
+                }
+            };
+
+            config.target.addEventListener('webglcontextcreationerror', this._contextCreationError, false);
+
+            const success = this.init(config);
+
+            if ( ! success )
+                throw new Error('Could not create context');
 
             this._restoreContext = (e) => {
                 e && e.preventDefault();
+
                 this.config.target.removeEventListener('webglcontextrestored', this._restoreContext, true);
 
-                this.init();
+                const success = this.init();
+
+                if ( ! success )
+                    return false;
 
                 if ( this._source ) {
                     this.setSource(this._source);
@@ -1320,15 +1415,17 @@ void main() {
 
                 delete this._source;
 
-                if (config && config.onContextRestored) {
+                if ( config && config.onContextRestored ) {
                     config.onContextRestored.call(this, config);
                 }
+
+                return true;
             };
 
             this._loseContext = (e) => {
                 e.preventDefault();
 
-                if (this.gl && this.gl.isContextLost()) {
+                if ( this.gl && this.gl.isContextLost() ) {
 
                     this.lostContext = true;
 
@@ -1336,7 +1433,7 @@ void main() {
 
                     this.destroy(true);
 
-                    if (config && config.onContextLost) {
+                    if ( config && config.onContextLost ) {
                         config.onContextLost.call(this, config);
                     }
                 }
@@ -1352,19 +1449,33 @@ void main() {
          * or after {@link Kampos#desotry()}.
          *
          * @param {kamposConfig} [config] defaults to `this.config`
+         * @return {boolean} success whether initializing of the context and program were successful
          */
         init (config) {
             config = config || this.config;
             let {target, effects, ticker} = config;
 
+            if ( Kampos.preventContextCreation )
+                return false;
+
             this.lostContext = false;
 
             let gl = core.getWebGLContext(target);
 
-            if (gl.isContextLost()) {
-                this.restoreContext();
+            if ( ! gl )
+                return false;
+
+            if ( gl.isContextLost() ) {
+                const success = this.restoreContext();
+
+                if ( ! success )
+                    return false;
+
                 // get new context from the fresh clone
                 gl = core.getWebGLContext(this.config.target);
+
+                if ( ! gl )
+                    return false;
             }
 
             const {data} = core.init(gl, effects, this.dimensions);
@@ -1379,18 +1490,25 @@ void main() {
                 this.ticker = ticker;
                 ticker.add(this);
             }
+
+            return true;
         }
 
         /**
          * Set the source config.
          *
          * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap|kamposSource} source
+         * @example
+         * const media = document.querySelector('#video');
+         * kampos.setSource(media);
          */
         setSource (source) {
             if ( ! source ) return;
 
             if ( this.lostContext ) {
-                this.restoreContext();
+                const success = this.restoreContext();
+
+                if ( ! success ) return;
             }
 
             let media, width, height;
@@ -1419,7 +1537,9 @@ void main() {
          */
         draw () {
             if ( this.lostContext ) {
-                this.restoreContext();
+                const success = this.restoreContext();
+
+                if ( ! success ) return;
             }
 
             core.draw(this.gl, this.media, this.data, this.dimensions);
@@ -1492,6 +1612,7 @@ void main() {
             }
             else {
                 this.config.target.removeEventListener('webglcontextlost', this._loseContext, true);
+                this.config.target.removeEventListener('webglcontextcreationerror', this._contextCreationError, false);
 
                 this.config = null;
                 this.dimensions = null;
@@ -1506,8 +1627,13 @@ void main() {
         /**
          * Restore a lost WebGL context fot the given target.
          * This will replace canvas DOM element with a fresh clone.
+         *
+         * @return {boolean} success whether forcing a context restore was successful
          */
         restoreContext () {
+            if ( Kampos.preventContextCreation )
+                return false;
+
             const canvas = this.config.target;
             const clone = this.config.target.cloneNode(true);
             const parent = canvas.parentNode;
@@ -1520,11 +1646,15 @@ void main() {
 
             canvas.removeEventListener('webglcontextlost', this._loseContext, true);
             canvas.removeEventListener('webglcontextrestored', this._restoreContext, true);
+            canvas.removeEventListener('webglcontextcreationerror', this._contextCreationError, false);
             clone.addEventListener('webglcontextlost', this._loseContext, true);
+            clone.addEventListener('webglcontextcreationerror', this._contextCreationError, false);
 
-            if (this.lostContext) {
-                this._restoreContext();
+            if ( this.lostContext ) {
+                return this._restoreContext();
             }
+
+            return true;
         }
 
         _createTextures () {

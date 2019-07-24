@@ -48,9 +48,9 @@ export default function () {
             return {x, y};
         },
         set scale ({x, y}) {
-            if (typeof x !== 'undefined')
+            if ( typeof x !== 'undefined' )
                 this.uniforms[2].data[0] = x;
-            if (typeof y !== 'undefined')
+            if ( typeof y !== 'undefined' )
                 this.uniforms[2].data[1] = y;
         },
         get map () {
