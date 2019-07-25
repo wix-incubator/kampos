@@ -32,10 +32,10 @@ kampos.play();
 ```
 
 ## Demo
-Watch a [live demo]().
+Watch a [live demo](https://wix-incubator.github.io/kampos/demo/).
 
 ## Documentation
-For API reference and examples read [the docs]().
+For API reference and examples read [the docs](https://wix-incubator.github.io/kampos/docs/).
 
 ## Getting started
 Grab the source from here, or install via package manager.
@@ -52,7 +52,9 @@ import {Kampos, Ticker, effects, transitions} from 'kampos';
 
 Or just what you need:
 ```
-import {Kampos} from 'node_modules/kampos/src/
+import {Kampos} from './node_modules/kampos/src/kampos';
+import duotone from './node_modules/kampos/src/effects/duotone';
+import displacement from './node_modules/kampos/src/effects/displacement';
 ```
 
 ## Building locally
