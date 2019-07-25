@@ -923,38 +923,71 @@ void main() {
    }
 
    /**
-    * @function alphaMask
-    * @returns {alphaMaskEffect}
-    * @example alphaMask()
+    * @function displacementTransition
+    * @returns {displacementTransitionEffect}
+    * @example displacementTransition()
     */
-   function alphaMask () {
+   function transitionDisplacement () {
        /**
-        * @typedef {Object} alphaMaskEffect
-        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} mask
+        * @typedef {Object} displacementTransitionEffect
+        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
+        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map displacement map to use
+        * @property {number} progress number between 0.0 and 1.0
+        * @property {{x: number, y: number}} sourceScale
+        * @property {{x: number, y: number}} toScale
         * @property {boolean} disabled
         *
         * @example
         * const img = new Image();
-        * img.src = 'picture.png';
-        * effect.mask = img;
-        * effect.disabled = true;
+        * img.src = 'disp.jpg';
+        * effect.map = img;
+        * effect.to = document.querySelector('#video-to');
+        * effect.sourceScale = {x: 0.4};
+        * effect.toScale = {x: 0.8};
         */
        return {
            vertex: {
                attribute: {
-                   a_alphaMaskTexCoord: 'vec2'
+                   a_transitionToTexCoord: 'vec2',
+                   a_transitionDispMapTexCoord: 'vec2'
                },
                main: `
-    v_alphaMaskTexCoord = a_alphaMaskTexCoord;`
+    v_transitionToTexCoord = a_transitionToTexCoord;
+    v_transitionDispMapTexCoord = a_transitionDispMapTexCoord;`
            },
            fragment: {
                uniform: {
-                   u_alphaMaskEnabled: 'bool',
-                   u_mask: 'sampler2D'
+                   u_transitionEnabled: 'bool',
+                   u_transitionTo: 'sampler2D',
+                   u_transitionDispMap: 'sampler2D',
+                   u_transitionProgress: 'float',
+                   u_sourceDispScale: 'vec2',
+                   u_toDispScale: 'vec2'
                },
+               source: `
+    vec3 transDispMap = vec3(1.0);
+    vec2 transDispVec = vec2(0.0);
+
+    if (u_transitionEnabled) {
+        // read the displacement texture once and create the displacement map
+        transDispMap = texture2D(u_transitionDispMap, v_transitionDispMapTexCoord).rgb - 0.5;
+
+        // prepare the source coordinates for sampling
+        transDispVec = vec2(u_sourceDispScale.x * transDispMap.r, u_sourceDispScale.y * transDispMap.g);
+        sourceCoord = clamp(v_texCoord + transDispVec * u_transitionProgress, 0.0, 1.0);
+    }`,
                main: `
-    if (u_alphaMaskEnabled) {
-        alpha *= texture2D(u_mask, v_alphaMaskTexCoord).a;
+    if (u_transitionEnabled) {
+        // prepare the target coordinates for sampling
+        transDispVec = vec2(u_toDispScale.x * transDispMap.r, u_toDispScale.y * transDispMap.g);
+        vec2 targetCoord = clamp(v_transitionToTexCoord + transDispVec * (1.0 - u_transitionProgress), 0.0, 1.0);
+
+        // sample the target
+        vec4 targetPixel = texture2D(u_transitionTo, targetCoord);
+
+        // mix the results of source and target
+        color = mix(color, targetPixel.rgb, u_transitionProgress);
+        alpha = mix(alpha, targetPixel.a, u_transitionProgress);
     }`
            },
            get disabled () {
@@ -963,30 +996,93 @@ void main() {
            set disabled (b) {
                this.uniforms[0].data[0] = +!b;
            },
-           get mask () {
+           get progress () {
+               return this.uniforms[3].data[0];
+           },
+           set progress (p) {
+               this.uniforms[3].data[0] = p;
+           },
+           get sourceScale () {
+               const [x, y] = this.uniforms[4].data;
+               return {x, y};
+           },
+           set sourceScale ({x, y}) {
+               if ( typeof x !== 'undefined' )
+                   this.uniforms[4].data[0] = x;
+               if ( typeof y !== 'undefined' )
+                   this.uniforms[4].data[1] = y;
+           },
+           get toScale () {
+               const [x, y] = this.uniforms[5].data;
+               return {x, y};
+           },
+           set toScale ({x, y}) {
+               if ( typeof x !== 'undefined' )
+                   this.uniforms[5].data[0] = x;
+               if ( typeof y !== 'undefined' )
+                   this.uniforms[5].data[1] = y;
+           },
+           get to () {
                return this.textures[0].image;
            },
-           set mask (img) {
-               this.textures[0].image = img;
+           set to (media) {
+               this.textures[0].image = media;
+           },
+           get map () {
+               return this.textures[1].image;
+           },
+           set map (img) {
+               this.textures[1].image = img;
            },
            varying: {
-               v_alphaMaskTexCoord: 'vec2'
+               v_transitionToTexCoord: 'vec2',
+               v_transitionDispMapTexCoord: 'vec2'
            },
            uniforms: [
                {
-                   name: 'u_alphaMaskEnabled',
+                   name: 'u_transitionEnabled',
                    type: 'i',
                    data: [1]
                },
                {
-                   name: 'u_mask',
+                   name: 'u_transitionTo',
                    type: 'i',
                    data: [1]
+               },
+               {
+                   name: 'u_transitionDispMap',
+                   type: 'i',
+                   data: [2]
+               },
+               {
+                   name: 'u_transitionProgress',
+                   type: 'f',
+                   data: [0]
+               },
+               {
+                   name: 'u_sourceDispScale',
+                   type: 'f',
+                   data: [0.0, 0.0]
+               },
+               {
+                   name: 'u_toDispScale',
+                   type: 'f',
+                   data: [0.0, 0.0]
                }
            ],
            attributes: [
                {
-                   name: 'a_alphaMaskTexCoord',
+                   name: 'a_transitionToTexCoord',
+                   data: new Float32Array([
+                       0.0, 0.0,
+                       0.0, 1.0,
+                       1.0, 0.0,
+                       1.0, 1.0]),
+                   size: 2,
+                   type: 'FLOAT'
+               },
+               {
+                   name: 'a_transitionDispMapTexCoord',
                    data: new Float32Array([
                        0.0, 0.0,
                        0.0, 1.0,
@@ -998,589 +1094,217 @@ void main() {
            ],
            textures: [
                {
-                   format: 'ALPHA'
+                   format: 'RGBA',
+                   update: true
+               },
+               {
+                   format: 'RGB'
                }
            ]
        };
    }
 
-   /**
-    * @function brightnessContrast
-    * @returns {brightnessContrastEffect}
-    * @example brightnessContrast()
-    */
-   function brightnessContrast () {
-       /**
-        * @typedef {Object} brightnessContrastEffect
-        * @property {number} brightness
-        * @property {number} contrast
-        * @property {boolean} brightnessDisabled
-        * @property {boolean} contrastDisabled
-        *
-        * @example
-        * effect.brightness = 1.5;
-        * effect.contrast = 0.9;
-        * effect.contrastDisabled = true;
-        */
-       return {
-           vertex: {},
-           fragment: {
-               uniform: {
-                   u_brEnabled: 'bool',
-                   u_ctEnabled: 'bool',
-                   u_contrast: 'float',
-                   u_brightness: 'float'
-               },
-               constant: 'const vec3 half3 = vec3(0.5);',
-               main: `
-    if (u_brEnabled) {
-        color *= u_brightness;
-    }
-
-    if (u_ctEnabled) {
-        color = (color - half3) * u_contrast + half3;
-    }
-
-    color = clamp(color, 0.0, 1.0);`
-           },
-           get brightness () {
-               return this.uniforms[2].data[0];
-           },
-           set brightness (value) {
-               this.uniforms[2].data[0] = parseFloat(Math.max(0, value));
-           },
-           get contrast () {
-               return this.uniforms[3].data[0];
-           },
-           set contrast (value) {
-               this.uniforms[3].data[0] = parseFloat(Math.max(0, value));
-           },
-           get brightnessDisabled () {
-               return !this.uniforms[0].data[0];
-           },
-           set brightnessDisabled (toggle) {
-               this.uniforms[0].data[0] = +!toggle;
-           },
-           get contrastDisabled () {
-               return !this.uniforms[1].data[0];
-           },
-           set contrastDisabled (toggle) {
-               this.uniforms[1].data[0] = +!toggle;
-           },
-           uniforms: [
-               {
-                   name: 'u_brEnabled',
-                   type: 'i',
-                   data: [1]
-               },
-               {
-                   name: 'u_ctEnabled',
-                   type: 'i',
-                   data: [1]
-               },
-               {
-                   name: 'u_brightness',
-                   type: 'f',
-                   data: [1.0]
-               },
-               {
-                   name: 'u_contrast',
-                   type: 'f',
-                   data: [1.0]
-               }
-           ]
-       };
-   }
-
-   /**
-    * @function hueSaturation
-    * @returns {hueSaturationEffect}
-    * @example hueSaturation()
-    */
-   function hueSaturation () {
-       /**
-        * @typedef {Object} hueSaturationEffect
-        * @property {number} hue
-        * @property {number} saturation
-        * @property {boolean} hueDisabled
-        * @property {boolean} saturationDisabled
-        *
-        * @example
-        * effect.hue = 45;
-        * effect.saturation = 0.8;
-        */
-       return {
-           vertex: {
-               uniform: {
-                   u_hue: 'float',
-                   u_saturation: 'float'
-               },
-               // for implementation see: https://www.w3.org/TR/SVG11/filters.html#feColorMatrixElement
-               constant: `
-const mat3 lummat = mat3(
-    lumcoeff,
-    lumcoeff,
-    lumcoeff
-);
-const mat3 cosmat = mat3(
-    vec3(0.787, -0.715, -0.072),
-    vec3(-0.213, 0.285, -0.072),
-    vec3(-0.213, -0.715, 0.928)
-);
-const mat3 sinmat = mat3(
-    vec3(-0.213, -0.715, 0.928),
-    vec3(0.143, 0.140, -0.283),
-    vec3(-0.787, 0.715, 0.072)
-);
-const mat3 satmat = mat3(
-    vec3(0.787, -0.715, -0.072),
-    vec3(-0.213, 0.285, -0.072),
-    vec3(-0.213, -0.715, 0.928)
-);`,
-               main: `
-    float angle = (u_hue / 180.0) * 3.14159265358979323846264;
-    v_hueRotation = lummat + cos(angle) * cosmat + sin(angle) * sinmat;
-    v_saturation = lummat + satmat * u_saturation;`
-           },
-           fragment: {
-               uniform: {
-                   u_hueEnabled: 'bool',
-                   u_satEnabled: 'bool',
-                   u_hue: 'float',
-                   u_saturation: 'float'
-               },
-               main: `
-    if (u_hueEnabled) {
-        color = vec3(
-            dot(color, v_hueRotation[0]),
-            dot(color, v_hueRotation[1]),
-            dot(color, v_hueRotation[2])
-        );
-    }
-
-    if (u_satEnabled) {
-        color = vec3(
-            dot(color, v_saturation[0]),
-            dot(color, v_saturation[1]),
-            dot(color, v_saturation[2])
-        );
-    }
-    
-    color = clamp(color, 0.0, 1.0);`
-           },
-           varying: {
-               v_hueRotation: 'mat3',
-               v_saturation: 'mat3'
-           },
-
-           get hue () {
-               return this.uniforms[2].data[0];
-           },
-           set hue (h) {
-               this.uniforms[2].data[0] = parseFloat(h);
-           },
-           get saturation () {
-               return this.uniforms[3].data[0];
-           },
-           set saturation (s) {
-               this.uniforms[3].data[0] = parseFloat(Math.max(0, s));
-           },
-           get hueDisabled () {
-               return !this.uniforms[0].data[0];
-           },
-           set hueDisabled (b) {
-               this.uniforms[0].data[0] = +!b;
-           },
-           get saturationDisabled () {
-               return !this.uniforms[1].data[0];
-           },
-           set saturationDisabled (b) {
-               this.uniforms[1].data[0] = +!b;
-           },
-           uniforms: [
-               {
-                   name: 'u_hueEnabled',
-                   type: 'i',
-                   data: [1]
-               },
-               {
-                   name: 'u_satEnabled',
-                   type: 'i',
-                   data: [1]
-               },
-               {
-                   name: 'u_hue',
-                   type: 'f',
-                   data: [0.0]
-               },
-               {
-                   name: 'u_saturation',
-                   type: 'f',
-                   data: [1.0]
-               }
-           ]
-       };
-   }
-
-   /**
-    * @function duotone
-    * @returns {duotoneEffect}
-    * @example duotone()
-    */
-   function duotone () {
-       /**
-        * @typedef {Object} duotoneEffect
-        * @property {number[]} light Array of 4 numbers normalized (0.0 - 1.0)
-        * @property {number[]} dark Array of 4 numbers normalized (0.0 - 1.0)
-        * @property {boolean} disabled
-        *
-        * @example
-        * effect.light = [1.0, 1.0, 0.8];
-        * effect.dark = [0.2, 0.6, 0.33];
-        */
-       return {
-           vertex: {},
-           fragment: {
-               uniform: {
-                   u_duotoneEnabled: 'bool',
-                   u_light: 'vec4',
-                   u_dark: 'vec4'
-               },
-               main: `
-    if (u_duotoneEnabled) {
-        vec3 gray = vec3(dot(lumcoeff, color));
-        color = mix(u_dark.rgb, u_light.rgb, gray);
-    }`
-           },
-           get light () {
-               return this.uniforms[1].data.slice(0);
-           },
-           set light (l) {
-               l.forEach((c, i) => {
-                   if ( ! Number.isNaN(c) ) {
-                       this.uniforms[1].data[i] = c;
-                   }
-               });
-           },
-           get dark () {
-               return this.uniforms[2].data.slice(0);
-           },
-           set dark (d) {
-               d.forEach((c, i) => {
-                   if ( ! Number.isNaN(c) ) {
-                       this.uniforms[2].data[i] = c;
-                   }
-               });
-           },
-           get disabled () {
-               return !this.uniforms[0].data[0];
-           },
-           set disabled (b) {
-               this.uniforms[0].data[0] = +!b;
-           },
-           uniforms: [
-               {
-                   name: 'u_duotoneEnabled',
-                   type: 'i',
-                   data: [1]
-               },
-               {
-                   name: 'u_light',
-                   type: 'f',
-                   data: [0.9882352941, 0.7333333333, 0.05098039216, 1]
-               },
-               {
-                   name: 'u_dark',
-                   type: 'f',
-                   data: [0.7411764706, 0.0431372549, 0.568627451, 1]
-               }
-           ]
-       };
-   }
-
-   const video = document.querySelector('#video');
-   const videoUrl = document.querySelector('#video-url');
-   const maskUrl = document.querySelector('#alpha-mask-url');
-   let target = document.querySelector('#target');
-   // let maskURL = 'https://static.wixstatic.com/shapes/3943e2a044854dfbae0fbe56ec72c7d9.svg';
-   let maskURL = 'https://static.wixstatic.com/shapes/2fc6253d53dc4925aab74c224256d7f8.svg';
-
-   let playing = false;
-   let timeupdate = false;
-
-   function initVideo () {
-       video.src = videoUrl.value;
-
-       video.addEventListener('playing', isPlaying, true);
-       video.addEventListener('timeupdate', isTimeupdate, true);
-       video.addEventListener('canplay', canPlay, true);
-   }
-
-   function canPlay () {
-       video.play();
-   }
-
-   function isPlaying () {
-       playing = true;
-       video.removeEventListener('playing', isPlaying, true);
-       check();
-   }
-   function isTimeupdate () {
-       timeupdate = true;
-       video.removeEventListener('timeupdate', isTimeupdate, true);
-       check();
-   }
-
-   function check () {
-       if (playing && timeupdate) {
-           playing = false;
-           timeupdate = false;
-
-           const width = video.videoWidth;
-           // const height = video.videoHeight / (toggleTransparent.checked ? 2 : 1);
-           const height = video.videoHeight;
-
-           target.style.width = `${width}px`;
-           target.style.height = `${height}px`;
-
-           if ( toggleAlphaMask.checked ) {
-               createMaskImage(width, height)
-                   .then(function () {
-                       instance.setSource({media: video, type: 'video', width, height});
-                       ticker.start();
-                   });
-           }
-           else {
-               instance.setSource({media: video, type: 'video', width, height});
-               ticker.start();
-           }
-           video.removeEventListener('canplay', canPlay, true);
-       }
-   }
-
-   function hex2vec4 (hex) {
-       const s = hex.substring(1);
-       return [s[0] + s[1], s[2] + s[3], s[4] + s[5], 'ff'].map(h => parseInt(h, 16) / 255);
-   }
-
-   function drawInlineSVG (ctx, rawSVG, callback) {
-       const svg = new Blob([rawSVG], {type:"image/svg+xml"}),
-           url = URL.createObjectURL(svg),
-           img = new Image;
-
-       img.onload = function () {
-           ctx.drawImage(this, 0, 0);
-           URL.revokeObjectURL(url);
-           callback(this);
-       };
-
-       img.src = url;
-   }
-
-   function fetchSVG () {
-       return window.fetch(maskURL).then(function (response) {
-           return response.text();
+   const observer = new IntersectionObserver(entries => {
+       entries.forEach(entry => {
+           const direction = entry.isIntersecting ? 'forward' : 'backward';
+           Transition.targets.get(entry.target)[direction]();
        });
-   }
+   }, {
+       root: null,
+       rootMargin: '0%',
+       threshold: 0.8
+   });
 
-   function handleRangeChange (e) {
-       const target = e.target;
-       const effect = target.id;
-       let data;
+   class Transition {
+       constructor ({vid1, vid2, target, disp, ticker, dispScale}) {
+           this.vid1 = vid1;
+           this.vid2 = vid2;
+           this.target = target;
+           this.playing = 0;
+           this.timeupdate = 0;
+           this.disp = disp;
+           this.dispScale = dispScale;
+           this.transition = transitionDisplacement();
 
-       switch ( effect ) {
-           case 'brightness':
-           case 'contrast':
-               bc[effect] = target.value;
-               data = [bc[effect]];
-               break;
-           case 'hue':
-           case 'saturation':
-               hs[effect] = target.value;
-               data = [hs[effect]];
-               break;
-           case 'duotone-light':
-               dt.light = hex2vec4(target.value);
-               e.target.nextElementSibling.textContent = target.value;
-               break;
-           case 'duotone-dark':
-               dt.dark = hex2vec4(target.value);
-               e.target.nextElementSibling.textContent = target.value;
-               break;
-       }
+           this.direction = 1;
+           this.startTime = 0;
 
-       if ( data ) {
-           data[0] = parseFloat(target.value);
-           e.target.nextElementSibling.textContent = data[0];
-       }
-   }
-
-   const inputs = ['brightness', 'contrast', 'hue', 'saturation', 'duotone-light', 'duotone-dark'];
-   const hs = hueSaturation();
-   const bc = brightnessContrast();
-   const dt = duotone();
-   // const tv = transparentVideo();
-   const am = alphaMask();
-
-   // const toggleTransparent = document.querySelector('#toggle-transparent');
-   const toggleDuotone = document.querySelector('#toggle-duotone');
-   const toggleAlphaMask = document.querySelector('#toggle-alphamask');
-
-   // const duotoneChecked = toggleDuotone.checked;
-   // const transparentChecked = toggleTransparent.checked;
-   const toggleAlphaMaskChecked = toggleAlphaMask.checked;
-
-   const effects = [];
-
-   // if (transparentChecked) {
-   //     effects.push(tv);
-   // }
-
-   effects.push(bc);
-
-   // if (duotoneChecked) {
-   effects.push(dt);
-   // }
-
-   effects.push(hs);
-
-   if (toggleAlphaMaskChecked) {
-       effects.push(am);
-   }
-
-   function createMaskImage (width, height) {
-       if ( maskURL.endsWith('.svg') ) {
-           const canvas = document.createElement('canvas');
-           const ctx = canvas.getContext('2d');
-
-           return new Promise(function (resolve) {
-               fetchSVG().then(function (text) {
-                   const div = document.createElement('div');
-                   div.innerHTML = text;
-                   const svg = div.firstElementChild;
-                   document.body.appendChild(svg);
-                   const bbox = svg.getBBox();
-                   document.body.removeChild(svg);
-                   svg.setAttribute('viewBox', `${bbox.x} ${bbox.y} ${bbox.width} ${bbox.height}`);
-                   svg.setAttribute('width', width);
-                   svg.setAttribute('height', height);
-                   canvas.width = width;
-                   canvas.height = height;
-
-                   drawInlineSVG(ctx, svg.outerHTML, () => {
-                       am.textures[0].image = canvas;
-                       resolve();
-                   });
-               });
+           this.ready = new Promise(resolve => {
+               this.setReady = resolve;
            });
+
+           this.kampos = new Kampos({target, effects: [this.transition], ticker});
+
+           this.initVideo();
+
+           const forward = () => {
+               this.direction = 1;
+               this.startTime = Date.now();
+               this.play();
+           };
+
+           const backward = () => {
+               this.direction = 0;
+               this.startTime = Date.now();
+               this.play();
+           };
+
+           // target.addEventListener('mouseenter', forward);
+           // target.addEventListener('mouseleave', backward);
+
+           observer.observe(target);
+
+           Transition.targets.set(target, {forward, backward});
        }
-       else {
-           return new Promise(function (resolve) {
+
+       initVideo () {
+
+           function canPlay (e) {
+               e.target.play();
+           }
+
+           const isPlaying = e => {
+               this.playing += 1;
+               e.target.removeEventListener('playing', isPlaying, true);
+               check();
+           };
+           const isTimeupdate = (e) => {
+               this.timeupdate += 1;
+               e.target.removeEventListener('timeupdate', isTimeupdate, true);
+               check();
+           };
+
+           const dispReady = new Promise(resolve => {
                const img = new Image();
 
-               img.crossOrigin = 'anonymous';
                img.onload = function () {
-                   am.textures[0].image = this;
-                   resolve();
+                   resolve(this);
                };
 
-               img.src = maskURL;
+               img.src = this.disp;
+           });
+
+           const check = () => {
+               if (this.playing === 2 && this.timeupdate === 2) {
+                   const width = this.vid1.videoWidth;
+                   const height = this.vid1.videoHeight;
+
+                   this.target.style.width = `${width}px`;
+                   this.target.style.height = `${height}px`;
+
+                   dispReady.then(img => {
+                       this.transition.map = img;
+                       this.transition.to = this.vid2;
+
+                       this.transition.sourceScale = {x: this.dispScale};
+                       this.transition.toScale = {x: -this.dispScale};
+
+                       this.kampos.setSource({media: this.vid1, width, height});
+                       this.setReady();
+                   });
+
+                   this.vid1.removeEventListener('canplay', canPlay, true);
+                   this.vid2.removeEventListener('canplay', canPlay, true);
+               }
+           };
+
+
+           [this.vid1, this.vid2].forEach(vid => {
+               vid.addEventListener('playing', isPlaying, true);
+               vid.addEventListener('timeupdate', isTimeupdate, true);
+               vid.addEventListener('canplay', canPlay, true);
            });
        }
-   }
 
-   inputs.map(function (name) {
-       return document.getElementById(name);
-   })
-       .map(function (input) {
-           input.addEventListener('input', handleRangeChange);
-       });
-
-   function toggleHandler () {
-       // instance.destroy();
-
-       // Works around an issue with working with the old context
-       const newCanvas = document.createElement('canvas');
-       target.parentElement.replaceChild(newCanvas, target);
-       target = newCanvas;
-
-
-       effects.length = 0;
-
-       // if ( toggleTransparent.checked ) {
-       //     effects.push(tv);
-       // }
-
-       effects.push(bc);
-
-       // if ( toggleDuotone.checked ) {
-       effects.push(dt);
-       // }
-
-       effects.push(hs);
-
-       if ( toggleAlphaMask.checked ) {
-           effects.push(am);
+       tick (p) {
+           this.transition.progress = p;
        }
 
-       const width = video.videoWidth;
-       // const height = video.videoHeight / (toggleTransparent.checked ? 2 : 1);
-       const height = video.videoHeight;
+       play () {
+           const now = Date.now() - this.startTime;
+           let p = Math.abs(Math.sin(now / .5e3));
+           p = this.direction ? p : 1 - p;
 
-       newCanvas.style.width = `${width}px`;
-       newCanvas.style.height = `${height}px`;
+           this.tick(p);
 
-       instance.init({target, effects, ticker});
-       instance.setSource({media: video, type: 'video', width, height});
+           if (this.direction) {
+               if (p * 1e2 < 99) {
+                   window.requestAnimationFrame(() => this.play());
+               }
+               else {
+                   window.requestAnimationFrame(() => this.tick(1));
+               }
+           }
+           else {
+               if (p * 1e2 > 1) {
+                   window.requestAnimationFrame(() => this.play());
+               }
+               else {
+                   window.requestAnimationFrame(() => this.tick(0));
+               }
+           }
+       }
    }
 
-   toggleDuotone.addEventListener('input', e => {
-       dt.disabled = !e.target.checked;
-   });
-   // toggleTransparent.addEventListener('input', toggleHandler);
-   toggleAlphaMask.addEventListener('input', toggleHandler);
+   Transition.targets = new Map();
+
+   const video = document.querySelector('#video');
+   const video2 = document.querySelector('#video2');
+   const target = document.querySelector('#target');
+
+   const video3 = document.querySelector('#video3');
+   const video4 = document.querySelector('#video4');
+   const target2 = document.querySelector('#target2');
+
+   const video5 = document.querySelector('#video5');
+   const video6 = document.querySelector('#video6');
+   const target3 = document.querySelector('#target3');
+
+   const video7 = document.querySelector('#video7');
+   const video8 = document.querySelector('#video8');
+   const target4 = document.querySelector('#target4');
 
    const ticker = new Ticker();
-   let instance = new Kampos({target, effects, ticker});
 
-   initVideo();
-
-   videoUrl.addEventListener('input', initVideo);
-   maskUrl.addEventListener('input', e => {
-       maskURL = e.target.value;
-
-       const width = video.videoWidth;
-       // const height = video.videoHeight / (toggleTransparent.checked ? 2 : 1);
-       const height = video.videoHeight;
-
-       createMaskImage(width, height)
-           .then(() => instance._createTextures());
+   const trans1 = new Transition({
+       vid1: video,
+       vid2: video2,
+       target: target,
+       ticker,
+       disp: 'disp-tri.jpg',
+       dispScale: 0.3
    });
 
-   const toggleBackgroundColor = document.querySelector('#toggle-background-color');
-   const backgroundColor = document.querySelector('#background-color');
-
-   toggleBackgroundColor.addEventListener('input', e => {
-       document.body.style.backgroundImage = e.target.checked ? 'none' : '';
+   const trans2 = new Transition({
+       vid1: video3,
+       vid2: video4,
+       target: target2,
+       ticker,
+       disp: 'disp-snow.jpg',
+       dispScale: 1.0
    });
 
-   backgroundColor.addEventListener('input', e => {
-       document.body.style.backgroundColor = backgroundColor.value;
-       e.target.nextElementSibling.innerText = e.target.value;
+   const trans3 = new Transition({
+       vid1: video5,
+       vid2: video6,
+       target: target3,
+       ticker,
+       disp: 'disp-cloud.png',
+       dispScale: 0.2
    });
 
-   document.querySelector('#duotone-switch').addEventListener('click', e => {
-       const light = document.querySelector('#duotone-light');
-       const dark = document.querySelector('#duotone-dark');
-
-       const lightValue = light.value;
-       const darkValue = dark.value;
-
-       light.value = darkValue;
-       dark.value = lightValue;
-
-       handleRangeChange({target: light});
-       handleRangeChange({target: dark});
+   const trans4 = new Transition({
+       vid1: video7,
+       vid2: video8,
+       target: target4,
+       ticker,
+       disp: 'disp-liquid.jpg',
+       dispScale: 0.35
    });
+
+   Promise.all([trans1.ready, trans2.ready, trans3.ready, trans4.ready])
+       .then(() => {
+           ticker.start();
+       });
 
 }());

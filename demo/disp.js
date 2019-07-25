@@ -13,6 +13,10 @@ const video5 = document.querySelector('#video5');
 const video6 = document.querySelector('#video6');
 const target3 = document.querySelector('#target3');
 
+const video7 = document.querySelector('#video7');
+const video8 = document.querySelector('#video8');
+const target4 = document.querySelector('#target4');
+
 const ticker = new Ticker();
 
 const trans1 = new Transition({
@@ -42,7 +46,16 @@ const trans3 = new Transition({
     dispScale: 0.2
 });
 
-Promise.all([trans1.ready, trans2.ready, trans3.ready])
+const trans4 = new Transition({
+    vid1: video7,
+    vid2: video8,
+    target: target4,
+    ticker,
+    disp: 'disp-liquid.jpg',
+    dispScale: 0.35
+});
+
+Promise.all([trans1.ready, trans2.ready, trans3.ready, trans4.ready])
     .then(() => {
         ticker.start();
     });

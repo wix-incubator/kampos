@@ -1,7 +1,18 @@
 import {Kampos} from '../src/kampos';
 import transitionDisplacement from '../src/transitions/displacement';
 
-export default class Transition {
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        const direction = entry.isIntersecting ? 'forward' : 'backward';
+        Transition.targets.get(entry.target)[direction]();
+    });
+}, {
+    root: null,
+    rootMargin: '0%',
+    threshold: 0.8
+});
+
+class Transition {
     constructor ({vid1, vid2, target, disp, ticker, dispScale}) {
         this.vid1 = vid1;
         this.vid2 = vid2;
@@ -23,21 +34,24 @@ export default class Transition {
 
         this.initVideo();
 
-        const enter = () => {
+        const forward = () => {
             this.direction = 1;
             this.startTime = Date.now();
             this.play();
         };
 
-        const leave = () => {
+        const backward = () => {
             this.direction = 0;
             this.startTime = Date.now();
             this.play();
         };
 
-        target.addEventListener('mouseenter', enter);
-        target.addEventListener('mouseleave', leave);
+        // target.addEventListener('mouseenter', forward);
+        // target.addEventListener('mouseleave', backward);
 
+        observer.observe(target);
+
+        Transition.targets.set(target, {forward, backward});
     }
 
     initVideo () {
@@ -128,3 +142,7 @@ export default class Transition {
         }
     }
 }
+
+Transition.targets = new Map();
+
+export default Transition;

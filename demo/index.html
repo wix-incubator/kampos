@@ -2,19 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <!--<meta name="viewport" content="width=320, initial-scale=1">-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
-    <title>Transparent Video WebGL</title>
+    <title>Kampos Displacement Demo</title>
+    <link href="https://fonts.googleapis.com/css?family=Nova+Round&display=swap" rel="stylesheet">
     <style>
         body {
+            background-image: linear-gradient(-45deg, peachpuff, palegreen, plum, peachpuff, palegreen, plum),
+                              linear-gradient(45deg, purple, darkblue, rebeccapurple, purple, darkblue, rebeccapurple);
+            background-blend-mode: screen;
+        }
+
+        header {
+            width: fit-content;
+            margin:  40vh auto 0;
+            font-family: "Nova round", cursive, fantasy;
+            color: palegreen;
+            text-shadow: 0 6px 10px darkslateblue;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 128px;
             margin: 0;
-            background: #ffffff linear-gradient(to bottom, chocolate, goldenrod, silver, lightslategray);
-            display: grid;
-            grid-template: "video-url video-url settings" 64px
-                           "mask-url mask-url settings" 64px
-                           "canvas canvas settings" auto
-                           "canvas canvas settings" auto / 2fr 2fr 1fr;
-            min-height: 100vh;
+        }
+
+        h2 {
+            font-size: 32px;
+            margin: 0;
         }
 
         video,
@@ -24,130 +41,111 @@
         }
 
         canvas {
-            grid-area: canvas;
-            width: 704px;
-            height: 992px;
+            width: 854px;
+            height: 480px;
+            margin-left: 5vw;
+            margin-top: 10vw;
+        }
+
+        canvas:first-of-type {
+            margin-top: 60vh;
+        }
+
+        canvas:last-of-type {
+            margin-bottom: 60vh;
+        }
+
+        canvas:nth-of-type(2n-1) {
+            margin-left: calc(95vw - 854px);
         }
 
         video {
             display: none;
         }
-
-        aside {
-            grid-area: settings;
-            z-index: 1;
-        }
-
-        #video-url-container {
-            grid-area: video-url;
-        }
-
-        #alpha-mask-container {
-            grid-area: mask-url;
-        }
-
-        #video-url,
-        #alpha-mask-url {
-            width: 80%;
-            height: 2em;
-        }
     </style>
 </head>
 <body>
-<!--<video id="video" src="https://s3-eu-west-1.amazonaws.com/ireland-video-output/alpha/v-1920x1080-60fps.mp4" loop muted preload="auto" crossorigin="anonymous" playsinline></video>-->
-<video id="video" src="https://video.wixstatic.com/video/11062b_6ceb80744f45401caf9eb666caeb9887/480p/mp4/file.mp4" loop muted preload="auto" crossorigin="anonymous" playsinline></video>
-<!--<video id="video" src="metalwheels.mp4" loop muted preload="auto" crossorigin="anonymous" autoplay playsinline></video>-->
-<!--<video id="video" src="https://video.wixstatic.com/video/11062b_7c6c697505584ae18cb0a2a47b53cf22/720p/mp4/file.mp4" loop muted preload="auto" crossorigin="anonymous" playsinline></video>-->
-<!--<video id="video" src="https://video.wixstatic.com/video/11062b_26ab0e4151b142f7a212532fe505c868/720p/mp4/file.mp4" loop muted preload="auto" crossorigin="anonymous" playsinline></video>-->
-<fieldset id="video-url-container">
-    <legend>Video URL</legend>
-    <input type="url" id="video-url" value="https://video.wixstatic.com/video/11062b_6ceb80744f45401caf9eb666caeb9887/480p/mp4/file.mp4"/>
-</fieldset>
-<fieldset id="alpha-mask-container">
-    <legend>Alpha mask URL</legend>
-    <input type="url" id="alpha-mask-url" value="https://static.wixstatic.com/shapes/2fc6253d53dc4925aab74c224256d7f8.svg"/>
-</fieldset>
-<canvas id="target"></canvas>
-<aside>
-    <fieldset>
-        <legend>Background settings</legend>
+    <header>
+        <h1>kampos</h1>
+        <h2>Tiny and fast effects compositor</h2>
+    </header>
+    <video id="video"
+           src="https://video.wixstatic.com/video/11062b_6ceb80744f45401caf9eb666caeb9887/480p/mp4/file.mp4"
+           autoplay
+           loop
+           muted
+           preload="auto"
+           crossorigin="anonymous"
+           playsinline></video>
 
-        <p>
-            <input type="checkbox" id="toggle-background-color" name="toggle-background-color"/>
-            <label for="toggle-background-color">Background color</label>
-            <input type="color" id="background-color" name="background-color"
-                   value="#ffffff"/>
-            <span class="value">#ffffff</span>
-        </p>
+    <video id="video2"
+           src="https://video.wixstatic.com/video/11062b_1bb2d040b6da423fa2461982bd68bb12/480p/mp4/file.mp4"
+           autoplay
+           loop
+           muted
+           preload="auto"
+           crossorigin="anonymous"
+           playsinline></video>
 
-        <!--p>
-            <input type="radio" id="toggle-background-gradient" name="toggle-background-gradient" checked/>
-            <label for="background-gradient">Background gradient</label>
-            <input type="color" id="background-gradient" name="background-gradient"
-                   value="#000000"/>
-            <span class="value">#000000</span>
-        </p-->
-    </fieldset>
-    <fieldset>
-        <legend>Effect settings</legend>
+    <video id="video3"
+           src="https://video.wixstatic.com/video/11062b_2ccb88c1c6de4151b51879d6c90fca9d/480p/mp4/file.mp4"
+           autoplay
+           loop
+           muted
+           preload="auto"
+           crossorigin="anonymous"
+           playsinline></video>
 
-        <p>
-            <label for="toggle-alphamask">Apply alpha mask</label>
-            <input type="checkbox" id="toggle-alphamask" name="toggle-alphamask" checked/>
-        </p>
+    <video id="video4"
+           src="https://video.wixstatic.com/video/11062b_735a34726eb64df29a56b30b60fe2db8/480p/mp4/file.mp4"
+           autoplay
+           loop
+           muted
+           preload="auto"
+           crossorigin="anonymous"
+           playsinline></video>
 
-        <p>
-            <label for="brightness">Brightness</label>
-            <input type="range" id="brightness" name="brightness"
-                   value="1" min="0" max="10" step="0.1"/>
-            <span class="value">1</span>
-        </p>
+    <video id="video5"
+           src="https://video.wixstatic.com/video/11062b_3da4a26484194105bde5b3935f5afb7b/480p/mp4/file.mp4"
+           autoplay
+           loop
+           muted
+           preload="auto"
+           crossorigin="anonymous"
+           playsinline></video>
 
-        <p>
-            <label for="contrast">Contrast</label>
-            <input type="range" id="contrast" name="contrast"
-                   value="1" min="0" max="10" step="0.1"/>
-            <span class="value">1</span>
-        </p>
+    <video id="video6"
+           src="https://video.wixstatic.com/video/11062b_62f64d80001a4490b6cc785d64359c6c/480p/mp4/file.mp4"
+           autoplay
+           loop
+           muted
+           preload="auto"
+           crossorigin="anonymous"
+           playsinline></video>
 
-        <p>
-            <label for="hue">Hue</label>
-            <input type="range" id="hue" name="hue"
-                   value="0.0" min="-180.0" max="180.0" step="1.0"/>
-            <span class="value">0.0</span>
-        </p>
+    <video id="video7"
+           src="https://video.wixstatic.com/video/11062b_830709c744404d6ea7a10dcfd88e3a48/480p/mp4/file.mp4"
+           autoplay
+           loop
+           muted
+           preload="auto"
+           crossorigin="anonymous"
+           playsinline></video>
 
-        <p>
-            <label for="saturation">Saturation</label>
-            <input type="range" id="saturation" name="saturation"
-                   value="1" min="0" max="10" step="0.1"/>
-            <span class="value">1</span>
-        </p>
+    <video id="video8"
+           src="https://video.wixstatic.com/video/11062b_ba2c921477734f8b84ef0c71f64a2562/480p/mp4/file.mp4"
+           autoplay
+           loop
+           muted
+           preload="auto"
+           crossorigin="anonymous"
+           playsinline></video>
 
-        <p>
-            <label for="toggle-duotone">Apply duotone</label>
-            <input type="checkbox" id="toggle-duotone" name="toggle-duotone" checked/>
-        </p>
+    <canvas id="target"></canvas>
+    <canvas id="target2"></canvas>
+    <canvas id="target3"></canvas>
+    <canvas id="target4"></canvas>
 
-        <p>
-            <label for="duotone-light">Duotone light</label>
-            <input type="color" id="duotone-light" name="duotone-light"
-                   value="#fcbb0d"/>
-            <span class="value">#fcbb0d</span>
-        </p>
-
-        <p>
-            <label for="duotone-dark">Duotone dark</label>
-            <input type="color" id="duotone-dark" name="duotone-dark"
-                   value="#bd0b91"/>
-            <span class="value">#bd0b91</span>
-        </p>
-
-        <p>
-            <input type="button" id="duotone-switch" value="Switch colors"/>
-        </p>
-    </fieldset>
-</aside>
-<script src="index.js?v=4"></script>
+    <script src="index.js"></script>
 </body>
 </html>
