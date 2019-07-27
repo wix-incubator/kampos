@@ -1,10 +1,15 @@
 # kampos
 ### Tiny and fast effects compositor on WebGL
 
-kampos lets you filter effects and beautiful transitions to your site's media,
-be that images, video, etc.
+kampos lets you add filter effects and beautiful transitions to video and images (or any other media).
 Just like [SVG filter effects](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Filter_effects),
 only using WebGL, and hence works everywhere!
+
+## Demo
+Watch a [live demo](https://wix-incubator.github.io/kampos/demo/).
+
+## Documentation
+For API reference and examples read [the docs](https://wix-incubator.github.io/kampos/docs/).
 
 ## Features
 * Filter effects for images and videos that you can mix and compose.
@@ -14,7 +19,6 @@ only using WebGL, and hence works everywhere!
 * Custom plugins? Extremely easy by using the effects/transitions descriptors DSL.
 
 ## Usage
-
 Here's a simple example for using kampos:
 ```
 import {Kampos, effects} from 'kampos';
@@ -30,12 +34,6 @@ const kampos = new Kampos({target, effects: [hueSaturation]});
 kampos.setSource(media);
 kampos.play();
 ```
-
-## Demo
-Watch a [live demo](https://wix-incubator.github.io/kampos/demo/).
-
-## Documentation
-For API reference and examples read [the docs](https://wix-incubator.github.io/kampos/docs/).
 
 ## Getting started
 Grab the source from here, or install via package manager.

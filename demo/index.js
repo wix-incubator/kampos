@@ -1137,24 +1137,12 @@ void main() {
 
            this.initVideo();
 
-           const forward = () => {
-               this.direction = 1;
-               this.startTime = Date.now();
-               this.play();
-           };
-
-           const backward = () => {
-               this.direction = 0;
-               this.startTime = Date.now();
-               this.play();
-           };
-
            // target.addEventListener('mouseenter', forward);
            // target.addEventListener('mouseleave', backward);
 
            observer.observe(target);
 
-           Transition.targets.set(target, {forward, backward});
+           Transition.targets.set(target, this);
        }
 
        initVideo () {
@@ -1243,6 +1231,18 @@ void main() {
                    window.requestAnimationFrame(() => this.tick(0));
                }
            }
+       }
+
+       forward () {
+           this.direction = 1;
+           this.startTime = Date.now();
+           this.play();
+       }
+
+       backward () {
+           this.direction = 0;
+           this.startTime = Date.now();
+           this.play();
        }
    }
 

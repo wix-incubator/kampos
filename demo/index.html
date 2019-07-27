@@ -2,16 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!--<meta name="viewport" content="width=320, initial-scale=1">-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
     <title>Kampos Displacement Demo</title>
-    <link href="https://fonts.googleapis.com/css?family=Nova+Round&display=swap" rel="stylesheet">
     <style>
         body {
+            margin: 0;
             background-image: linear-gradient(-45deg, peachpuff, palegreen, plum, peachpuff, palegreen, plum),
-                              linear-gradient(45deg, purple, darkblue, rebeccapurple, purple, darkblue, rebeccapurple);
+            linear-gradient(45deg, purple, darkblue, rebeccapurple, purple, darkblue, rebeccapurple);
             background-blend-mode: screen;
         }
 
@@ -19,19 +18,20 @@
             width: fit-content;
             margin:  40vh auto 0;
             font-family: "Nova round", cursive, fantasy;
-            color: palegreen;
-            text-shadow: 0 6px 10px darkslateblue;
             text-align: center;
+            color: #bada;
         }
 
         h1 {
-            font-size: 128px;
+            font-size: 96px;
             margin: 0;
+            text-shadow: 0 6px 10px darkslateblue;
         }
 
         h2 {
-            font-size: 32px;
+            font-size: 28px;
             margin: 0;
+            text-shadow: 0 4px 4px darkslateblue;
         }
 
         video,
@@ -41,9 +41,8 @@
         }
 
         canvas {
-            width: 854px;
-            height: 480px;
-            margin-left: 5vw;
+            width: 100vw !important;
+            height: auto !important;
             margin-top: 10vw;
         }
 
@@ -55,17 +54,46 @@
             margin-bottom: 60vh;
         }
 
-        canvas:nth-of-type(2n-1) {
-            margin-left: calc(95vw - 854px);
-        }
-
         video {
             display: none;
         }
+
+        header > span {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+        }
+
+        @media (min-width: 854px) {
+            html, body {
+                margin: 0;
+            }
+
+            h1 {
+                font-size: 128px;
+            }
+
+            h2 {
+                font-size: 32px;
+            }
+
+            canvas {
+                width: 854px !important;
+                height: 480px !important;
+                margin-left: 5vw;
+            }
+
+            canvas:nth-of-type(2n-1) {
+                margin-left: calc(95vw - 854px);
+            }
+        }
     </style>
+    <link href="https://fonts.googleapis.com/css?family=Nova+Round&display=swap" rel="stylesheet">
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
 </head>
 <body>
     <header>
+        <a class="github-button" href="https://github.com/wix-incubator/kampos" data-size="large" aria-label="Star wix-incubator/kampos on GitHub">Star</a>
         <h1>kampos</h1>
         <h2>Tiny and fast effects compositor</h2>
     </header>
