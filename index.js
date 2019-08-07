@@ -484,7 +484,7 @@
         },
 
         set disabled(b) {
-          return this.uniforms[0].data[0] = +!b;
+          this.uniforms[0].data[0] = +!b;
         },
 
         get scale() {
@@ -567,6 +567,7 @@
         fragment: {
           uniform: {
             u_transitionEnabled: 'bool',
+            u_transitionProgress: 'float',
             u_transitionTo: 'sampler2D'
           },
           main: "\n    if (u_transitionEnabled) {\n        vec4 targetPixel = texture2D(u_transitionTo, v_transitionToTexCoord);\n        color = mix(color, targetPixel.rgb, u_transitionProgress);\n        alpha = mix(alpha, targetPixel.a, u_transitionProgress);\n    }"
@@ -578,6 +579,14 @@
 
         set disabled(b) {
           this.uniforms[0].data[0] = +!b;
+        },
+
+        get progress() {
+          return this.uniforms[2].data[0];
+        },
+
+        set progress(p) {
+          this.uniforms[2].data[0] = p;
         },
 
         get to() {

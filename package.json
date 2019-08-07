@@ -47,7 +47,6 @@
     "@babel/core": "^7.4.5",
     "@babel/preset-env": "^7.4.5",
     "ava": "^2.1.0",
-    "codemirror": "^5.48.2",
     "documentation": "^11.0.1",
     "electron": "^5.0.4",
     "finalhandler": "^1.1.2",
