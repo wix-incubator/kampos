@@ -25,6 +25,7 @@ export default function () {
         fragment: {
             uniform: {
                 u_transitionEnabled: 'bool',
+                u_transitionProgress: 'float',
                 u_transitionTo: 'sampler2D'
             },
             main: `
@@ -39,6 +40,12 @@ export default function () {
         },
         set disabled (b) {
             this.uniforms[0].data[0] = +!b;
+        },
+        get progress () {
+            return this.uniforms[2].data[0];
+        },
+        set progress (p) {
+            this.uniforms[2].data[0] = p;
         },
         get to () {
             return this.textures[0].image;
