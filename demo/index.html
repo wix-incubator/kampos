@@ -6,20 +6,21 @@
     <meta http-equiv="cache-control" content="no-cache" />
     <meta http-equiv="pragma" content="no-cache" />
     <title>Kampos Displacement Demo</title>
+    <link rel="stylesheet" href="./lib/codemirror/codemirror.css">
     <style>
         body {
             margin: 0;
             background-image: linear-gradient(-45deg, peachpuff, palegreen, plum, peachpuff, palegreen, plum),
             linear-gradient(45deg, purple, darkblue, rebeccapurple, purple, darkblue, rebeccapurple);
             background-blend-mode: screen;
+            font-family: "Nova round", cursive, fantasy;
+            color: #bada;
         }
 
         header {
             width: fit-content;
             margin:  40vh auto 0;
-            font-family: "Nova round", cursive, fantasy;
             text-align: center;
-            color: #bada;
         }
 
         h1 {
@@ -41,17 +42,8 @@
         }
 
         canvas {
-            width: 100vw !important;
-            height: auto !important;
-            margin-top: 10vw;
-        }
-
-        canvas:first-of-type {
-            margin-top: 60vh;
-        }
-
-        canvas:last-of-type {
-            margin-bottom: 60vh;
+            width: 100vw;
+            height: auto;
         }
 
         video {
@@ -77,14 +69,29 @@
                 font-size: 32px;
             }
 
-            canvas {
-                width: 854px !important;
-                height: 480px !important;
-                margin-left: 5vw;
+            section {
+                display: flex;
+                flex-direction: column;
+                width: 854px;
+                margin: 10vh auto;
             }
 
-            canvas:nth-of-type(2n-1) {
-                margin-left: calc(95vw - 854px);
+            canvas {
+                flex: auto;
+                width: 854px;
+                height: 480px;
+            }
+
+            .CodeMirror {
+                flex: auto;
+            }
+
+            #code1 + .CodeMirror {
+                height: 118rem;
+            }
+
+            #code2 + .CodeMirror {
+                height: 66rem;
             }
         }
     </style>
@@ -97,25 +104,25 @@
         <h1>kampos</h1>
         <h2>Tiny and fast effects compositor</h2>
     </header>
-    <video id="video"
-           src="https://video.wixstatic.com/video/11062b_6ceb80744f45401caf9eb666caeb9887/480p/mp4/file.mp4"
-           autoplay
-           loop
-           muted
-           preload="auto"
-           crossorigin="anonymous"
-           playsinline></video>
+    <!--<video id="video"-->
+           <!--src="https://video.wixstatic.com/video/11062b_6ceb80744f45401caf9eb666caeb9887/480p/mp4/file.mp4"-->
+           <!--autoplay-->
+           <!--loop-->
+           <!--muted-->
+           <!--preload="auto"-->
+           <!--crossorigin="anonymous"-->
+           <!--playsinline></video>-->
 
-    <video id="video2"
-           src="https://video.wixstatic.com/video/11062b_1bb2d040b6da423fa2461982bd68bb12/480p/mp4/file.mp4"
-           autoplay
-           loop
-           muted
-           preload="auto"
-           crossorigin="anonymous"
-           playsinline></video>
+    <!--<video id="video2"-->
+           <!--src="https://video.wixstatic.com/video/11062b_1bb2d040b6da423fa2461982bd68bb12/480p/mp4/file.mp4"-->
+           <!--autoplay-->
+           <!--loop-->
+           <!--muted-->
+           <!--preload="auto"-->
+           <!--crossorigin="anonymous"-->
+           <!--playsinline></video>-->
 
-    <video id="video3"
+    <video id="video1"
            src="https://video.wixstatic.com/video/11062b_2ccb88c1c6de4151b51879d6c90fca9d/480p/mp4/file.mp4"
            autoplay
            loop
@@ -124,7 +131,7 @@
            crossorigin="anonymous"
            playsinline></video>
 
-    <video id="video4"
+    <video id="video2"
            src="https://video.wixstatic.com/video/11062b_735a34726eb64df29a56b30b60fe2db8/480p/mp4/file.mp4"
            autoplay
            loop
@@ -133,7 +140,7 @@
            crossorigin="anonymous"
            playsinline></video>
 
-    <video id="video5"
+    <video id="video3"
            src="https://video.wixstatic.com/video/11062b_3da4a26484194105bde5b3935f5afb7b/480p/mp4/file.mp4"
            autoplay
            loop
@@ -142,7 +149,7 @@
            crossorigin="anonymous"
            playsinline></video>
 
-    <video id="video6"
+    <video id="video4"
            src="https://video.wixstatic.com/video/11062b_62f64d80001a4490b6cc785d64359c6c/480p/mp4/file.mp4"
            autoplay
            loop
@@ -151,29 +158,66 @@
            crossorigin="anonymous"
            playsinline></video>
 
-    <video id="video7"
-           src="https://video.wixstatic.com/video/11062b_830709c744404d6ea7a10dcfd88e3a48/480p/mp4/file.mp4"
-           autoplay
-           loop
-           muted
-           preload="auto"
-           crossorigin="anonymous"
-           playsinline></video>
+    <!--<video id="video7"-->
+           <!--src="https://video.wixstatic.com/video/11062b_830709c744404d6ea7a10dcfd88e3a48/480p/mp4/file.mp4"-->
+           <!--autoplay-->
+           <!--loop-->
+           <!--muted-->
+           <!--preload="auto"-->
+           <!--crossorigin="anonymous"-->
+           <!--playsinline></video>-->
 
-    <video id="video8"
-           src="https://video.wixstatic.com/video/11062b_ba2c921477734f8b84ef0c71f64a2562/480p/mp4/file.mp4"
-           autoplay
-           loop
-           muted
-           preload="auto"
-           crossorigin="anonymous"
-           playsinline></video>
+    <!--<video id="video8"-->
+           <!--src="https://video.wixstatic.com/video/11062b_ba2c921477734f8b84ef0c71f64a2562/480p/mp4/file.mp4"-->
+           <!--autoplay-->
+           <!--loop-->
+           <!--muted-->
+           <!--preload="auto"-->
+           <!--crossorigin="anonymous"-->
+           <!--playsinline></video>-->
 
-    <canvas id="target"></canvas>
-    <canvas id="target2"></canvas>
-    <canvas id="target3"></canvas>
-    <canvas id="target4"></canvas>
+    <!--<canvas id="target"></canvas>-->
+    <!--<canvas id="target2"></canvas>-->
+    <!--<canvas id="target3"></canvas>-->
+    <section>
+        <h2>Displacement transition:</h2>
+        <canvas id="target1"></canvas>
+        <textarea id="code1"></textarea>
+    </section>
+    <section>
+        <h2>Cross-fade transition with hue-rotation:</h2>
+        <canvas id="target2"></canvas>
+        <textarea id="code2"></textarea>
+    </section>
 
+    <script src="../index.js"></script>
+    <script src="./lib/codemirror/codemirror.js"></script>
+    <script src="./lib/codemirror/javascript.js"></script>
+    <script>
+        const text1 = document.querySelector('#code1');
+
+        fetch('./disp.js')
+            .then(resp => resp.text())
+            .then(text => {
+                text1.value = text;
+                CodeMirror.fromTextArea(text1, {
+                    value: text,
+                    lineNumbers: true
+                });
+            });
+
+        const text2 = document.querySelector('#code2');
+
+        fetch('./hue-fade.js')
+            .then(resp => resp.text())
+            .then(text => {
+                text2.value = text;
+                CodeMirror.fromTextArea(text2, {
+                    value: text,
+                    lineNumbers: true
+                });
+            });
+    </script>
     <script src="index.js"></script>
 </body>
 </html>

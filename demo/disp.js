@@ -1,61 +1,124 @@
-import {Ticker} from '../src/kampos';
-import Transition from './transition';
+const {Kampos, transitions} = window.kampos;
+const transitionDisplacement = transitions.displacement;
 
-const video = document.querySelector('#video');
+/*
+ * Wrapper class for transition logic.
+ * This is a simple vanilla implementation
+ */
+class Transition {
+    constructor ({vid1, vid2, target, disp, dispScale}) {
+        /*
+         * prepare here everything we need
+         */
+        this.vid1 = vid1;
+        this.vid2 = vid2;
+        this.target = target;
+        this.dispScale = dispScale;
+        this.transition = transitionDisplacement();
+
+        this.direction = 1;
+        this.startTime = 0;
+
+        // init kampos
+        this.kampos = new Kampos({target, effects: [this.transition]});
+
+        // load the displacement map image
+        const dispReady = loadImage(disp);
+
+        // make sure videos are loaded and playing
+        prepareVideos([this.vid1, this.vid2])
+            .then(() => {
+                const width = this.vid1.videoWidth;
+                const height = this.vid1.videoHeight;
+
+                dispReady.then(img => {
+                    /*
+                     * set transition values
+                     */
+                    this.transition.map = img;
+                    this.transition.to = this.vid2;
+
+                    this.transition.sourceScale = {x: this.dispScale};
+                    this.transition.toScale = {x: -this.dispScale};
+
+                    // set media source
+                    this.kampos.setSource({media: this.vid1, width, height});
+
+                    // start kampos
+                    this.kampos.play();
+                });
+            });
+    }
+
+    /*
+     * start animation playback forward
+     */
+    forward () {
+        this.direction = 1;
+        this.startTime = Date.now();
+        this.loop();
+    }
+
+    /*
+     * start animation playback backwards
+     */
+    backward () {
+        this.direction = 0;
+        this.startTime = Date.now();
+        this.loop();
+    }
+
+    /*
+     * This will probably be a callback you'll provide to your animation library
+     */
+    tick (p) {
+        this.transition.progress = p;
+    }
+
+    /*
+     * This will usually be implemented by an animation library you may already have in your project
+     */
+    loop () {
+        const now = Date.now() - this.startTime;
+        // dividing by 500 is just enough to slow down the effect
+        let p = Math.abs(Math.sin(now / 500));
+        p = this.direction ? p : 1 - p;
+
+        this.tick(p);
+
+        let nextTick = () => this.loop();
+
+        // we choose a cutoff value where the progress value
+        // is almost 0/1, depending on direction
+        // and then stop the animation by just rendering
+        // 1 extra tick with the final value (0 or 1 respectively).
+        if (this.direction) {
+            if (p * 100 >= 99) {
+                nextTick = () => this.tick(1);
+            }
+        }
+        else if (p * 100 <= 1) {
+            nextTick = () => this.tick(0);
+        }
+
+        window.requestAnimationFrame(nextTick);
+    }
+}
+
+const video1 = document.querySelector('#video1');
 const video2 = document.querySelector('#video2');
-const target = document.querySelector('#target');
+const target1 = document.querySelector('#target1');
 
-const video3 = document.querySelector('#video3');
-const video4 = document.querySelector('#video4');
-const target2 = document.querySelector('#target2');
-
-const video5 = document.querySelector('#video5');
-const video6 = document.querySelector('#video6');
-const target3 = document.querySelector('#target3');
-
-const video7 = document.querySelector('#video7');
-const video8 = document.querySelector('#video8');
-const target4 = document.querySelector('#target4');
-
-const ticker = new Ticker();
-
-const trans1 = new Transition({
-    vid1: video,
+const trans = new Transition({
+    vid1: video1,
     vid2: video2,
-    target: target,
-    ticker,
-    disp: 'disp-tri.jpg',
-    dispScale: 0.3
-});
-
-const trans2 = new Transition({
-    vid1: video3,
-    vid2: video4,
-    target: target2,
-    ticker,
+    target: target1,
     disp: 'disp-snow.jpg',
     dispScale: 1.0
 });
 
-const trans3 = new Transition({
-    vid1: video5,
-    vid2: video6,
-    target: target3,
-    ticker,
-    disp: 'disp-cloud.png',
-    dispScale: 0.2
-});
-
-const trans4 = new Transition({
-    vid1: video7,
-    vid2: video8,
-    target: target4,
-    ticker,
-    disp: 'disp-liquid.jpg',
-    dispScale: 0.35
-});
-
-Promise.all([trans1.ready, trans2.ready, trans3.ready, trans4.ready])
-    .then(() => {
-        ticker.start();
-    });
+/*
+ * register event handlers for interaction
+ */
+target1.addEventListener('mouseenter', () => trans.forward());
+target1.addEventListener('mouseleave', () => trans.backward());
