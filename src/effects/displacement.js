@@ -41,7 +41,7 @@ export default function () {
             return !this.uniforms[0].data[0];
         },
         set disabled (b) {
-            return this.uniforms[0].data[0] = +!b;
+            this.uniforms[0].data[0] = +!b;
         },
         get scale () {
             const [x, y] = this.uniforms[2].data;
