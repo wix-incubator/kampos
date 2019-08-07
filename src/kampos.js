@@ -1,5 +1,4 @@
 import core from './core';
-import Ticker from './ticker';
 
 /**
  * Initialize a webgl target with effects.
@@ -13,7 +12,7 @@ import Ticker from './ticker';
  * const hueSat = effects.hueSaturation();
  * const kampos = new Kampos({ticker, target, effects: [hueSat]});
  */
-class Kampos {
+export default class Kampos {
     /**
      * @constructor
      */
@@ -372,8 +371,3 @@ class Kampos {
  * @property {string} type
  * @property {Array} data
  */
-
-export {
-    Kampos,
-    Ticker
-}

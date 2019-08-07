@@ -1,4 +1,5 @@
-const {Kampos, Ticker} = require('./src/kampos');
+const Kampos = require('./src/kampos');
+const Ticker = require('./src/ticker');
 const assert = require('assert');
 
 describe('Ticker', function() {

@@ -5,7 +5,8 @@ import duotone from './effects/duotone';
 import displacement from './effects/displacement';
 import fade from './transitions/fade';
 import displacementTransition from './transitions/displacement';
-import {Kampos, Ticker} from './kampos';
+import Kampos from './kampos';
+import Ticker from './ticker';
 
 export default {
     effects: {

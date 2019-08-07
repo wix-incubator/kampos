@@ -4,6 +4,7 @@ import babel from 'rollup-plugin-babel';
 const config = {
     input: [
         '../src/kampos.js',
+        '../src/ticker.js',
         '../src/core.js',
         '../src/effects/brightness-contrast.js'
     ],

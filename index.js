@@ -1293,74 +1293,6 @@ void main() {
      */
 
     /**
-     * Initialize a ticker instance for batching animation of multiple Kampos instances.
-     *
-     * @class Ticker
-     */
-    class Ticker {
-        constructor () {
-            this.pool = [];
-        }
-
-        /**
-         * Starts the animation loop.
-         */
-        start () {
-            if ( ! this.animationFrameId ) {
-                const loop = () => {
-                    this.animationFrameId = window.requestAnimationFrame(loop);
-                    this.draw();
-                };
-
-                this.animationFrameId = window.requestAnimationFrame(loop);
-            }
-        }
-
-        /**
-         * Stops the animation loop.
-         */
-        stop () {
-            window.cancelAnimationFrame(this.animationFrameId);
-            this.animationFrameId = null;
-        }
-
-        /**
-         * Invoke draw() on all instances in the pool.
-         */
-        draw () {
-            this.pool.forEach(instance => instance.draw());
-        }
-
-        /**
-         * Add an instance to the pool.
-         *
-         * @param {Kampos} instance
-         */
-        add (instance) {
-            const index = this.pool.indexOf(instance);
-
-            if ( ! ~ index ) {
-                this.pool.push(instance);
-                instance.playing = true;
-            }
-        }
-
-        /**
-         * Remove an instance form the pool.
-         *
-         * @param {Kampos} instance
-         */
-        remove (instance) {
-            const index = this.pool.indexOf(instance);
-
-            if ( ~ index ) {
-                this.pool.splice(index, 1);
-                instance.playing = false;
-            }
-        }
-    }
-
-    /**
      * Initialize a webgl target with effects.
      *
      * @class Kampos
@@ -1670,6 +1602,133 @@ void main() {
                 data.format = texture.format;
                 data.update = texture.update;
             });
+        }
+    }
+
+    /**
+     * @typedef {Object} kamposConfig
+     * @property {HTMLCanvasElement} target
+     * @property {effectConfig[]} effects
+     * @property {Ticker} [ticker]
+     * @property {function} [onContextLost]
+     * @property {function} [onContextRestored]
+     * @property {function} [onContextCreationError]
+     */
+
+    /**
+     * @typedef {Object} kamposSource
+     * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} media
+     * @property {number} width
+     * @property {number} height
+     */
+
+    /**
+     * @typedef {Object} effectConfig
+     * @property {shaderConfig} vertex
+     * @property {shaderConfig} fragment
+     * @property {Attribute[]} attributes
+     * @property {Uniform[]} uniforms
+     * @property {Object} varying
+     * @property {textureConfig[]} textures
+     */
+
+    /**
+     * @typedef {Object} shaderConfig
+     * @property {string} [main]
+     * @property {string} [source]
+     * @property {string} [constant]
+     * @property {Object} [uniform] mapping name of variable to type
+     * @property {Object} [attribute] mapping name of variable to type
+     */
+
+    /**
+     * @typedef {Object} textureConfig
+     * @property {string} format
+     * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} [image]
+     * @property {boolean} [update] defaults to `false`
+     */
+
+    /**
+     * @typedef {Object} Attribute
+     * @property {string} name
+     * @property {number} size
+     * @property {string} type
+     * @property {ArrayBufferView} data
+     */
+
+    /**
+     * @typedef {Object} Uniform
+     * @property {string} name
+     * @property {number} [size] defaults to `data.length`
+     * @property {string} type
+     * @property {Array} data
+     */
+
+    /**
+     * Initialize a ticker instance for batching animation of multiple Kampos instances.
+     *
+     * @class Ticker
+     */
+    class Ticker {
+        constructor () {
+            this.pool = [];
+        }
+
+        /**
+         * Starts the animation loop.
+         */
+        start () {
+            if ( ! this.animationFrameId ) {
+                const loop = () => {
+                    this.animationFrameId = window.requestAnimationFrame(loop);
+                    this.draw();
+                };
+
+                this.animationFrameId = window.requestAnimationFrame(loop);
+            }
+        }
+
+        /**
+         * Stops the animation loop.
+         */
+        stop () {
+            window.cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
+        }
+
+        /**
+         * Invoke draw() on all instances in the pool.
+         */
+        draw () {
+            this.pool.forEach(instance => instance.draw());
+        }
+
+        /**
+         * Add an instance to the pool.
+         *
+         * @param {Kampos} instance
+         */
+        add (instance) {
+            const index = this.pool.indexOf(instance);
+
+            if ( ! ~ index ) {
+                this.pool.push(instance);
+                instance.playing = true;
+            }
+        }
+
+        /**
+         * Remove an instance form the pool.
+         *
+         * @param {Kampos} instance
+         */
+        remove (instance) {
+            const index = this.pool.indexOf(instance);
+
+            if ( ~ index ) {
+                this.pool.splice(index, 1);
+                instance.playing = false;
+            }
         }
     }
 

@@ -1,4 +1,5 @@
-const {Kampos, Ticker} = require('./src/kampos');
+const Kampos = require('./src/kampos');
+const Ticker = require('./src/ticker');
 const brightnessContrast = require('./src/brightness-contrast')();
 const assert = require('assert');
 
