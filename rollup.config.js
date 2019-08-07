@@ -1,5 +1,6 @@
 import progress from 'rollup-plugin-progress';
 import filesize from 'rollup-plugin-filesize';
+import babel from 'rollup-plugin-babel';
 
 const config = {
     input: 'src/index.js',
@@ -13,6 +14,7 @@ const config = {
         progress({
             clearLine: false
         }),
+        babel(),
         filesize()
     ]
 };
