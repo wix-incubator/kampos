@@ -50,7 +50,7 @@ import {Kampos, Ticker, effects, transitions} from 'kampos';
 
 Or just what you need:
 ```
-import {Kampos} from './node_modules/kampos/src/kampos';
+import Kampos from './node_modules/kampos/src/kampos';
 import duotone from './node_modules/kampos/src/effects/duotone';
 import displacement from './node_modules/kampos/src/effects/displacement';
 ```
