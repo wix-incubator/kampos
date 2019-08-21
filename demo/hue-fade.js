@@ -2,7 +2,7 @@ const {Kampos, effects, transitions} = window.kampos;
 
 const media1 = document.querySelector('#video3');
 const media2 = document.querySelector('#video4');
-const target = document.querySelector('#target2');
+const target = document.querySelector('#target');
 
 // create the effects/transitions we need
 const hueSat = effects.hueSaturation();

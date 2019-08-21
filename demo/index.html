@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="cache-control" content="no-cache" />
-    <meta http-equiv="pragma" content="no-cache" />
     <title>Kampos Displacement Demo</title>
     <link rel="stylesheet" href="./lib/codemirror/codemirror.css">
     <style>
@@ -14,13 +13,17 @@
             linear-gradient(45deg, purple, darkblue, rebeccapurple, purple, darkblue, rebeccapurple);
             background-blend-mode: screen;
             font-family: "Nova round", cursive, fantasy;
-            color: #bada;
         }
 
         header {
             width: fit-content;
             margin:  20vh auto;
             text-align: center;
+        }
+
+        h1,
+        h2 {
+            color: #bada;
         }
 
         h1 {
@@ -35,19 +38,16 @@
             text-shadow: 0 4px 4px darkslateblue;
         }
 
-        video,
-        canvas {
+        iframe {
             display: block;
             vertical-align: top;
         }
 
-        canvas {
+        iframe {
             width: 100vw;
             height: auto;
-        }
-
-        video {
-            display: none;
+            border: none;
+            outline: none;
         }
 
         header > span {
@@ -57,7 +57,23 @@
         }
 
         section {
+            position: relative;
             margin: 10vh auto;
+        }
+
+        .code-container {
+            position: relative;
+        }
+
+        .refresh-button {
+            position: absolute;
+            top: 1px;
+            right: 1px;
+            z-index: 10;
+            padding: 1em 2em;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
         }
 
         @media (min-width: 854px) {
@@ -79,7 +95,7 @@
                 width: 854px;
             }
 
-            canvas {
+            iframe {
                 flex: auto;
                 width: 854px;
                 height: 480px;
@@ -90,7 +106,7 @@
             }
 
             #code1 + .CodeMirror {
-                height: 118rem;
+                height: 125rem;
             }
 
             #code2 + .CodeMirror {
@@ -125,41 +141,45 @@
            <!--crossorigin="anonymous"-->
            <!--playsinline></video>-->
 
-    <video id="video1"
-           src="https://video.wixstatic.com/video/11062b_2ccb88c1c6de4151b51879d6c90fca9d/480p/mp4/file.mp4"
-           autoplay
-           loop
-           muted
-           preload="auto"
-           crossorigin="anonymous"
-           playsinline></video>
+    <template id="videos1">
+        <video id="video1"
+               src="./cloudy-night.mp4"
+               autoplay
+               loop
+               muted
+               preload="auto"
+               crossorigin="anonymous"
+               playsinline></video>
 
-    <video id="video2"
-           src="https://video.wixstatic.com/video/11062b_735a34726eb64df29a56b30b60fe2db8/480p/mp4/file.mp4"
-           autoplay
-           loop
-           muted
-           preload="auto"
-           crossorigin="anonymous"
-           playsinline></video>
+        <video id="video2"
+               src="./starry-night.mp4"
+               autoplay
+               loop
+               muted
+               preload="auto"
+               crossorigin="anonymous"
+               playsinline></video>
+    </template>
 
-    <video id="video3"
-           src="https://video.wixstatic.com/video/11062b_3da4a26484194105bde5b3935f5afb7b/480p/mp4/file.mp4"
-           autoplay
-           loop
-           muted
-           preload="auto"
-           crossorigin="anonymous"
-           playsinline></video>
+    <template id="videos2">
+        <video id="video3"
+               src="./wheat-field.mp4"
+               autoplay
+               loop
+               muted
+               preload="auto"
+               crossorigin="anonymous"
+               playsinline></video>
 
-    <video id="video4"
-           src="https://video.wixstatic.com/video/11062b_62f64d80001a4490b6cc785d64359c6c/480p/mp4/file.mp4"
-           autoplay
-           loop
-           muted
-           preload="auto"
-           crossorigin="anonymous"
-           playsinline></video>
+        <video id="video4"
+               src="./shell-beach.mp4"
+               autoplay
+               loop
+               muted
+               preload="auto"
+               crossorigin="anonymous"
+               playsinline></video>
+    </template>
 
     <!--<video id="video7"-->
            <!--src="https://video.wixstatic.com/video/11062b_830709c744404d6ea7a10dcfd88e3a48/480p/mp4/file.mp4"-->
@@ -183,42 +203,73 @@
     <!--<canvas id="target2"></canvas>-->
     <!--<canvas id="target3"></canvas>-->
     <section>
-        <h2>Displacement transition:</h2>
-        <canvas id="target1"></canvas>
-        <textarea id="code1"></textarea>
+        <h3>Displacement transition:</h3>
+        <p>
+            Transition between 2 videos with a displacement effect.<br/>
+            Hover the video to see it in action.
+        </p>
+        <iframe id="preview1" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
+        <div class="code-container">
+            <button class="refresh-button" id="refresh1">Refresh</button>
+            <textarea id="code1"></textarea>
+        </div>
     </section>
     <section>
-        <h2>Cross-fade transition with hue-rotation:</h2>
-        <canvas id="target2"></canvas>
-        <textarea id="code2"></textarea>
+        <h3>Cross-fade transition with hue-rotation:</h3>
+        <p>
+            Transition between 2 videos with a cross-fade effect & apply a hue-rotate filter.<br/>
+            Move the mouse around over the video to see it in action.
+        </p>
+        <iframe id="preview2" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
+        <div class="code-container">
+            <button class="refresh-button" id="refresh2">Refresh</button>
+            <textarea id="code2"></textarea>
+        </div>
     </section>
 
-    <script src="../index.js"></script>
     <script src="./lib/codemirror/codemirror.js"></script>
     <script src="./lib/codemirror/javascript.js"></script>
     <script>
         const text1 = document.querySelector('#code1');
+        const preview1 = document.querySelector('#preview1');
+        const videos1 = document.querySelector('#videos1');
+        const refresh1 = document.querySelector('#refresh1');
 
         fetch('./disp.js')
             .then(resp => resp.text())
             .then(text => {
                 text1.value = text;
-                CodeMirror.fromTextArea(text1, {
+                const doc = CodeMirror.fromTextArea(text1, {
                     value: text,
                     lineNumbers: true
                 });
+
+                const update = () => updatePreview(preview1, doc.getValue(), videos1.innerHTML);
+
+                refresh1.addEventListener('click', update);
+
+                update();
             });
 
         const text2 = document.querySelector('#code2');
+        const preview2 = document.querySelector('#preview2');
+        const videos2 = document.querySelector('#videos2');
+        const refresh2 = document.querySelector('#refresh2');
 
         fetch('./hue-fade.js')
             .then(resp => resp.text())
             .then(text => {
                 text2.value = text;
-                CodeMirror.fromTextArea(text2, {
+                const doc = CodeMirror.fromTextArea(text2, {
                     value: text,
                     lineNumbers: true
                 });
+
+                const update = () => updatePreview(preview2, doc.getValue(), videos2.innerHTML);
+
+                refresh2.addEventListener('click', update);
+
+                update();
             });
     </script>
     <script src="index.js"></script>

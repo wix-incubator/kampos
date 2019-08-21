@@ -38,6 +38,7 @@ class Transition {
                     this.transition.map = img;
                     this.transition.to = this.vid2;
 
+                    // try playing with the x/y and +/- for different transition effects
                     this.transition.sourceScale = {x: this.dispScale};
                     this.transition.toScale = {x: -this.dispScale};
 
@@ -81,6 +82,7 @@ class Transition {
     loop () {
         const now = Date.now() - this.startTime;
         // dividing by 500 is just enough to slow down the effect
+        // you can change the sin() function with a different one for a different easing
         let p = Math.abs(Math.sin(now / 500));
         p = this.direction ? p : 1 - p;
 
@@ -107,18 +109,23 @@ class Transition {
 
 const video1 = document.querySelector('#video1');
 const video2 = document.querySelector('#video2');
-const target1 = document.querySelector('#target1');
+const target = document.querySelector('#target');
 
 const trans = new Transition({
     vid1: video1,
     vid2: video2,
-    target: target1,
+    target,
+    // switch between the different displacement-map images and refresh to see different effects
+    //disp: 'disp-cloud.png',
+    //disp: 'disp-liquid.jpg',
+    //disp: 'disp-tri.jpg',
     disp: 'disp-snow.jpg',
+    // change this value and refresh to see how it affects the transition
     dispScale: 1.0
 });
 
 /*
  * register event handlers for interaction
  */
-target1.addEventListener('mouseenter', () => trans.forward());
-target1.addEventListener('mouseleave', () => trans.backward());
+target.addEventListener('mouseenter', () => trans.forward());
+target.addEventListener('mouseleave', () => trans.backward());
