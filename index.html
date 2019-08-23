@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="cache-control" content="no-cache" />
+    <title>kampos | Tiny and fast effects compositor on WebGL</title>
+    <link href="https://fonts.googleapis.com/css?family=Nova+Round&display=swap" rel="stylesheet">
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background-image: linear-gradient(-45deg, peachpuff, palegreen, plum, peachpuff, palegreen, plum),
+            linear-gradient(45deg, purple, darkblue, rebeccapurple, purple, darkblue, rebeccapurple);
+            background-blend-mode: screen;
+            font-family: "Nova round", cursive, fantasy;
+            font-size: 16px;
+            color: darkslateblue;
+        }
+
+        nav > ul {
+            display: flex;
+            width: 100vw;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        nav li {
+            flex: 1 auto;
+            padding: 1rem .5rem;
+        }
+
+        nav li.nav-items {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        nav a,
+        nav a:visited {
+            color: darkslateblue;
+        }
+
+        nav a:hover {
+            color: darkslateblue;
+        }
+
+        main {
+            margin:  30vh auto 0;
+            text-align: center;
+        }
+
+        h1,
+        h2 {
+            color: #bada;
+        }
+
+        h1 {
+            font-size: 96px;
+            margin: 0;
+            text-shadow: 0 6px 10px darkslateblue;
+        }
+
+        h2 {
+            font-size: 28px;
+            margin: 0;
+            text-shadow: 0 4px 4px darkslateblue;
+        }
+
+        header > span {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+        }
+
+        @media (min-width: 641px) {
+            html, body {
+                margin: 0;
+            }
+
+            main {
+                width: fit-content;
+            }
+
+            h1 {
+                font-size: 128px;
+            }
+
+            h2 {
+                font-size: 32px;
+            }
+
+            nav > ul {
+                width: fit-content;
+                margin: 0 auto;
+            }
+
+
+            nav li.nav-items {
+                font-size: 20px;
+                padding: 1rem 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li class="nav-items">
+                    <a href="./docs/">API Reference</a>
+                </li>
+                <li class="nav-items">
+                    <a href="./demo/">Demos</a>
+                </li>
+                <li class="nav-items">
+                    <a href="https://github.com/wix-incubator/kampos">Source</a>
+                </li>
+                <li>
+                    <a class="github-button" href="https://github.com/wix-incubator/kampos" data-size="large" aria-label="Star wix-incubator/kampos on GitHub">Star</a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h1>kampos</h1>
+        <h2>Tiny and fast effects compositor</h2>
+    </main>
+</body>
+</html>

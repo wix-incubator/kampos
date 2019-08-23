@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="cache-control" content="no-cache" />
-    <title>Kampos Displacement Demo</title>
+    <title>kampos Demos</title>
+    <link href="https://fonts.googleapis.com/css?family=Nova+Round&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./lib/codemirror/codemirror.css">
+    <link rel="stylesheet" href="lib/codemirror/dracula.css">
     <style>
         body {
             margin: 0;
@@ -16,26 +18,26 @@
         }
 
         header {
-            width: fit-content;
-            margin:  20vh auto;
-            text-align: center;
+            text-align: right;
         }
 
-        h1,
-        h2 {
-            color: #bada;
+        nav {
+            position: fixed;
+            width: 256px;
+            min-height: 100vh;
+            z-index: 10;
+            top: 0;
+            background-color: #DDA0DDee;
+            transform: translateX(-100%);
+            transition: transform .5s ease;
         }
 
-        h1 {
-            font-size: 96px;
-            margin: 0;
-            text-shadow: 0 6px 10px darkslateblue;
+        .nav-open nav {
+            transform: translateX(0);
         }
 
-        h2 {
-            font-size: 28px;
-            margin: 0;
-            text-shadow: 0 4px 4px darkslateblue;
+        main {
+            width: 100vw;
         }
 
         iframe {
@@ -45,20 +47,33 @@
 
         iframe {
             width: 100vw;
-            height: auto;
+            height: calc(480 / 854 * 100vw);
             border: none;
             outline: none;
         }
 
-        header > span {
-            position: absolute;
-            top: 50px;
-            right: 50px;
-        }
-
         section {
             position: relative;
-            margin: 10vh auto;
+            margin: 0 auto 10vh;
+        }
+
+        nav ul {
+            margin: 1rem 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        nav li {
+            padding: 1rem;
+        }
+
+        p {
+            padding: 1rem;
+        }
+
+        button {
+            cursor: pointer;
+            background: linear-gradient(45deg, beige, plum);
         }
 
         .code-container {
@@ -73,12 +88,49 @@
             padding: 1em 2em;
             font-size: 16px;
             font-weight: bold;
+        }
+
+        header button {
             cursor: pointer;
         }
 
-        @media (min-width: 854px) {
+        #nav-off {
+            display: none;
+        }
+
+        .nav-open #nav-off {
+            display: inline;
+        }
+
+        .nav-open #nav-on {
+            display: none;
+        }
+
+        @media (min-width: 1110px) {
             html, body {
                 margin: 0;
+            }
+
+            body {
+                display: grid;
+                grid-template: "nav main" 1fr / 256px calc(100vw - 256px);
+            }
+
+            header {
+                display: none;
+            }
+
+            nav {
+                grid-area: nav;
+                position: fixed;
+                min-height: 100vh;
+                background-color: transparent;
+                transform: none;
+            }
+
+            main {
+                grid-area: main;
+                width: auto;
             }
 
             h1 {
@@ -114,33 +166,8 @@
             }
         }
     </style>
-    <link href="https://fonts.googleapis.com/css?family=Nova+Round&display=swap" rel="stylesheet">
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
 </head>
 <body>
-    <header>
-        <a class="github-button" href="https://github.com/wix-incubator/kampos" data-size="large" aria-label="Star wix-incubator/kampos on GitHub">Star</a>
-        <h1>kampos</h1>
-        <h2>Tiny and fast effects compositor</h2>
-    </header>
-    <!--<video id="video"-->
-           <!--src="https://video.wixstatic.com/video/11062b_6ceb80744f45401caf9eb666caeb9887/480p/mp4/file.mp4"-->
-           <!--autoplay-->
-           <!--loop-->
-           <!--muted-->
-           <!--preload="auto"-->
-           <!--crossorigin="anonymous"-->
-           <!--playsinline></video>-->
-
-    <!--<video id="video2"-->
-           <!--src="https://video.wixstatic.com/video/11062b_1bb2d040b6da423fa2461982bd68bb12/480p/mp4/file.mp4"-->
-           <!--autoplay-->
-           <!--loop-->
-           <!--muted-->
-           <!--preload="auto"-->
-           <!--crossorigin="anonymous"-->
-           <!--playsinline></video>-->
-
     <template id="videos1">
         <video id="video1"
                src="./cloudy-night.mp4"
@@ -180,52 +207,49 @@
                crossorigin="anonymous"
                playsinline></video>
     </template>
-
-    <!--<video id="video7"-->
-           <!--src="https://video.wixstatic.com/video/11062b_830709c744404d6ea7a10dcfd88e3a48/480p/mp4/file.mp4"-->
-           <!--autoplay-->
-           <!--loop-->
-           <!--muted-->
-           <!--preload="auto"-->
-           <!--crossorigin="anonymous"-->
-           <!--playsinline></video>-->
-
-    <!--<video id="video8"-->
-           <!--src="https://video.wixstatic.com/video/11062b_ba2c921477734f8b84ef0c71f64a2562/480p/mp4/file.mp4"-->
-           <!--autoplay-->
-           <!--loop-->
-           <!--muted-->
-           <!--preload="auto"-->
-           <!--crossorigin="anonymous"-->
-           <!--playsinline></video>-->
-
-    <!--<canvas id="target"></canvas>-->
-    <!--<canvas id="target2"></canvas>-->
-    <!--<canvas id="target3"></canvas>-->
-    <section>
-        <h3>Displacement transition:</h3>
-        <p>
-            Transition between 2 videos with a displacement effect.<br/>
-            Hover the video to see it in action.
-        </p>
-        <iframe id="preview1" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
-        <div class="code-container">
-            <button class="refresh-button" id="refresh1">Refresh</button>
-            <textarea id="code1"></textarea>
-        </div>
-    </section>
-    <section>
-        <h3>Cross-fade transition with hue-rotation:</h3>
-        <p>
-            Transition between 2 videos with a cross-fade effect & apply a hue-rotate filter.<br/>
-            Move the mouse around over the video to see it in action.
-        </p>
-        <iframe id="preview2" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
-        <div class="code-container">
-            <button class="refresh-button" id="refresh2">Refresh</button>
-            <textarea id="code2"></textarea>
-        </div>
-    </section>
+    <nav>
+        <ul>
+            <li>
+                <a href="#displacement-transition">Displacement transition</a>
+            </li>
+            <li>
+                <a href="#fade-hue">Cross-fade with hue-rotation</a>
+            </li>
+        </ul>
+    </nav>
+    <header>
+        <button id="nav-on">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <button id="nav-off">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+    </header>
+    <main>
+        <section id="displacement-transition">
+            <p>
+                Transition between 2 videos with a displacement effect.<br/>
+                Hover the video to see it in action.<br/>
+                * On mobile tap inside/outside the video.
+            </p>
+            <iframe id="preview1" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
+            <div class="code-container">
+                <button class="refresh-button" id="refresh1">Refresh</button>
+                <textarea id="code1"></textarea>
+            </div>
+        </section>
+        <section id="fade-hue">
+            <p>
+                Transition between 2 videos with a cross-fade effect & apply a hue-rotate filter.<br/>
+                Move the mouse (tap on mobile) around over the video to see it in action.
+            </p>
+            <iframe id="preview2" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
+            <div class="code-container">
+                <button class="refresh-button" id="refresh2">Refresh</button>
+                <textarea id="code2"></textarea>
+            </div>
+        </section>
+    </main>
 
     <script src="./lib/codemirror/codemirror.js"></script>
     <script src="./lib/codemirror/javascript.js"></script>
@@ -241,7 +265,8 @@
                 text1.value = text;
                 const doc = CodeMirror.fromTextArea(text1, {
                     value: text,
-                    lineNumbers: true
+                    lineNumbers: true,
+                    theme: 'dracula'
                 });
 
                 const update = () => updatePreview(preview1, doc.getValue(), videos1.innerHTML);
@@ -262,7 +287,8 @@
                 text2.value = text;
                 const doc = CodeMirror.fromTextArea(text2, {
                     value: text,
-                    lineNumbers: true
+                    lineNumbers: true,
+                    theme: 'dracula'
                 });
 
                 const update = () => updatePreview(preview2, doc.getValue(), videos2.innerHTML);
