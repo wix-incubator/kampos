@@ -37,4 +37,5 @@
 
             setTimeout(() => document.body.addEventListener('click', navOffHandler, {once: true}), 0);
         });
+
 }());

@@ -1346,11 +1346,11 @@
      * @class Kampos
      * @param {kamposConfig} config
      * @example
-     * import {Ticker, Kampos, effects} from 'kampos';
-     * const ticker = new Ticker();
+     * import { Kampos, effects} from 'kampos';
+     *
      * const target = document.querySelector('#canvas');
      * const hueSat = effects.hueSaturation();
-     * const kampos = new Kampos({ticker, target, effects: [hueSat]});
+     * const kampos = new Kampos({target, effects: [hueSat]});
      */
 
     var Kampos =
@@ -1423,10 +1423,10 @@
         this.config.target.addEventListener('webglcontextlost', this._loseContext, true);
       }
       /**
-       * Initializes an Kampos instance.
+       * Initializes a Kampos instance.
        * This is called inside the constructor,
        * but can be called again after effects have changed
-       * or after {@link Kampos#desotry()}.
+       * or after {@link Kampos#destroy}.
        *
        * @param {kamposConfig} [config] defaults to `this.config`
        * @return {boolean} success whether initializing of the context and program were successful
@@ -1529,7 +1529,7 @@
         /**
          * Starts the animation loop.
          *
-         * If using a {@see Ticker} this instance will be added to that {@see Ticker}.
+         * If using a {@link Ticker} this instance will be added to that {@link Ticker}.
          */
 
       }, {
@@ -1559,7 +1559,7 @@
         /**
          * Stops the animation loop.
          *
-         * If using a {@see Ticker} this instance will be removed from that {@see Ticker}.
+         * If using a {@link Ticker} this instance will be removed from that {@link Ticker}.
          */
 
       }, {
@@ -1578,7 +1578,7 @@
         /**
          * Stops animation loop and frees all resources.
          *
-         * @param {boolean} keepState  for internal use.
+         * @param {boolean} keepState for internal use.
          */
 
       }, {
@@ -1663,7 +1663,7 @@
     }();
 
     /**
-     * Initialize a ticker instance for batching animation of multiple Kampos instances.
+     * Initialize a ticker instance for batching animation of multiple {@link Kampos} instances.
      *
      * @class Ticker
      */
@@ -1706,7 +1706,7 @@
           this.animationFrameId = null;
         }
         /**
-         * Invoke draw() on all instances in the pool.
+         * Invoke `.draw()` on all instances in the pool.
          */
 
       }, {

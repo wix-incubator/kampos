@@ -25,3 +25,12 @@ function getIFrameHTML ({example, videos}) {
 }
 
 window.updatePreview = updatePreview;
+
+const navOffHandler = () => document.body.classList.remove('nav-open');
+
+document.querySelector('#nav-on')
+    .addEventListener('click', () => {
+        document.body.classList.add('nav-open');
+
+        setTimeout(() => document.body.addEventListener('click', navOffHandler, {once: true}), 0);
+    });

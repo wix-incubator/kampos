@@ -1,5 +1,5 @@
 /**
- * Initialize a ticker instance for batching animation of multiple Kampos instances.
+ * Initialize a ticker instance for batching animation of multiple {@link Kampos} instances.
  *
  * @class Ticker
  */
@@ -31,7 +31,7 @@ export default class Ticker {
     }
 
     /**
-     * Invoke draw() on all instances in the pool.
+     * Invoke `.draw()` on all instances in the pool.
      */
     draw () {
         this.pool.forEach(instance => instance.draw());

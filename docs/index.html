@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset='utf-8'>
-  <title>kampos 0.2.2 | Documentation</title>
+  <title>kampos 0.2.3 | Documentation</title>
   <meta name='description' content='Tiny and fast effects compositor on WebGL'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' rel='stylesheet'>
@@ -15,7 +15,7 @@
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>kampos</h3>
-          <div class='mb1'><code>0.2.2</code></div>
+          <div class='mb1'><code>0.2.3</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -427,11 +427,11 @@
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">import</span> {Ticker, Kampos, effects} <span class="hljs-keyword">from</span> <span class="hljs-string">'kampos'</span>;
-<span class="hljs-keyword">const</span> ticker = <span class="hljs-keyword">new</span> Ticker();
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">import</span> { Kampos, effects} <span class="hljs-keyword">from</span> <span class="hljs-string">'kampos'</span>;
+
 <span class="hljs-keyword">const</span> target = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#canvas'</span>);
 <span class="hljs-keyword">const</span> hueSat = effects.hueSaturation();
-<span class="hljs-keyword">const</span> kampos = <span class="hljs-keyword">new</span> Kampos({ticker, target, <span class="hljs-attr">effects</span>: [hueSat]});</pre>
+<span class="hljs-keyword">const</span> kampos = <span class="hljs-keyword">new</span> Kampos({target, <span class="hljs-attr">effects</span>: [hueSat]});</pre>
     
   
 
@@ -453,10 +453,10 @@
 
   
 
-  <p>Initializes an Kampos instance.
+  <p>Initializes a Kampos instance.
 This is called inside the constructor,
 but can be called again after effects have changed
-or after <a href="Kampos#desotry()">Kampos#desotry()</a>.</p>
+or after <a href="#kamposdestroy">Kampos#destroy</a>.</p>
 
     <div class='pre p1 fill-light mt0'>init(config: <a href="#kamposconfig">kamposConfig</a>?): <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></div>
   
@@ -641,7 +641,7 @@ kampos.setSource(media);</pre>
   
 
   <p>Starts the animation loop.</p>
-<p>If using a {@see Ticker} this instance will be added to that {@see Ticker}.</p>
+<p>If using a <a href="#ticker">Ticker</a> this instance will be added to that <a href="#ticker">Ticker</a>.</p>
 
     <div class='pre p1 fill-light mt0'>play()</div>
   
@@ -689,7 +689,7 @@ kampos.setSource(media);</pre>
   
 
   <p>Stops the animation loop.</p>
-<p>If using a {@see Ticker} this instance will be removed from that {@see Ticker}.</p>
+<p>If using a <a href="#ticker">Ticker</a> this instance will be removed from that <a href="#ticker">Ticker</a>.</p>
 
     <div class='pre p1 fill-light mt0'>stop()</div>
   

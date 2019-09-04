@@ -6,11 +6,11 @@ import core from './core';
  * @class Kampos
  * @param {kamposConfig} config
  * @example
- * import {Ticker, Kampos, effects} from 'kampos';
- * const ticker = new Ticker();
+ * import { Kampos, effects} from 'kampos';
+ *
  * const target = document.querySelector('#canvas');
  * const hueSat = effects.hueSaturation();
- * const kampos = new Kampos({ticker, target, effects: [hueSat]});
+ * const kampos = new Kampos({target, effects: [hueSat]});
  */
 export default class Kampos {
     /**
@@ -83,10 +83,10 @@ export default class Kampos {
     }
 
     /**
-     * Initializes an Kampos instance.
+     * Initializes a Kampos instance.
      * This is called inside the constructor,
      * but can be called again after effects have changed
-     * or after {@link Kampos#desotry()}.
+     * or after {@link Kampos#destroy}.
      *
      * @param {kamposConfig} [config] defaults to `this.config`
      * @return {boolean} success whether initializing of the context and program were successful
@@ -188,7 +188,7 @@ export default class Kampos {
     /**
      * Starts the animation loop.
      *
-     * If using a {@see Ticker} this instance will be added to that {@see Ticker}.
+     * If using a {@link Ticker} this instance will be added to that {@link Ticker}.
      */
     play () {
         if ( this.ticker ) {
@@ -215,7 +215,7 @@ export default class Kampos {
     /**
      * Stops the animation loop.
      *
-     * If using a {@see Ticker} this instance will be removed from that {@see Ticker}.
+     * If using a {@link Ticker} this instance will be removed from that {@link Ticker}.
      */
     stop () {
         if ( this.animationFrameId ) {
@@ -232,7 +232,7 @@ export default class Kampos {
     /**
      * Stops animation loop and frees all resources.
      *
-     * @param {boolean} keepState  for internal use.
+     * @param {boolean} keepState for internal use.
      */
     destroy (keepState) {
         this.stop();
