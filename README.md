@@ -3,13 +3,13 @@
 
 kampos lets you add filter effects and beautiful transitions to video and images (or any other media).
 Just like [SVG filter effects](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Filter_effects),
-only using WebGL, and hence works everywhere!
+only using WebGL, which means it works everywhere!
 
 ## Demo
-Watch a [live demo](https://wix-incubator.github.io/kampos/demo/).
+Check out a [live demo](https://wix-incubator.github.io/kampos/demo/).
 
 ## Documentation
-For API reference and examples read [the docs](https://wix-incubator.github.io/kampos/docs/).
+For API reference and examples, read [the docs](https://wix-incubator.github.io/kampos/docs/).
 
 ## Features
 * Filter effects for images and videos that you can mix and compose.
@@ -20,7 +20,7 @@ For API reference and examples read [the docs](https://wix-incubator.github.io/k
 
 ## Usage
 Here's a simple example for using kampos:
-```
+```javascript
 import {Kampos, effects} from 'kampos';
 
 const target = document.querySelector('canvas');
@@ -38,31 +38,33 @@ kampos.play();
 ## Getting started
 Grab the source from here, or install via package manager.
 
+>:exclamation: I tried doing this on my own but soon realized I was going to spend much more time on this than would be reasonable... Anyways, my suggestion is to add a section here like "Using source", package the library as standalone `.js` file(s) so that those could be easily included like `<script src=".../kampos.js"></script>`. Or enqueued via some backend engine.
+
 ### npm example:
-```
+```bash
 npm install kampos
 ```
 
 Import the default build:
-```
+```javascript
 import {Kampos, Ticker, effects, transitions} from 'kampos';
 ```
 
-Or just what you need:
-```
+Or take just what you need:
+```javascript
 import Kampos from './node_modules/kampos/src/kampos';
 import duotone from './node_modules/kampos/src/effects/duotone';
 import displacement from './node_modules/kampos/src/effects/displacement';
 ```
 
 ## Building locally
-```
+```bash
 npm install
 npm run build
 ```
 
 ## Running tests
-```
+```bash
 npm run test
 ```
 
