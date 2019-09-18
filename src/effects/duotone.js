@@ -6,8 +6,8 @@
 export default function () {
     /**
      * @typedef {Object} duotoneEffect
-     * @property {number[]} light Array of 4 numbers normalized (0.0 - 1.0)
-     * @property {number[]} dark Array of 4 numbers normalized (0.0 - 1.0)
+     * @property {number[]} light Array of 4 numbers, normalized (0.0 - 1.0)
+     * @property {number[]} dark Array of 4 numbers, normalized (0.0 - 1.0)
      * @property {boolean} disabled
      *
      * @example
