@@ -6,7 +6,7 @@ Just like [SVG filter effects](https://developer.mozilla.org/en-US/docs/Web/SVG/
 only using WebGL, which means it works everywhere!
 
 ## Demo
-Check out a [live demo](https://wix-incubator.github.io/kampos/demo/).
+Check out the [live demo](https://wix-incubator.github.io/kampos/demo/).
 
 ## Documentation
 For API reference and examples, read [the docs](https://wix-incubator.github.io/kampos/docs/).
@@ -37,8 +37,6 @@ kampos.play();
 
 ## Getting started
 Grab the source from here, or install via package manager.
-
->:exclamation: I tried doing this on my own but soon realized I was going to spend much more time on this than would be reasonable... Anyways, my suggestion is to add a section here like "Using source", package the library as standalone `.js` file(s) so that those could be easily included like `<script src=".../kampos.js"></script>`. Or enqueued via some backend engine.
 
 ### npm example:
 ```bash
