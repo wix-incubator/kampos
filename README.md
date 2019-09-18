@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="200" src="./kampos.svg?sanitize=true">
+  <img width="100" src="./kampos.svg?sanitize=true">
 </p>
 
 # kampos [![Build Status](https://travis-ci.com/wix-incubator/kampos.svg?branch=master)](https://travis-ci.com/wix-incubator/kampos)
