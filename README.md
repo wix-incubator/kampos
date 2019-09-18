@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="100" src="./kampos.svg?sanitize=true">
+</p>
+
 # kampos [![Build Status](https://travis-ci.com/wix-incubator/kampos.svg?branch=master)](https://travis-ci.com/wix-incubator/kampos)
 ### Tiny and fast effects compositor on WebGL
 
