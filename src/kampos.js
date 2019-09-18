@@ -1,7 +1,7 @@
 import core from './core';
 
 /**
- * Initialize a webgl target with effects.
+ * Initialize a WebGL target with effects.
  *
  * @class Kampos
  * @param {kamposConfig} config
@@ -188,7 +188,7 @@ export default class Kampos {
     /**
      * Starts the animation loop.
      *
-     * If using a {@link Ticker} this instance will be added to that {@link Ticker}.
+     * If a {@link Ticker} is used, this instance will be added to that {@link Ticker}.
      */
     play () {
         if ( this.ticker ) {
@@ -215,7 +215,7 @@ export default class Kampos {
     /**
      * Stops the animation loop.
      *
-     * If using a {@link Ticker} this instance will be removed from that {@link Ticker}.
+     * If a {@link Ticker} is used, this instance will be removed from that {@link Ticker}.
      */
     stop () {
         if ( this.animationFrameId ) {
@@ -230,7 +230,7 @@ export default class Kampos {
     }
 
     /**
-     * Stops animation loop and frees all resources.
+     * Stops the animation loop and frees all resources.
      *
      * @param {boolean} keepState for internal use.
      */
@@ -345,8 +345,8 @@ export default class Kampos {
  * @property {string} [main]
  * @property {string} [source]
  * @property {string} [constant]
- * @property {Object} [uniform] mapping name of variable to type
- * @property {Object} [attribute] mapping name of variable to type
+ * @property {Object} [uniform] mapping variable name to type
+ * @property {Object} [attribute] mapping variable name to type
  */
 
 /**

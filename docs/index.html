@@ -389,7 +389,7 @@
   </div>
   
 
-  <p>Initialize a webgl target with effects.</p>
+  <p>Initialize a WebGL target with effects.</p>
 
     <div class='pre p1 fill-light mt0'>new Kampos(config: <a href="#kamposconfig">kamposConfig</a>)</div>
   
@@ -641,7 +641,7 @@ kampos.setSource(media);</pre>
   
 
   <p>Starts the animation loop.</p>
-<p>If using a <a href="#ticker">Ticker</a> this instance will be added to that <a href="#ticker">Ticker</a>.</p>
+<p>If a <a href="#ticker">Ticker</a> is used, this instance will be added to that <a href="#ticker">Ticker</a>.</p>
 
     <div class='pre p1 fill-light mt0'>play()</div>
   
@@ -689,7 +689,7 @@ kampos.setSource(media);</pre>
   
 
   <p>Stops the animation loop.</p>
-<p>If using a <a href="#ticker">Ticker</a> this instance will be removed from that <a href="#ticker">Ticker</a>.</p>
+<p>If a <a href="#ticker">Ticker</a> is used, this instance will be removed from that <a href="#ticker">Ticker</a>.</p>
 
     <div class='pre p1 fill-light mt0'>stop()</div>
   
@@ -736,7 +736,7 @@ kampos.setSource(media);</pre>
 
   
 
-  <p>Stops animation loop and frees all resources.</p>
+  <p>Stops the animation loop and frees all resources.</p>
 
     <div class='pre p1 fill-light mt0'>destroy(keepState: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</div>
   
@@ -866,7 +866,7 @@ This will replace canvas DOM element with a fresh clone.</p>
   </div>
   
 
-  <p>Initialize a ticker instance for batching animation of multiple Kampos instances.</p>
+  <p>Initialize a ticker instance for batching animation of multiple <a href="#kampos">Kampos</a> instances.</p>
 
     <div class='pre p1 fill-light mt0'>new Ticker()</div>
   
@@ -1001,7 +1001,7 @@ This will replace canvas DOM element with a fresh clone.</p>
 
   
 
-  <p>Invoke draw() on all instances in the pool.</p>
+  <p>Invoke <code>.draw()</code> on all instances in the pool.</p>
 
     <div class='pre p1 fill-light mt0'>draw()</div>
   
@@ -1485,14 +1485,14 @@ This will replace canvas DOM element with a fresh clone.</p>
       
         <div class='space-bottom0'>
           <span class='code bold'>uniform</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
-          : mapping name of variable to type
+          : mapping variable name to type
 
           
         </div>
       
         <div class='space-bottom0'>
           <span class='code bold'>attribute</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
-          : mapping name of variable to type
+          : mapping variable name to type
 
           
         </div>
@@ -2406,14 +2406,14 @@ effect.disabled = <span class="hljs-literal">true</span>;</pre>
       
         <div class='space-bottom0'>
           <span class='code bold'>light</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>>)</code>
-          : Array of 4 numbers normalized (0.0 - 1.0)
+          : Array of 4 numbers, normalized (0.0 - 1.0)
 
           
         </div>
       
         <div class='space-bottom0'>
           <span class='code bold'>dark</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>>)</code>
-          : Array of 4 numbers normalized (0.0 - 1.0)
+          : Array of 4 numbers, normalized (0.0 - 1.0)
 
           
         </div>
