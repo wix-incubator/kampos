@@ -22,7 +22,7 @@ describe('core', function() {
     describe('#init()', function() {
         it('should return an object with webgl context and scene data', function() {
             const canvas = document.createElement('canvas');
-            const {gl, data} = core.init(core.getWebGLContext(canvas), [brightnessContrast]);
+            const {gl, data} = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
 
             assert(gl);
             assert(data);
@@ -32,7 +32,7 @@ describe('core', function() {
 
         it('should return scene data with complete WebGL program data', function() {
             const canvas = document.createElement('canvas');
-            const {gl, data} = core.init(core.getWebGLContext(canvas), [brightnessContrast]);
+            const {gl, data} = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
 
             assert(gl);
             assert(data);
@@ -65,7 +65,7 @@ describe('core', function() {
             video = document.createElement('video');
             canvas = document.createElement('canvas');
 
-            const initData = core.init(core.getWebGLContext(canvas), [brightnessContrast]);
+            const initData = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
 
             gl = initData.gl;
             scene = initData.data;
@@ -86,7 +86,7 @@ describe('core', function() {
         beforeEach(function () {
             canvas = document.createElement('canvas');
 
-            const initData = core.init(core.getWebGLContext(canvas), [brightnessContrast]);
+            const initData = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
 
             gl = initData.gl;
             scene = initData.data;
@@ -127,7 +127,7 @@ describe('core', function() {
 
         it('should resize target to supplied dimensions and ignore canvas CSS dimensions', function () {
             core.destroy(gl, scene);
-            const initData2fx = core.init(core.getWebGLContext(canvas), [brightnessContrast]);
+            const initData2fx = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
 
             gl = initData2fx.gl;
             scene = initData2fx.data;
@@ -153,7 +153,7 @@ describe('core', function() {
         beforeEach(function () {
             canvas = document.createElement('canvas');
 
-            const initData = core.init(core.getWebGLContext(canvas), [brightnessContrast]);
+            const initData = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
 
             gl = initData.gl;
             scene = initData.data;

@@ -9,8 +9,8 @@ export default function () {
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map displacement map to use
      * @property {number} progress number between 0.0 and 1.0
-     * @property {{x: number, y: number}} sourceScale
-     * @property {{x: number, y: number}} toScale
+     * @property {{x: number?, y: number?}} sourceScale
+     * @property {{x: number?, y: number?}} toScale
      * @property {boolean} disabled
      *
      * @example

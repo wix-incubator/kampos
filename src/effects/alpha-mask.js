@@ -8,8 +8,11 @@ export default function () {
      * @typedef {Object} alphaMaskEffect
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} mask
      * @property {boolean} disabled
+     * @property {boolean} isLuminance
      *
-     * @example
+     * @description Multiplies `alpha` value with values read from `mask` media source.
+     *
+     *  @example
      * const img = new Image();
      * img.src = 'picture.png';
      * effect.mask = img;
@@ -26,11 +29,19 @@ export default function () {
         fragment: {
             uniform: {
                 u_alphaMaskEnabled: 'bool',
+                u_alphaMaskIsLuminance: 'bool',
                 u_mask: 'sampler2D'
             },
             main: `
     if (u_alphaMaskEnabled) {
-        alpha *= texture2D(u_mask, v_alphaMaskTexCoord).a;
+        vec4 alphaMaskPixel = texture2D(u_mask, v_alphaMaskTexCoord);
+
+        if (u_alphaMaskIsLuminance) {
+            alpha *= dot(lumcoeff, alphaMaskPixel.rgb) * alphaMaskPixel.a;
+        }
+        else {
+            alpha *= alphaMaskPixel.a;
+        }
     }`
         },
         get disabled () {
@@ -45,6 +56,13 @@ export default function () {
         set mask (img) {
             this.textures[0].image = img;
         },
+        get isLuminance () {
+            return !!this.uniforms[2].data[0];
+        },
+        set isLuminance (toggle) {
+            this.uniforms[2].data[0] = +toggle;
+            this.textures[0].format = toggle ? 'RGBA' : 'ALPHA';
+        },
         varying: {
             v_alphaMaskTexCoord: 'vec2'
         },
@@ -58,6 +76,11 @@ export default function () {
                 name: 'u_mask',
                 type: 'i',
                 data: [1]
+            },
+            {
+                name: 'u_alphaMaskIsLuminance',
+                type: 'i',
+                data: [0]
             }
         ],
         attributes: [

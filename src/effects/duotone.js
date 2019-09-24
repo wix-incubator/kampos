@@ -15,7 +15,6 @@ export default function () {
      * effect.dark = [0.2, 0.6, 0.33];
      */
     return {
-        vertex: {},
         fragment: {
             uniform: {
                 u_duotoneEnabled: 'bool',

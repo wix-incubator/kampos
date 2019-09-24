@@ -17,7 +17,6 @@ export default function () {
      * effect.contrastDisabled = true;
      */
     return {
-        vertex: {},
         fragment: {
             uniform: {
                 u_brEnabled: 'bool',

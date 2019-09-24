@@ -7,7 +7,7 @@ export default function () {
     /**
      * @typedef {Object} displacementEffect
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map
-     * @property {{x: number, y: number}} scale
+     * @property {{x: number?, y: number?}} scale
      * @property {boolean} disabled
      *
      * @example

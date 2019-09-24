@@ -15,11 +15,13 @@ toc:
       - alphaMask
       - duotone
       - displacement
+      - turbulence
   - brightnessContrastEffect
   - hueSaturationEffect
   - alphaMaskEffect
   - duotoneEffect
   - displacementEffect
+  - turbulenceEffect
   - name: transitions
     children:
       - fadeTransition

@@ -93,7 +93,7 @@ export default class Kampos {
      */
     init (config) {
         config = config || this.config;
-        let {target, effects, ticker} = config;
+        let {target, effects, ticker, noSource} = config;
 
         if ( Kampos.preventContextCreation )
             return false;
@@ -118,7 +118,7 @@ export default class Kampos {
                 return false;
         }
 
-        const {data} = core.init(gl, effects, this.dimensions);
+        const {data} = core.init({gl, effects, dimensions: this.dimensions, noSource});
 
         this.gl = gl;
         this.data = data;
@@ -182,6 +182,11 @@ export default class Kampos {
             if ( ! success ) return;
         }
 
+        const cb = this.config.beforeDraw;
+
+        if ( cb && cb() === false )
+            return;
+
         core.draw(this.gl, this.media, this.data, this.dimensions);
     }
 
@@ -189,8 +194,12 @@ export default class Kampos {
      * Starts the animation loop.
      *
      * If a {@link Ticker} is used, this instance will be added to that {@link Ticker}.
+     *
+     * @param {function} beforeDraw function to run before each draw call
      */
-    play () {
+    play (beforeDraw) {
+        this.config.beforeDraw = beforeDraw;
+
         if ( this.ticker ) {
             if ( this.animationFrameId ) {
                 this.stop();
@@ -318,6 +327,8 @@ export default class Kampos {
  * @property {HTMLCanvasElement} target
  * @property {effectConfig[]} effects
  * @property {Ticker} [ticker]
+ * @property {boolean} [noSource]
+ * @property {function} [beforeDraw] function to run before each draw call. If it returns `false` {@link kampos#draw} will not be called.
  * @property {function} [onContextLost]
  * @property {function} [onContextRestored]
  * @property {function} [onContextCreationError]

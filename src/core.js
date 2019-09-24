@@ -7,7 +7,27 @@ export default {
     createTexture
 }
 
-const vertexTemplate = ({
+const vertexSimpleTemplate = ({
+    uniform = '',
+    attribute = '',
+    varying = '',
+    constant = '',
+    main = ''
+}) => `
+precision mediump float;
+${uniform}
+${attribute}
+attribute vec2 a_position;
+${varying}
+
+const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);
+${constant}
+void main() {
+    ${main}
+    gl_Position = vec4(a_position.xy, 0.0, 1.0);
+}`;
+
+const vertexMediaTemplate = ({
     uniform = '',
     attribute = '',
     varying = '',
@@ -30,7 +50,28 @@ void main() {
     gl_Position = vec4(a_position.xy, 0.0, 1.0);
 }`;
 
-const fragmentTemplate = ({
+const fragmentSimpleTemplate = ({
+    uniform = '',
+    varying = '',
+    constant = '',
+    main = '',
+    source = ''
+}) => `
+precision mediump float;
+${varying}
+${uniform}
+
+const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);
+${constant}
+void main() {
+    ${source}
+    vec3 color = vec3(0.0);
+    float alpha = 1.0;
+    ${main}
+    gl_FragColor = vec4(color, 1.0) * alpha;
+}`;
+
+const fragmentMediaTemplate = ({
     uniform = '',
     varying = '',
     constant = '',
@@ -59,14 +100,16 @@ void main() {
  * Initialize a compiled WebGLProgram for the given canvas and effects.
  *
  * @private
- * @param {WebGLRenderingContext} gl
- * @param effects
- * @param dimensions
+ * @param {Object} config
+ * @param {WebGLRenderingContext} config.gl
+ * @param {Object[]} config.effects
+ * @param {{width: number, heignt: number}} [config.dimensions]
+ * @param {boolean} [config.noSource]
  * @return {{gl: WebGLRenderingContext, data: kamposSceneData, [dimensions]: {width: number, height: number}}}
  */
-function init (gl, effects, dimensions) {
+function init ({gl, effects, dimensions, noSource}) {
 
-    const programData = _initProgram(gl, effects);
+    const programData = _initProgram(gl, effects, noSource);
 
     return {gl, data: programData, dimensions: dimensions || {}};
 }
@@ -155,11 +198,13 @@ function resize (gl, dimensions) {
 function draw (gl, media, data, dimensions) {
     const {program, source, attributes, uniforms, textures} = data;
 
-    // bind the source texture
-    gl.bindTexture(gl.TEXTURE_2D, source.texture);
+    if ( media && source && source.texture ) {
+        // bind the source texture
+        gl.bindTexture(gl.TEXTURE_2D, source.texture);
 
-    // read source data into texture
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, media);
+        // read source data into texture
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, media);
+    }
 
     // Tell it to use our program (pair of shaders)
     gl.useProgram(program);
@@ -206,7 +251,8 @@ function destroy (gl, data) {
     (attributes || []).forEach(attr => gl.deleteBuffer(attr.buffer));
 
     // delete texture
-    gl.deleteTexture(source.texture);
+    if ( source && source.texture )
+        gl.deleteTexture(source.texture);
 
     // delete program
     gl.deleteProgram(program);
@@ -216,19 +262,21 @@ function destroy (gl, data) {
     gl.deleteShader(fragmentShader);
 }
 
-function _initProgram (gl, effects) {
-    const source = {
+function _initProgram (gl, effects, noSource=false) {
+    const source = noSource || {
         texture: createTexture(gl).texture,
         buffer: null
     };
 
-    // flip Y axis for source texture
-    gl.bindTexture(gl.TEXTURE_2D, source.texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    if ( source ) {
+        // flip Y axis for source texture
+        gl.bindTexture(gl.TEXTURE_2D, source.texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    }
 
-    const data = _mergeEffectsData(effects);
-    const vertexSrc = _stringifyShaderSrc(data.vertex, vertexTemplate);
-    const fragmentSrc = _stringifyShaderSrc(data.fragment, fragmentTemplate);
+    const data = _mergeEffectsData(effects, noSource);
+    const vertexSrc = _stringifyShaderSrc(data.vertex, noSource ? vertexSimpleTemplate : vertexMediaTemplate);
+    const fragmentSrc = _stringifyShaderSrc(data.fragment, noSource ? fragmentSimpleTemplate : fragmentMediaTemplate);
 
     // compile the GLSL program
     const {program, vertexShader, fragmentShader, error, type} = _getWebGLProgram(gl, vertexSrc, fragmentSrc);
@@ -254,10 +302,10 @@ function _initProgram (gl, effects) {
     };
 }
 
-function _mergeEffectsData (effects) {
+function _mergeEffectsData (effects, noSource=false) {
     return effects.reduce((result, config) => {
         const {attributes = [], uniforms = [], textures = [], varying = {}} = config;
-        const merge = shader => Object.keys(config[shader]).forEach(key => {
+        const merge = shader => Object.keys(config[shader] || {}).forEach(key => {
             if ( key === 'constant' || key === 'main' || key === 'source' ) {
                 result[shader][key] += config[shader][key] + '\n';
             }
@@ -289,7 +337,51 @@ function _mergeEffectsData (effects) {
         Object.assign(result.fragment.varying, varying);
 
         return result;
-    }, {
+    }, getEffectDefaults(noSource));
+}
+
+function getEffectDefaults (noSource) {
+    /*
+     * Default uniforms
+     */
+    const uniforms = noSource ? [] : [
+        {
+            name: 'u_source',
+            type: 'i',
+            data: [0]
+        }
+    ];
+
+    /*
+     * Default attributes
+     */
+    const attributes = [
+        {
+            name: 'a_position',
+            data: new Float32Array([
+                -1.0, -1.0,
+                -1.0, 1.0,
+                1.0, -1.0,
+                1.0, 1.0]),
+            size: 2,
+            type: 'FLOAT'
+        }
+    ];
+
+    if ( ! noSource ) {
+        attributes.push({
+            name: 'a_texCoord',
+            data: new Float32Array([
+                0.0, 0.0,
+                0.0, 1.0,
+                1.0, 0.0,
+                1.0, 1.0]),
+            size: 2,
+            type: 'FLOAT'
+        });
+    }
+
+    return {
         vertex: {
             uniform: {},
             attribute: {},
@@ -304,46 +396,13 @@ function _mergeEffectsData (effects) {
             main: '',
             source: ''
         },
-        /*
-         * Default attributes
-         */
-        attributes: [
-            {
-                name: 'a_position',
-                data: new Float32Array([
-                    -1.0, -1.0,
-                    -1.0, 1.0,
-                    1.0, -1.0,
-                    1.0, 1.0]),
-                size: 2,
-                type: 'FLOAT'
-            },
-            {
-                name: 'a_texCoord',
-                data: new Float32Array([
-                    0.0, 0.0,
-                    0.0, 1.0,
-                    1.0, 0.0,
-                    1.0, 1.0]),
-                size: 2,
-                type: 'FLOAT'
-            }
-        ],
-        /*
-         * Default uniforms
-         */
-        uniforms: [
-            {
-                name: 'u_source',
-                type: 'i',
-                data: [0]
-            }
-        ],
+        attributes,
+        uniforms,
         /*
          * Default textures
          */
         textures: []
-    });
+    };
 }
 
 function _stringifyShaderSrc (data, template) {

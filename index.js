@@ -14,8 +14,11 @@
        * @typedef {Object} alphaMaskEffect
        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} mask
        * @property {boolean} disabled
+       * @property {boolean} isLuminance
        *
-       * @example
+       * @description Multiplies `alpha` value with values read from `mask` media source.
+       *
+       *  @example
        * const img = new Image();
        * img.src = 'picture.png';
        * effect.mask = img;
@@ -31,9 +34,10 @@
         fragment: {
           uniform: {
             u_alphaMaskEnabled: 'bool',
+            u_alphaMaskIsLuminance: 'bool',
             u_mask: 'sampler2D'
           },
-          main: "\n    if (u_alphaMaskEnabled) {\n        alpha *= texture2D(u_mask, v_alphaMaskTexCoord).a;\n    }"
+          main: "\n    if (u_alphaMaskEnabled) {\n        vec4 alphaMaskPixel = texture2D(u_mask, v_alphaMaskTexCoord);\n\n        if (u_alphaMaskIsLuminance) {\n            alpha *= dot(lumcoeff, alphaMaskPixel.rgb) * alphaMaskPixel.a;\n        }\n        else {\n            alpha *= alphaMaskPixel.a;\n        }\n    }"
         },
 
         get disabled() {
@@ -52,6 +56,15 @@
           this.textures[0].image = img;
         },
 
+        get isLuminance() {
+          return !!this.uniforms[2].data[0];
+        },
+
+        set isLuminance(toggle) {
+          this.uniforms[2].data[0] = +toggle;
+          this.textures[0].format = toggle ? 'RGBA' : 'ALPHA';
+        },
+
         varying: {
           v_alphaMaskTexCoord: 'vec2'
         },
@@ -63,6 +76,10 @@
           name: 'u_mask',
           type: 'i',
           data: [1]
+        }, {
+          name: 'u_alphaMaskIsLuminance',
+          type: 'i',
+          data: [0]
         }],
         attributes: [{
           name: 'a_alphaMaskTexCoord',
@@ -95,7 +112,6 @@
        * effect.contrastDisabled = true;
        */
       return {
-        vertex: {},
         fragment: {
           uniform: {
             u_brEnabled: 'bool',
@@ -260,8 +276,8 @@
     function duotone () {
       /**
        * @typedef {Object} duotoneEffect
-       * @property {number[]} light Array of 4 numbers normalized (0.0 - 1.0)
-       * @property {number[]} dark Array of 4 numbers normalized (0.0 - 1.0)
+       * @property {number[]} light Array of 4 numbers, normalized (0.0 - 1.0)
+       * @property {number[]} dark Array of 4 numbers, normalized (0.0 - 1.0)
        * @property {boolean} disabled
        *
        * @example
@@ -269,7 +285,6 @@
        * effect.dark = [0.2, 0.6, 0.33];
        */
       return {
-        vertex: {},
         fragment: {
           uniform: {
             u_duotoneEnabled: 'bool',
@@ -454,7 +469,7 @@
       /**
        * @typedef {Object} displacementEffect
        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map
-       * @property {{x: number, y: number}} scale
+       * @property {{x: number?, y: number?}} scale
        * @property {boolean} disabled
        *
        * @example
@@ -537,6 +552,122 @@
         }],
         textures: [{
           format: 'RGB'
+        }]
+      };
+    }
+
+    /*!
+     * GLSL textureless classic 3D noise "cnoise",
+     * with an RSL-style periodic variant "pnoise".
+     * Author:  Stefan Gustavson (stefan.gustavson@liu.se)
+     * Version: 2011-10-11
+     *
+     * Many thanks to Ian McEwan of Ashima Arts for the
+     * ideas for permutation and gradient selection.
+     *
+     * Copyright (c) 2011 Stefan Gustavson. All rights reserved.
+     * Distributed under the MIT license. See LICENSE file.
+     * https://github.com/ashima/webgl-noise
+     */
+
+    /**
+     * Implementation of a 3D classic Perlin noise. Exposes a `noise(vec3 P)` function for use inside fragment shaders.
+     */
+    var perlinNoise = "\nvec3 mod289 (vec3 x) {\n    return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 mod289 (vec4 x) {\n    return x - floor(x * (1.0 / 289.0)) * 289.0;\n}\n\nvec4 permute (vec4 x) {\n    return mod289(((x*34.0)+1.0)*x);\n}\n\nvec4 taylorInvSqrt (vec4 r) {\n    return 1.79284291400159 - 0.85373472095314 * r;\n}\n\nvec3 fade (vec3 t) {\n    return t*t*t*(t*(t*6.0-15.0)+10.0);\n}\n\n// Classic Perlin noise\nfloat noise (vec3 P) {\n    vec3 Pi0 = floor(P); // Integer part for indexing\n    vec3 Pi1 = Pi0 + vec3(1.0); // Integer part + 1\n    Pi0 = mod289(Pi0);\n    Pi1 = mod289(Pi1);\n    vec3 Pf0 = fract(P); // Fractional part for interpolation\n    vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0\n    vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);\n    vec4 iy = vec4(Pi0.yy, Pi1.yy);\n    vec4 iz0 = Pi0.zzzz;\n    vec4 iz1 = Pi1.zzzz;\n\n    vec4 ixy = permute(permute(ix) + iy);\n    vec4 ixy0 = permute(ixy + iz0);\n    vec4 ixy1 = permute(ixy + iz1);\n\n    vec4 gx0 = ixy0 * (1.0 / 7.0);\n    vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;\n    gx0 = fract(gx0);\n    vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);\n    vec4 sz0 = step(gz0, vec4(0.0));\n    gx0 -= sz0 * (step(0.0, gx0) - 0.5);\n    gy0 -= sz0 * (step(0.0, gy0) - 0.5);\n\n    vec4 gx1 = ixy1 * (1.0 / 7.0);\n    vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;\n    gx1 = fract(gx1);\n    vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);\n    vec4 sz1 = step(gz1, vec4(0.0));\n    gx1 -= sz1 * (step(0.0, gx1) - 0.5);\n    gy1 -= sz1 * (step(0.0, gy1) - 0.5);\n\n    vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);\n    vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);\n    vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);\n    vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);\n    vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);\n    vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);\n    vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);\n    vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);\n\n    vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));\n    g000 *= norm0.x;\n    g010 *= norm0.y;\n    g100 *= norm0.z;\n    g110 *= norm0.w;\n    vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));\n    g001 *= norm1.x;\n    g011 *= norm1.y;\n    g101 *= norm1.z;\n    g111 *= norm1.w;\n\n    float n000 = dot(g000, Pf0);\n    float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));\n    float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));\n    float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));\n    float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));\n    float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));\n    float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));\n    float n111 = dot(g111, Pf1);\n\n    vec3 fade_xyz = fade(Pf0);\n    vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);\n    vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);\n    float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); \n    return 2.2 * n_xyz;\n}";
+
+    /**
+     * @function turbulence
+     * @param {string} noise 3D noise implementation to use
+     * @returns {turbulenceEffect}
+     *
+     * @example turbulence(noise)
+     */
+    function turbulence (noise) {
+      /**
+       * @typedef {Object} turbulenceEffect
+       * @property {{x: number?, y: number?}} frequency
+       * @property {number} octaves
+       * @property {boolean} isFractal
+       *
+       * @description Generates a turbulence/fractal noise value stored into `turbulenceValue`.
+       * Depends on a `noise(vec3 P)` function to be declared. Currently it's possible to simply use it after {@link perlinNoiseEffect}.
+       *
+       * @example
+       * effect.frequency = {x: 0.0065};
+       * effect.octaves = 4;
+       * effect.isFractal = true;
+       */
+      return {
+        fragment: {
+          uniform: {
+            u_turbulenceEnabled: 'bool',
+            u_turbulenceFrequency: 'vec2',
+            u_turbulenceOctaves: 'int',
+            u_isFractal: 'bool',
+            u_time: 'float'
+          },
+          constant: "\n".concat(noise, "\n\nconst int MAX_OCTAVES = 9;\n\nfloat turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {\n    float sum = 0.0;\n    vec3 position = vec3(0.0);\n    position.x = seed.x * frequency.x;\n    position.y = seed.y * frequency.y;\n    position.z = seed.z;\n    float ratio = 1.0;\n\n    for (int octave = 0; octave <= MAX_OCTAVES; octave++) {\n        if (octave > numOctaves) {\n            break;\n        }\n\n        if (isFractal) {\n            sum += noise(position) / ratio;\n        }\n        else {\n            sum += abs(noise(position)) / ratio;\n        }\n        position.x *= 2.0;\n        position.y *= 2.0;\n        ratio *= 2.0;\n    }\n    \n    if (isFractal) {\n        sum = (sum + 1.0) / 2.0;\n    }\n    \n    return clamp(sum, 0.0, 1.0);\n}"),
+          main: "\n    vec3 turbulenceSeed = vec3(gl_FragCoord.xy, u_time * 0.0001);\n    float turbulenceValue = turbulence(turbulenceSeed, u_turbulenceFrequency, u_turbulenceOctaves, u_isFractal);"
+        },
+
+        get frequency() {
+          var _this$uniforms$0$data = _slicedToArray(this.uniforms[0].data, 2),
+              x = _this$uniforms$0$data[0],
+              y = _this$uniforms$0$data[1];
+
+          return {
+            x: x,
+            y: y
+          };
+        },
+
+        set frequency(_ref) {
+          var x = _ref.x,
+              y = _ref.y;
+          if (typeof x !== 'undefined') this.uniforms[0].data[0] = x;
+          if (typeof y !== 'undefined') this.uniforms[0].data[1] = y;
+        },
+
+        get octaves() {
+          return this.uniforms[1].data[0];
+        },
+
+        set octaves(value) {
+          this.uniforms[1].data[0] = Math.max(0, parseInt(value));
+        },
+
+        get isFractal() {
+          return !!this.uniforms[2].data[0];
+        },
+
+        set isFractal(toggle) {
+          this.uniforms[2].data[0] = +toggle;
+        },
+
+        get time() {
+          return this.uniforms[3].data[0];
+        },
+
+        set time(value) {
+          this.uniforms[3].data[0] = Math.max(0, parseFloat(value));
+        },
+
+        uniforms: [{
+          name: 'u_turbulenceFrequency',
+          type: 'f',
+          data: [0.0, 0.0]
+        }, {
+          name: 'u_turbulenceOctaves',
+          type: 'i',
+          data: [1]
+        }, {
+          name: 'u_isFractal',
+          type: 'i',
+          data: [0]
+        }, {
+          name: 'u_time',
+          type: 'f',
+          data: [0.0]
         }]
       };
     }
@@ -637,8 +768,8 @@
        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map displacement map to use
        * @property {number} progress number between 0.0 and 1.0
-       * @property {{x: number, y: number}} sourceScale
-       * @property {{x: number, y: number}} toScale
+       * @property {{x: number?, y: number?}} sourceScale
+       * @property {{x: number?, y: number?}} toScale
        * @property {boolean} disabled
        *
        * @example
@@ -796,7 +927,7 @@
       createTexture: createTexture
     };
 
-    var vertexTemplate = function vertexTemplate(_ref) {
+    var vertexSimpleTemplate = function vertexSimpleTemplate(_ref) {
       var _ref$uniform = _ref.uniform,
           uniform = _ref$uniform === void 0 ? '' : _ref$uniform,
           _ref$attribute = _ref.attribute,
@@ -807,35 +938,70 @@
           constant = _ref$constant === void 0 ? '' : _ref$constant,
           _ref$main = _ref.main,
           main = _ref$main === void 0 ? '' : _ref$main;
-      return "\nprecision mediump float;\n".concat(uniform, "\n").concat(attribute, "\nattribute vec2 a_texCoord;\nattribute vec2 a_position;\n").concat(varying, "\nvarying vec2 v_texCoord;\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    v_texCoord = a_texCoord;\n    ").concat(main, "\n    gl_Position = vec4(a_position.xy, 0.0, 1.0);\n}");
+      return "\nprecision mediump float;\n".concat(uniform, "\n").concat(attribute, "\nattribute vec2 a_position;\n").concat(varying, "\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    ").concat(main, "\n    gl_Position = vec4(a_position.xy, 0.0, 1.0);\n}");
     };
 
-    var fragmentTemplate = function fragmentTemplate(_ref2) {
+    var vertexMediaTemplate = function vertexMediaTemplate(_ref2) {
       var _ref2$uniform = _ref2.uniform,
           uniform = _ref2$uniform === void 0 ? '' : _ref2$uniform,
+          _ref2$attribute = _ref2.attribute,
+          attribute = _ref2$attribute === void 0 ? '' : _ref2$attribute,
           _ref2$varying = _ref2.varying,
           varying = _ref2$varying === void 0 ? '' : _ref2$varying,
           _ref2$constant = _ref2.constant,
           constant = _ref2$constant === void 0 ? '' : _ref2$constant,
           _ref2$main = _ref2.main,
-          main = _ref2$main === void 0 ? '' : _ref2$main,
-          _ref2$source = _ref2.source,
-          source = _ref2$source === void 0 ? '' : _ref2$source;
+          main = _ref2$main === void 0 ? '' : _ref2$main;
+      return "\nprecision mediump float;\n".concat(uniform, "\n").concat(attribute, "\nattribute vec2 a_texCoord;\nattribute vec2 a_position;\n").concat(varying, "\nvarying vec2 v_texCoord;\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    v_texCoord = a_texCoord;\n    ").concat(main, "\n    gl_Position = vec4(a_position.xy, 0.0, 1.0);\n}");
+    };
+
+    var fragmentSimpleTemplate = function fragmentSimpleTemplate(_ref3) {
+      var _ref3$uniform = _ref3.uniform,
+          uniform = _ref3$uniform === void 0 ? '' : _ref3$uniform,
+          _ref3$varying = _ref3.varying,
+          varying = _ref3$varying === void 0 ? '' : _ref3$varying,
+          _ref3$constant = _ref3.constant,
+          constant = _ref3$constant === void 0 ? '' : _ref3$constant,
+          _ref3$main = _ref3.main,
+          main = _ref3$main === void 0 ? '' : _ref3$main,
+          _ref3$source = _ref3.source,
+          source = _ref3$source === void 0 ? '' : _ref3$source;
+      return "\nprecision mediump float;\n".concat(varying, "\n").concat(uniform, "\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    ").concat(source, "\n    vec3 color = vec3(0.0);\n    float alpha = 1.0;\n    ").concat(main, "\n    gl_FragColor = vec4(color, 1.0) * alpha;\n}");
+    };
+
+    var fragmentMediaTemplate = function fragmentMediaTemplate(_ref4) {
+      var _ref4$uniform = _ref4.uniform,
+          uniform = _ref4$uniform === void 0 ? '' : _ref4$uniform,
+          _ref4$varying = _ref4.varying,
+          varying = _ref4$varying === void 0 ? '' : _ref4$varying,
+          _ref4$constant = _ref4.constant,
+          constant = _ref4$constant === void 0 ? '' : _ref4$constant,
+          _ref4$main = _ref4.main,
+          main = _ref4$main === void 0 ? '' : _ref4$main,
+          _ref4$source = _ref4.source,
+          source = _ref4$source === void 0 ? '' : _ref4$source;
       return "\nprecision mediump float;\n".concat(varying, "\nvarying vec2 v_texCoord;\n").concat(uniform, "\nuniform sampler2D u_source;\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    vec2 sourceCoord = v_texCoord;\n    ").concat(source, "\n    vec4 pixel = texture2D(u_source, sourceCoord);\n    vec3 color = pixel.rgb;\n    float alpha = pixel.a;\n    ").concat(main, "\n    gl_FragColor = vec4(color, 1.0) * alpha;\n}");
     };
     /**
      * Initialize a compiled WebGLProgram for the given canvas and effects.
      *
      * @private
-     * @param {WebGLRenderingContext} gl
-     * @param effects
-     * @param dimensions
+     * @param {Object} config
+     * @param {WebGLRenderingContext} config.gl
+     * @param {Object[]} config.effects
+     * @param {{width: number, heignt: number}} [config.dimensions]
+     * @param {boolean} [config.noSource]
      * @return {{gl: WebGLRenderingContext, data: kamposSceneData, [dimensions]: {width: number, height: number}}}
      */
 
 
-    function init(gl, effects, dimensions) {
-      var programData = _initProgram(gl, effects);
+    function init(_ref5) {
+      var gl = _ref5.gl,
+          effects = _ref5.effects,
+          dimensions = _ref5.dimensions,
+          noSource = _ref5.noSource;
+
+      var programData = _initProgram(gl, effects, noSource);
 
       return {
         gl: gl,
@@ -893,9 +1059,9 @@
       var canvas = gl.canvas;
       var realToCSSPixels = 1; //window.devicePixelRatio;
 
-      var _ref3 = dimensions || {},
-          width = _ref3.width,
-          height = _ref3.height;
+      var _ref6 = dimensions || {},
+          width = _ref6.width,
+          height = _ref6.height;
 
       var displayWidth, displayHeight;
 
@@ -933,11 +1099,15 @@
           source = data.source,
           attributes = data.attributes,
           uniforms = data.uniforms,
-          textures = data.textures; // bind the source texture
+          textures = data.textures;
 
-      gl.bindTexture(gl.TEXTURE_2D, source.texture); // read source data into texture
+      if (media && source && source.texture) {
+        // bind the source texture
+        gl.bindTexture(gl.TEXTURE_2D, source.texture); // read source data into texture
 
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, media); // Tell it to use our program (pair of shaders)
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, media);
+      } // Tell it to use our program (pair of shaders)
+
 
       gl.useProgram(program); // set attribute buffers with data
 
@@ -986,7 +1156,7 @@
         return gl.deleteBuffer(attr.buffer);
       }); // delete texture
 
-      gl.deleteTexture(source.texture); // delete program
+      if (source && source.texture) gl.deleteTexture(source.texture); // delete program
 
       gl.deleteProgram(program); // delete shaders
 
@@ -995,19 +1165,23 @@
     }
 
     function _initProgram(gl, effects) {
-      var source = {
+      var noSource = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+      var source = noSource || {
         texture: createTexture(gl).texture,
         buffer: null
-      }; // flip Y axis for source texture
+      };
 
-      gl.bindTexture(gl.TEXTURE_2D, source.texture);
-      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      if (source) {
+        // flip Y axis for source texture
+        gl.bindTexture(gl.TEXTURE_2D, source.texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      }
 
-      var data = _mergeEffectsData(effects);
+      var data = _mergeEffectsData(effects, noSource);
 
-      var vertexSrc = _stringifyShaderSrc(data.vertex, vertexTemplate);
+      var vertexSrc = _stringifyShaderSrc(data.vertex, noSource ? vertexSimpleTemplate : vertexMediaTemplate);
 
-      var fragmentSrc = _stringifyShaderSrc(data.fragment, fragmentTemplate); // compile the GLSL program
+      var fragmentSrc = _stringifyShaderSrc(data.fragment, noSource ? fragmentSimpleTemplate : fragmentMediaTemplate); // compile the GLSL program
 
 
       var _getWebGLProgram2 = _getWebGLProgram(gl, vertexSrc, fragmentSrc),
@@ -1039,6 +1213,7 @@
     }
 
     function _mergeEffectsData(effects) {
+      var noSource = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       return effects.reduce(function (result, config) {
         var _result$uniforms, _result$textures;
 
@@ -1052,7 +1227,7 @@
             varying = _config$varying === void 0 ? {} : _config$varying;
 
         var merge = function merge(shader) {
-          return Object.keys(config[shader]).forEach(function (key) {
+          return Object.keys(config[shader] || {}).forEach(function (key) {
             if (key === 'constant' || key === 'main' || key === 'source') {
               result[shader][key] += config[shader][key] + '\n';
             } else {
@@ -1083,7 +1258,39 @@
         Object.assign(result.vertex.varying, varying);
         Object.assign(result.fragment.varying, varying);
         return result;
-      }, {
+      }, getEffectDefaults(noSource));
+    }
+
+    function getEffectDefaults(noSource) {
+      /*
+       * Default uniforms
+       */
+      var uniforms = noSource ? [] : [{
+        name: 'u_source',
+        type: 'i',
+        data: [0]
+      }];
+      /*
+       * Default attributes
+       */
+
+      var attributes = [{
+        name: 'a_position',
+        data: new Float32Array([-1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]),
+        size: 2,
+        type: 'FLOAT'
+      }];
+
+      if (!noSource) {
+        attributes.push({
+          name: 'a_texCoord',
+          data: new Float32Array([0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
+          size: 2,
+          type: 'FLOAT'
+        });
+      }
+
+      return {
         vertex: {
           uniform: {},
           attribute: {},
@@ -1098,49 +1305,27 @@
           main: '',
           source: ''
         },
-
-        /*
-         * Default attributes
-         */
-        attributes: [{
-          name: 'a_position',
-          data: new Float32Array([-1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]),
-          size: 2,
-          type: 'FLOAT'
-        }, {
-          name: 'a_texCoord',
-          data: new Float32Array([0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
-          size: 2,
-          type: 'FLOAT'
-        }],
-
-        /*
-         * Default uniforms
-         */
-        uniforms: [{
-          name: 'u_source',
-          type: 'i',
-          data: [0]
-        }],
+        attributes: attributes,
+        uniforms: uniforms,
 
         /*
          * Default textures
          */
         textures: []
-      });
+      };
     }
 
     function _stringifyShaderSrc(data, template) {
-      var templateData = Object.entries(data).reduce(function (result, _ref4) {
-        var _ref5 = _slicedToArray(_ref4, 2),
-            key = _ref5[0],
-            value = _ref5[1];
+      var templateData = Object.entries(data).reduce(function (result, _ref7) {
+        var _ref8 = _slicedToArray(_ref7, 2),
+            key = _ref8[0],
+            value = _ref8[1];
 
         if (['uniform', 'attribute', 'varying'].includes(key)) {
-          result[key] = Object.entries(value).reduce(function (str, _ref6) {
-            var _ref7 = _slicedToArray(_ref6, 2),
-                name = _ref7[0],
-                type = _ref7[1];
+          result[key] = Object.entries(value).reduce(function (str, _ref9) {
+            var _ref10 = _slicedToArray(_ref9, 2),
+                name = _ref10[0],
+                type = _ref10[1];
 
             return str + "".concat(key, " ").concat(type, " ").concat(name, ";\n");
           }, '');
@@ -1223,15 +1408,15 @@
 
 
     function createTexture(gl) {
-      var _ref8 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
-          _ref8$width = _ref8.width,
-          width = _ref8$width === void 0 ? 1 : _ref8$width,
-          _ref8$height = _ref8.height,
-          height = _ref8$height === void 0 ? 1 : _ref8$height,
-          _ref8$data = _ref8.data,
-          data = _ref8$data === void 0 ? null : _ref8$data,
-          _ref8$format = _ref8.format,
-          format = _ref8$format === void 0 ? 'RGBA' : _ref8$format;
+      var _ref11 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+          _ref11$width = _ref11.width,
+          width = _ref11$width === void 0 ? 1 : _ref11$width,
+          _ref11$height = _ref11.height,
+          height = _ref11$height === void 0 ? 1 : _ref11$height,
+          _ref11$data = _ref11.data,
+          data = _ref11$data === void 0 ? null : _ref11$data,
+          _ref11$format = _ref11.format,
+          format = _ref11$format === void 0 ? 'RGBA' : _ref11$format;
 
       var texture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, texture); // Set the parameters so we can render any size image
@@ -1341,7 +1526,7 @@
      */
 
     /**
-     * Initialize a webgl target with effects.
+     * Initialize a WebGL target with effects.
      *
      * @class Kampos
      * @param {kamposConfig} config
@@ -1440,7 +1625,8 @@
           var _config = config,
               target = _config.target,
               effects = _config.effects,
-              ticker = _config.ticker;
+              ticker = _config.ticker,
+              noSource = _config.noSource;
           if (Kampos.preventContextCreation) return false;
           this.lostContext = false;
           var gl = core.getWebGLContext(target);
@@ -1454,7 +1640,12 @@
             if (!gl) return false;
           }
 
-          var _core$init = core.init(gl, effects, this.dimensions),
+          var _core$init = core.init({
+            gl: gl,
+            effects: effects,
+            dimensions: this.dimensions,
+            noSource: noSource
+          }),
               data = _core$init.data;
 
           this.gl = gl;
@@ -1524,18 +1715,24 @@
             if (!success) return;
           }
 
+          var cb = this.config.beforeDraw;
+          if (cb && cb() === false) return;
           core.draw(this.gl, this.media, this.data, this.dimensions);
         }
         /**
          * Starts the animation loop.
          *
-         * If using a {@link Ticker} this instance will be added to that {@link Ticker}.
+         * If a {@link Ticker} is used, this instance will be added to that {@link Ticker}.
+         *
+         * @param {function} beforeDraw function to run before each draw call
          */
 
       }, {
         key: "play",
-        value: function play() {
+        value: function play(beforeDraw) {
           var _this2 = this;
+
+          this.config.beforeDraw = beforeDraw;
 
           if (this.ticker) {
             if (this.animationFrameId) {
@@ -1559,7 +1756,7 @@
         /**
          * Stops the animation loop.
          *
-         * If using a {@link Ticker} this instance will be removed from that {@link Ticker}.
+         * If a {@link Ticker} is used, this instance will be removed from that {@link Ticker}.
          */
 
       }, {
@@ -1576,7 +1773,7 @@
           }
         }
         /**
-         * Stops animation loop and frees all resources.
+         * Stops the animation loop and frees all resources.
          *
          * @param {boolean} keepState for internal use.
          */
@@ -1759,11 +1956,15 @@
         brightnessContrast: brightnessContrast,
         hueSaturation: hueSaturation,
         duotone: duotone,
-        displacement: displacement
+        displacement: displacement,
+        turbulence: turbulence
       },
       transitions: {
         fade: fade,
         displacement: displacementTransition
+      },
+      noise: {
+        perlinNoise: perlinNoise
       },
       Kampos: Kampos,
       Ticker: Ticker

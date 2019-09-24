@@ -253,6 +253,12 @@
                         .displacement
                       </a></li>
                     
+                      <li><a
+                        href='#turbulence'
+                        class='regular pre-open'>
+                        .turbulence
+                      </a></li>
+                    
                     </ul>
                   
                   
@@ -314,6 +320,16 @@
               
                 
                 <li><a
+                  href='#turbulenceeffect'
+                  class="">
+                  turbulenceEffect
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
                   href='#transitions'
                   class="h5 bold black caps toggle-sibling">
                   transitions
@@ -361,6 +377,16 @@
                   href='#displacementtransitioneffect'
                   class="">
                   displacementTransitionEffect
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#perlin-noise-3d'
+                  class="">
+                  perlin-noise-3d
                   
                 </a>
                 
@@ -632,7 +658,7 @@ kampos.setSource(media);</pre>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>play()</span>
+            <span class='code strong strong truncate'>play(beforeDraw)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -643,7 +669,7 @@ kampos.setSource(media);</pre>
   <p>Starts the animation loop.</p>
 <p>If a <a href="#ticker">Ticker</a> is used, this instance will be added to that <a href="#ticker">Ticker</a>.</p>
 
-    <div class='pre p1 fill-light mt0'>play()</div>
+    <div class='pre p1 fill-light mt0'>play(beforeDraw: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function">function</a>)</div>
   
   
 
@@ -654,6 +680,20 @@ kampos.setSource(media);</pre>
   
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>beforeDraw</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function">function</a>)</code>
+	    function to run before each draw call
+
+          </div>
+          
+        </div>
+      
+    </div>
   
 
   
@@ -1219,6 +1259,23 @@ This will replace canvas DOM element with a fresh clone.</p>
         <div class='space-bottom0'>
           <span class='code bold'>ticker</span> <code class='quiet'>(<a href="#ticker">Ticker</a>?)</code>
           
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>noSource</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>?)</code>
+          
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>beforeDraw</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function">function</a>?)</code>
+          : function to run before each draw call. If it returns 
+<code>false</code>
+ 
+<a href="kampos#draw">kampos#draw</a>
+ will not be called.
+
           
         </div>
       
@@ -2099,6 +2156,80 @@ This will replace canvas DOM element with a fresh clone.</p>
       </div>
     </div>
   
+    <div class='border-bottom' id='turbulence'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>turbulence(noise)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  
+    <div class='pre p1 fill-light mt0'>turbulence(noise: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>): <a href="#turbulenceeffect">turbulenceEffect</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>noise</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+	    3D noise implementation to use
+
+          </div>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="#turbulenceeffect">turbulenceEffect</a></code>:
+        
+
+      
+    
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'>turbulence(noise)</pre>
+    
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
 </div>
 
   
@@ -2303,7 +2434,8 @@ effect.saturation = <span class="hljs-number">0.8</span>;</pre>
   </div>
   
 
-  
+  <p>Multiplies <code>alpha</code> value with values read from <code>mask</code> media source.</p>
+
     <div class='pre p1 fill-light mt0'>alphaMaskEffect</div>
   
     <p>
@@ -2334,6 +2466,12 @@ effect.saturation = <span class="hljs-number">0.8</span>;</pre>
       
         <div class='space-bottom0'>
           <span class='code bold'>disabled</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
+          
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>isLuminance</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
           
           
         </div>
@@ -2495,7 +2633,7 @@ effect.dark = [<span class="hljs-number">0.2</span>, <span class="hljs-number">0
         </div>
       
         <div class='space-bottom0'>
-          <span class='code bold'>scale</span> <code class='quiet'>({x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>})</code>
+          <span class='code bold'>scale</span> <code class='quiet'>({x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?})</code>
           
           
         </div>
@@ -2521,6 +2659,91 @@ effect.dark = [<span class="hljs-number">0.2</span>, <span class="hljs-number">0
 img.src = <span class="hljs-string">'disp.jpg'</span>;
 effect.map = img;
 effect.scale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.4</span>};</pre>
+    
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='turbulenceeffect'>
+      turbulenceEffect
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>Generates a turbulence/fractal noise value stored into <code>turbulenceValue</code>.
+Depends on a <code>noise(vec3 P)</code> function to be declared. Currently it's possible to simply use it after <a href="perlinNoiseEffect">perlinNoiseEffect</a>.</p>
+
+    <div class='pre p1 fill-light mt0'>turbulenceEffect</div>
+  
+    <p>
+      Type:
+      <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>
+    </p>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Properties</div>
+    <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>frequency</span> <code class='quiet'>({x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?})</code>
+          
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>octaves</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>isFractal</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
+          
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'>effect.frequency = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.0065</span>};
+effect.octaves = <span class="hljs-number">4</span>;
+effect.isFractal = <span class="hljs-literal">true</span>;</pre>
     
   
 
@@ -2852,13 +3075,13 @@ effect.progress = <span class="hljs-number">0.5</span>;</pre>
         </div>
       
         <div class='space-bottom0'>
-          <span class='code bold'>sourceScale</span> <code class='quiet'>({x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>})</code>
+          <span class='code bold'>sourceScale</span> <code class='quiet'>({x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?})</code>
           
           
         </div>
       
         <div class='space-bottom0'>
-          <span class='code bold'>toScale</span> <code class='quiet'>({x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>})</code>
+          <span class='code bold'>toScale</span> <code class='quiet'>({x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?})</code>
           
           
         </div>
@@ -2887,6 +3110,54 @@ effect.to = <span class="hljs-built_in">document</span>.querySelector(<span clas
 effect.sourceScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.4</span>};
 effect.toScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.8</span>};</pre>
     
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='perlin-noise-3d'>
+      perlin-noise-3d
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>Implementation of a 3D classic Perlin noise. Exposes a <code>noise(vec3 P)</code> function for use inside fragment shaders.</p>
+
+    <div class='pre p1 fill-light mt0'>perlin-noise-3d</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
   
 
   
