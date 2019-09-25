@@ -2,7 +2,7 @@
   <img width="100" src="./kampos.svg?sanitize=true">
 </p>
 
-# kampos [![Build Status](https://travis-ci.com/wix-incubator/kampos.svg?branch=master)](https://travis-ci.com/wix-incubator/kampos)
+# kampos [![Build Status](https://travis-ci.com/wix/kampos.svg?branch=master)](https://travis-ci.com/wix-incubator/kampos)
 ### Tiny and fast effects compositor on WebGL
 
 kampos lets you add filter effects and beautiful transitions to video and images (or any other media).
@@ -10,10 +10,10 @@ Just like [SVG filter effects](https://developer.mozilla.org/en-US/docs/Web/SVG/
 only using WebGL, which means it works everywhere!
 
 ## Demo
-Check out the [live demo](https://wix-incubator.github.io/kampos/demo/).
+Check out the [live demo](https://wix.github.io/kampos/demo/).
 
 ## Documentation
-For API reference and examples, read [the docs](https://wix-incubator.github.io/kampos/docs/).
+For API reference and examples, read [the docs](https://wix.github.io/kampos/docs/).
 
 ## Features
 * Filter effects for images and videos that you can mix and compose.
