@@ -2,7 +2,7 @@
   <img width="100" src="./kampos.svg?sanitize=true">
 </p>
 
-# kampos [![Build Status](https://travis-ci.com/wix/kampos.svg?branch=master)](https://travis-ci.com/wix-incubator/kampos)
+# kampos [![Build Status](https://travis-ci.com/wix/kampos.svg?branch=master)](https://travis-ci.com/wix/kampos)
 ### Tiny and fast effects compositor on WebGL
 
 kampos lets you add filter effects and beautiful transitions to video and images (or any other media).
