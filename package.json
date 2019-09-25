@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wix-incubator/kampos.git"
+    "url": "git+https://github.com/wix/kampos.git"
   },
   "keywords": [
     "effects",
@@ -33,9 +33,9 @@
   "author": "Yehonatan Daniv",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/wix-incubator/kampos/issues"
+    "url": "https://github.com/wix/kampos/issues"
   },
-  "homepage": "https://github.com/wix-incubator/kampos#readme",
+  "homepage": "https://wix.github.io/kampos",
   "ava": {
     "babel": {
       "testOptions": {
