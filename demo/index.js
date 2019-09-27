@@ -128,5 +128,4 @@
     }
 
     insertSection('section1');
-    insertSection('section1');
 }());
