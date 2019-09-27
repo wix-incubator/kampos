@@ -57,6 +57,10 @@
             margin: 0 auto 10vh;
         }
 
+        nav {
+            padding-left: 1em;
+        }
+
         nav ul {
             margin: 1rem 0;
             padding: 0;
@@ -158,7 +162,7 @@
             }
 
             #code1 + .CodeMirror {
-                height: 125rem;
+                height: 54rem;
             }
 
             #code2 + .CodeMirror {
@@ -166,24 +170,15 @@
             }
 
             #code3 + .CodeMirror {
-                height: 54rem;
+                height: 125rem;
             }
         }
     </style>
 </head>
 <body>
     <template id="videos1">
-        <video id="video1"
-               src="./cloudy-night.mp4"
-               autoplay
-               loop
-               muted
-               preload="auto"
-               crossorigin="anonymous"
-               playsinline></video>
-
-        <video id="video2"
-               src="./starry-night.mp4"
+        <video id="video5"
+               src="./man-on-beach.mp4"
                autoplay
                loop
                muted
@@ -213,8 +208,17 @@
     </template>
 
     <template id="videos3">
-        <video id="video5"
-               src="./man-on-beach.mp4"
+        <video id="video1"
+               src="./cloudy-night.mp4"
+               autoplay
+               loop
+               muted
+               preload="auto"
+               crossorigin="anonymous"
+               playsinline></video>
+
+        <video id="video2"
+               src="./starry-night.mp4"
                autoplay
                loop
                muted
@@ -222,33 +226,11 @@
                crossorigin="anonymous"
                playsinline></video>
     </template>
-    <nav>
-        <ul>
-            <li>
-                <a href="#displacement-transition">Displacement transition</a>
-            </li>
-            <li>
-                <a href="#fade-hue">Cross-fade with hue-rotation</a>
-            </li>
-            <!--li>
-                <a href="#turbulence">Fractal noise displacement</a>
-            </li-->
-        </ul>
-    </nav>
-    <header>
-        <button id="nav-on">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-        </button>
-        <button id="nav-off">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
-    </header>
-    <main>
-        <section id="displacement-transition">
+
+    <template id="section1">
+        <section id="turbulence">
             <p>
-                Transition between 2 videos with a displacement effect.<br/>
-                Hover the video to see it in action.<br/>
-                * On mobile tap inside/outside the video.
+                Paint turbulence noise, animate it, and use it as a displacement map for the video.
             </p>
             <iframe id="preview1" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
             <div class="code-container">
@@ -256,6 +238,9 @@
                 <textarea id="code1"></textarea>
             </div>
         </section>
+    </template>
+
+    <template id="section2">
         <section id="fade-hue">
             <p>
                 Transition between 2 videos with a cross-fade effect & apply a hue-rotate filter.<br/>
@@ -267,87 +252,50 @@
                 <textarea id="code2"></textarea>
             </div>
         </section>
-        <!--section id="turbulence">
+    </template>
+
+    <template id="section3">
+        <section id="displacement-transition">
             <p>
-                Paint turbulence noise, animate it, and use it as a displacement map for the video.
+                Transition between 2 videos with a displacement effect.<br/>
+                Hover the video to see it in action.<br/>
+                * On mobile tap inside/outside the video.
             </p>
             <iframe id="preview3" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
             <div class="code-container">
                 <button class="refresh-button" id="refresh3">Refresh</button>
                 <textarea id="code3"></textarea>
             </div>
-        </section-->
+        </section>
+    </template>
+    <nav>
+        <h2>Demos:</h2>
+        <ul>
+            <li>
+                <a href="#section1" data-section-id="section1">Fractal noise displacement</a>
+            </li>
+            <li>
+                <a href="#section2" data-section-id="section2">Displacement transition</a>
+            </li>
+            <li>
+                <a href="#section3" data-section-id="section3">Cross-fade with hue-rotation</a>
+            </li>
+        </ul>
+    </nav>
+    <header>
+        <button id="nav-on">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <button id="nav-off">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+    </header>
+    <main>
+
     </main>
 
     <script src="./lib/codemirror/codemirror.js"></script>
     <script src="./lib/codemirror/javascript.js"></script>
-    <script>
-        const text1 = document.querySelector('#code1');
-        const preview1 = document.querySelector('#preview1');
-        const videos1 = document.querySelector('#videos1');
-        const refresh1 = document.querySelector('#refresh1');
-
-        fetch('./disp.js')
-            .then(resp => resp.text())
-            .then(text => {
-                text1.value = text;
-                const doc = CodeMirror.fromTextArea(text1, {
-                    value: text,
-                    lineNumbers: true,
-                    theme: 'dracula'
-                });
-
-                const update = () => updatePreview(preview1, doc.getValue(), videos1.innerHTML);
-
-                refresh1.addEventListener('click', update);
-
-                update();
-            });
-
-        const text2 = document.querySelector('#code2');
-        const preview2 = document.querySelector('#preview2');
-        const videos2 = document.querySelector('#videos2');
-        const refresh2 = document.querySelector('#refresh2');
-
-        fetch('./hue-fade.js')
-            .then(resp => resp.text())
-            .then(text => {
-                text2.value = text;
-                const doc = CodeMirror.fromTextArea(text2, {
-                    value: text,
-                    lineNumbers: true,
-                    theme: 'dracula'
-                });
-
-                const update = () => updatePreview(preview2, doc.getValue(), videos2.innerHTML);
-
-                refresh2.addEventListener('click', update);
-
-                update();
-            });
-        /*
-        const text3 = document.querySelector('#code3');
-        const preview3 = document.querySelector('#preview3');
-        const videos3 = document.querySelector('#videos3');
-        const refresh3 = document.querySelector('#refresh3');
-
-        fetch('./turbulence.js')
-            .then(resp => resp.text())
-            .then(text => {
-                text3.value = text;
-                const doc = CodeMirror.fromTextArea(text3, {
-                    value: text,
-                    lineNumbers: true,
-                    theme: 'dracula'
-                });
-
-                const update = () => updatePreview(preview3, doc.getValue(), videos3.innerHTML);
-
-                refresh3.addEventListener('click', update);
-
-                update();
-            });*/
-    </script>
     <script src="index.js"></script>
 </body>
 </html>
