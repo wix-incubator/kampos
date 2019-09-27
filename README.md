@@ -9,6 +9,9 @@ kampos lets you add filter effects and beautiful transitions to video and images
 Just like [SVG filter effects](https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Filter_effects),
 only using WebGL, which means it works everywhere!
 
+## Intro
+Read the [blog post](https://www.wix.engineering/post/introducing-kampos-a-tiny-and-fast-effects-compositor) introducing kampos on Wix Engineering Blog.
+
 ## Demo
 Check out the [live demo](https://wix.github.io/kampos/demo/).
 
