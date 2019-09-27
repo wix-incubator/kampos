@@ -125,7 +125,8 @@
                     update();
                 });
         }
-    }
+    };
 
     insertSection('section1');
+
 }());
