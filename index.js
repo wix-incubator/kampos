@@ -1116,19 +1116,22 @@
 
       _setUniforms(gl, uniforms);
 
+      var startTex = gl.TEXTURE0;
+
+      if (source) {
+        gl.activeTexture(startTex);
+        gl.bindTexture(gl.TEXTURE_2D, source.texture);
+        startTex = gl.TEXTURE1;
+      }
+
       if (textures) {
-        for (var i = -1; i < textures.length; i++) {
-          gl.activeTexture(gl.TEXTURE0 + (i + 1));
+        for (var i = 0; i < textures.length; i++) {
+          gl.activeTexture(startTex + i);
+          var tex = textures[i];
+          gl.bindTexture(gl.TEXTURE_2D, tex.texture);
 
-          if (i === -1) {
-            gl.bindTexture(gl.TEXTURE_2D, source.texture);
-          } else {
-            var tex = textures[i];
-            gl.bindTexture(gl.TEXTURE_2D, tex.texture);
-
-            if (tex.update) {
-              gl.texImage2D(gl.TEXTURE_2D, 0, gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.image);
-            }
+          if (tex.update) {
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.image);
           }
         }
       } // Draw the rectangles
@@ -1166,7 +1169,7 @@
 
     function _initProgram(gl, effects) {
       var noSource = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-      var source = noSource || {
+      var source = noSource ? null : {
         texture: createTexture(gl).texture,
         buffer: null
       };
@@ -1487,6 +1490,11 @@
             type = uniform.type,
             location = uniform.location,
             data = uniform.data;
+
+        if (type === 'i') {
+          data = new Int32Array(data);
+        }
+
         gl["uniform".concat(size).concat(type, "v")](location, data);
       });
     }

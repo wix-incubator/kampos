@@ -215,20 +215,23 @@ function draw (gl, media, data, dimensions) {
     // set uniforms with data
     _setUniforms(gl, uniforms);
 
+    let startTex = gl.TEXTURE0;
+
+    if ( source ) {
+        gl.activeTexture(startTex);
+        gl.bindTexture(gl.TEXTURE_2D, source.texture);
+        startTex = gl.TEXTURE1;
+    }
+
     if ( textures ) {
-        for ( let i = -1; i < textures.length; i++ ) {
-            gl.activeTexture(gl.TEXTURE0 + (i + 1));
+        for ( let i = 0; i < textures.length; i++ ) {
+            gl.activeTexture(startTex + i);
 
-            if ( i === -1 ) {
-                gl.bindTexture(gl.TEXTURE_2D, source.texture);
-            }
-            else {
-                const tex = textures[i];
-                gl.bindTexture(gl.TEXTURE_2D, tex.texture);
+            const tex = textures[i];
+            gl.bindTexture(gl.TEXTURE_2D, tex.texture);
 
-                if ( tex.update ) {
-                    gl.texImage2D(gl.TEXTURE_2D, 0,gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.image);
-                }
+            if ( tex.update ) {
+                gl.texImage2D(gl.TEXTURE_2D, 0,gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.image);
             }
         }
     }
@@ -263,7 +266,7 @@ function destroy (gl, data) {
 }
 
 function _initProgram (gl, effects, noSource=false) {
-    const source = noSource || {
+    const source = noSource ? null : {
         texture: createTexture(gl).texture,
         buffer: null
     };
@@ -558,7 +561,11 @@ function _initUniforms (gl, program, uniforms) {
 
 function _setUniforms (gl, uniformData) {
     (uniformData || []).forEach(uniform => {
-        const {size, type, location, data} = uniform;
+        let {size, type, location, data} = uniform;
+
+        if ( type === 'i' ) {
+            data = new Int32Array(data);
+        }
 
         gl[`uniform${size}${type}v`](location, data);
     });
