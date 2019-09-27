@@ -7,6 +7,7 @@
     <title>kampos | Tiny and fast effects compositor on WebGL</title>
     <link href="https://fonts.googleapis.com/css?family=Nova+Round&display=swap" rel="stylesheet">
     <script async defer src="https://buttons.github.io/buttons.js"></script>
+    <script src="./index.js"></script>
     <style>
         body {
             min-height: 100vh;
@@ -77,6 +78,14 @@
             right: 50px;
         }
 
+        #target {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
         @media (min-width: 641px) {
             html, body {
                 margin: 0;
@@ -129,8 +138,51 @@
         </nav>
     </header>
     <main>
+        <canvas id="target"></canvas>
         <h1>kampos</h1>
         <h2>Tiny and fast effects compositor</h2>
     </main>
+    <script>
+        const {Kampos, effects, noise} = window.kampos;
+
+        const target = document.querySelector('#target');
+        const body = document.body;
+        const width = body.clientWidth;
+        const height = body.clientHeight;
+
+        target.width = width;
+        target.height = height;
+
+        const turbulence = effects.turbulence(noise.perlinNoise);
+        const render = {
+            fragment: {
+                uniform: {
+                    u_resolution: 'vec2'
+                },
+                main: `
+                    alpha = turbulenceValue * .8;
+                    color = vec3(gl_FragCoord.xy / u_resolution.xy, turbulenceValue) * .6;`
+            },
+            uniforms: [
+                {
+                    name: 'u_resolution',
+                    type: 'f',
+                    data: [width, height]
+                }
+            ]
+        };
+
+        const AMPLITUDE = 5 / width;
+
+        turbulence.frequency = {x: AMPLITUDE, y: AMPLITUDE};
+        turbulence.octaves = 4;
+        //turbulence.isFractal = true;
+        const start = Date.now();
+
+        const instance = new Kampos({target, effects:[turbulence, render], noSource: true});
+        instance.play(() => {
+            turbulence.time = (Date.now() - start) * 4;
+        });
+    </script>
 </body>
 </html>
