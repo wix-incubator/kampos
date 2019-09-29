@@ -124,6 +124,30 @@
 
                     update();
                 });
+        },
+
+        section4 () {
+            const text4 = document.querySelector('#code4');
+            const preview4 = document.querySelector('#preview4');
+            const videos4 = document.querySelector('#videos4');
+            const refresh4 = document.querySelector('#refresh4');
+
+            fetch('./duotone.js')
+                .then(resp => resp.text())
+                .then(text => {
+                    text4.value = text;
+                    const doc = CodeMirror.fromTextArea(text4, {
+                        value: text,
+                        lineNumbers: true,
+                        theme: 'dracula'
+                    });
+
+                    const update = () => updatePreview(preview4, doc.getValue(), videos4.innerHTML);
+
+                    refresh4.addEventListener('click', update);
+
+                    update();
+                });
         }
     };
 

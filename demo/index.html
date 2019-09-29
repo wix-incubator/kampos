@@ -172,6 +172,10 @@
             #code3 + .CodeMirror {
                 height: 125rem;
             }
+
+            #code4 + .CodeMirror {
+                height: 30rem;
+            }
         }
     </style>
 </head>
@@ -227,6 +231,31 @@
                playsinline></video>
     </template>
 
+    <template id="videos4">
+        <video id="video6"
+               src=""
+               autoplay
+               loop
+               muted
+               preload="auto"
+               crossorigin="anonymous"
+               playsinline></video>
+    </template>
+
+    <template id="section4">
+        <section id="duotone">
+            <p>
+                Apply duotone effect on video.<br/>
+                Hover the video to turn off the effect and see the original.
+            </p>
+            <iframe id="preview4" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
+            <div class="code-container">
+                <button class="refresh-button" id="refresh4">Refresh</button>
+                <textarea id="code4"></textarea>
+            </div>
+        </section>
+    </template>
+
     <template id="section1">
         <section id="turbulence">
             <p>
@@ -271,6 +300,9 @@
     <nav>
         <h2>Demos:</h2>
         <ul>
+            <li>
+                <a href="#section4" data-section-id="section4">Duotone effect</a>
+            </li>
             <li>
                 <a href="#section1" data-section-id="section1">Fractal noise displacement</a>
             </li>
