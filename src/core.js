@@ -96,6 +96,12 @@ void main() {
     gl_FragColor = vec4(color, 1.0) * alpha;
 }`;
 
+const TEXTURE_WRAP = {
+    stretch: 'CLAMP_TO_EDGE',
+    repeat: 'REPEAT',
+    mirror: 'MIRRORED_REPEAT'
+};
+
 /**
  * Initialize a compiled WebGLProgram for the given canvas and effects.
  *
@@ -231,7 +237,7 @@ function draw (gl, media, data, dimensions) {
             gl.bindTexture(gl.TEXTURE_2D, tex.texture);
 
             if ( tex.update ) {
-                gl.texImage2D(gl.TEXTURE_2D, 0,gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.image);
+                gl.texImage2D(gl.TEXTURE_2D, 0,gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.data);
             }
         }
     }
@@ -493,20 +499,22 @@ function _createShader (gl, type, source) {
  *
  * @private
  * @param {WebGLRenderingContext} gl
- * @param {number} width
- * @param {number} height
- * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} data
- * @param {string} format
+ * @param {Object} [config]
+ * @param {number} config.width
+ * @param {number} config.height
+ * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} config.data
+ * @param {string} config.format
+ * @param {Object} config.wrap
  * @return {{texture: WebGLTexture, width: number, height: number}}
  */
-function createTexture (gl, {width=1, height=1, data=null, format='RGBA'}={}) {
+function createTexture (gl, {width=1, height=1, data=null, format='RGBA', wrap='stretch'}={}) {
     const texture = gl.createTexture();
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
 
     // Set the parameters so we can render any size image
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl[_getTextureWrap(wrap.x || wrap)]);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl[_getTextureWrap(wrap.y || wrap)]);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
@@ -579,6 +587,10 @@ function _enableVertexAttributes (gl, attributes) {
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
         gl.vertexAttribPointer(location, size, gl[type], false, 0, 0);
     });
+}
+
+function _getTextureWrap (key) {
+    return TEXTURE_WRAP[key] || TEXTURE_WRAP['stretch'];
 }
 
 /**

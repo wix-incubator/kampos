@@ -309,11 +309,13 @@ export default class Kampos {
     _createTextures () {
         this.data && this.data.textures.forEach((texture, i) => {
             const data = this.data.textures[i];
+
             data.texture = core.createTexture(this.gl, {
                 width: this.dimensions.width,
                 height: this.dimensions.height,
                 format: texture.format,
-                data: texture.image
+                data: texture.data,
+                wrap: texture.wrap
             }).texture;
 
             data.format = texture.format;
@@ -363,8 +365,9 @@ export default class Kampos {
 /**
  * @typedef {Object} textureConfig
  * @property {string} format
- * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} [image]
+ * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} [data]
  * @property {boolean} [update] defaults to `false`
+ * @property {string|{x: string, y: string}} [wrap] with values `'stretch'|'repeat'|'mirror'`, defaults to `'stretch'`
  */
 
 /**

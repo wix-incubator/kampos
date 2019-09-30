@@ -54,10 +54,10 @@ export default function () {
                 this.uniforms[2].data[1] = y;
         },
         get map () {
-            return this.textures[0].image;
+            return this.textures[0].data;
         },
         set map (img) {
-            this.textures[0].image = img;
+            this.textures[0].data = img;
         },
         varying: {
             v_displacementMapTexCoord: 'vec2'

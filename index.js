@@ -49,11 +49,11 @@
         },
 
         get mask() {
-          return this.textures[0].image;
+          return this.textures[0].data;
         },
 
         set mask(img) {
-          this.textures[0].image = img;
+          this.textures[0].data = img;
         },
 
         get isLuminance() {
@@ -521,11 +521,11 @@
         },
 
         get map() {
-          return this.textures[0].image;
+          return this.textures[0].data;
         },
 
         set map(img) {
-          this.textures[0].image = img;
+          this.textures[0].data = img;
         },
 
         varying: {
@@ -721,11 +721,11 @@
         },
 
         get to() {
-          return this.textures[0].image;
+          return this.textures[0].data;
         },
 
         set to(media) {
-          this.textures[0].image = media;
+          this.textures[0].data = media;
         },
 
         varying: {
@@ -854,19 +854,19 @@
         },
 
         get to() {
-          return this.textures[0].image;
+          return this.textures[0].data;
         },
 
         set to(media) {
-          this.textures[0].image = media;
+          this.textures[0].data = media;
         },
 
         get map() {
-          return this.textures[1].image;
+          return this.textures[1].data;
         },
 
         set map(img) {
-          this.textures[1].image = img;
+          this.textures[1].data = img;
         },
 
         varying: {
@@ -982,6 +982,12 @@
           source = _ref4$source === void 0 ? '' : _ref4$source;
       return "\nprecision mediump float;\n".concat(varying, "\nvarying vec2 v_texCoord;\n").concat(uniform, "\nuniform sampler2D u_source;\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    vec2 sourceCoord = v_texCoord;\n    ").concat(source, "\n    vec4 pixel = texture2D(u_source, sourceCoord);\n    vec3 color = pixel.rgb;\n    float alpha = pixel.a;\n    ").concat(main, "\n    gl_FragColor = vec4(color, 1.0) * alpha;\n}");
     };
+
+    var TEXTURE_WRAP = {
+      stretch: 'CLAMP_TO_EDGE',
+      repeat: 'REPEAT',
+      mirror: 'MIRRORED_REPEAT'
+    };
     /**
      * Initialize a compiled WebGLProgram for the given canvas and effects.
      *
@@ -993,7 +999,6 @@
      * @param {boolean} [config.noSource]
      * @return {{gl: WebGLRenderingContext, data: kamposSceneData, [dimensions]: {width: number, height: number}}}
      */
-
 
     function init(_ref5) {
       var gl = _ref5.gl,
@@ -1131,7 +1136,7 @@
           gl.bindTexture(gl.TEXTURE_2D, tex.texture);
 
           if (tex.update) {
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.image);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.data);
           }
         }
       } // Draw the rectangles
@@ -1402,10 +1407,12 @@
      *
      * @private
      * @param {WebGLRenderingContext} gl
-     * @param {number} width
-     * @param {number} height
-     * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} data
-     * @param {string} format
+     * @param {Object} [config]
+     * @param {number} config.width
+     * @param {number} config.height
+     * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} config.data
+     * @param {string} config.format
+     * @param {Object} config.wrap
      * @return {{texture: WebGLTexture, width: number, height: number}}
      */
 
@@ -1419,13 +1426,15 @@
           _ref11$data = _ref11.data,
           data = _ref11$data === void 0 ? null : _ref11$data,
           _ref11$format = _ref11.format,
-          format = _ref11$format === void 0 ? 'RGBA' : _ref11$format;
+          format = _ref11$format === void 0 ? 'RGBA' : _ref11$format,
+          _ref11$wrap = _ref11.wrap,
+          wrap = _ref11$wrap === void 0 ? 'stretch' : _ref11$wrap;
 
       var texture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, texture); // Set the parameters so we can render any size image
 
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl[_getTextureWrap(wrap.x || wrap)]);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl[_getTextureWrap(wrap.y || wrap)]);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 
@@ -1509,6 +1518,10 @@
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
         gl.vertexAttribPointer(location, size, gl[type], false, 0, 0);
       });
+    }
+
+    function _getTextureWrap(key) {
+      return TEXTURE_WRAP[key] || TEXTURE_WRAP['stretch'];
     }
     /**
      * @private
@@ -1856,7 +1869,8 @@
               width: _this3.dimensions.width,
               height: _this3.dimensions.height,
               format: texture.format,
-              data: texture.image
+              data: texture.data,
+              wrap: texture.wrap
             }).texture;
             data.format = texture.format;
             data.update = texture.update;

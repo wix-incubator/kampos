@@ -99,16 +99,16 @@ export default function () {
                 this.uniforms[5].data[1] = y;
         },
         get to () {
-            return this.textures[0].image;
+            return this.textures[0].data;
         },
         set to (media) {
-            this.textures[0].image = media;
+            this.textures[0].data = media;
         },
         get map () {
-            return this.textures[1].image;
+            return this.textures[1].data;
         },
         set map (img) {
-            this.textures[1].image = img;
+            this.textures[1].data = img;
         },
         varying: {
             v_transitionToTexCoord: 'vec2',

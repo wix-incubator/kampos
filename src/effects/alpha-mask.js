@@ -51,10 +51,10 @@ export default function () {
             this.uniforms[0].data[0] = +!b;
         },
         get mask () {
-            return this.textures[0].image;
+            return this.textures[0].data;
         },
         set mask (img) {
-            this.textures[0].image = img;
+            this.textures[0].data = img;
         },
         get isLuminance () {
             return !!this.uniforms[2].data[0];

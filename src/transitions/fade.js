@@ -48,10 +48,10 @@ export default function () {
             this.uniforms[2].data[0] = p;
         },
         get to () {
-            return this.textures[0].image;
+            return this.textures[0].data;
         },
         set to (media) {
-            this.textures[0].image = media;
+            this.textures[0].data = media;
         },
         varying: {
             v_transitionToTexCoord: 'vec2'
