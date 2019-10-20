@@ -11,16 +11,16 @@ const media1 = document.querySelector('#video5');
 //target2.parentNode.replaceChild(target, target2);
 
 // create the effects we need
-const turbulence = effects.turbulence(noise.perlinNoise);
+const turbulence = effects.turbulence(noise.simplex);
 // create a simple effect that converts the turbulence return value into the output color
 const render = {fragment: {main: 'color = vec3(turbulenceValue);'}};
 const disp = effects.displacement();
 
 // try playing with this factor
-const AMPLITUDE = 2 * 1 / target.width;
+const AMPLITUDE = 1 / target.width;
 
 turbulence.frequency = {x: AMPLITUDE, y: AMPLITUDE};
-turbulence.octaves = 8;
+turbulence.octaves = 4;
 // change to false (or comment out) if you want to see the turbulence noise variant
 turbulence.isFractal = true;
 
