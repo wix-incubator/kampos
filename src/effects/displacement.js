@@ -1,9 +1,18 @@
 /**
  * @function displacement
+ * @param {'CLAMP'|'DISCARD'|'WRAP'} [wrap='CLAMP'] wrapping method to use
  * @returns {displacementEffect}
  * @example displacement()
  */
-export default function () {
+export default function (wrap='CLAMP') {
+    const WRAP_MAP = {
+        CLAMP: `dispVec = clamp(dispVec, 0.0, 1.0);`,
+        DISCARD: `if (dispVec.x < 0.0 || dispVec.x > 1.0 || dispVec.y > 1.0 || dispVec.y < 0.0) {
+            discard;
+        }`,
+        WRAP: `dispVec = mod(dispVec, 1.0);`
+    };
+
     /**
      * @typedef {Object} displacementEffect
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map
@@ -33,8 +42,9 @@ export default function () {
             source: `
     if (u_displacementEnabled) {
         vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb - 0.5;
-        vec2 dispVec = vec2(v_texCoord.x + u_dispScale.x * dispMap.r, v_texCoord.y + u_dispScale.y * dispMap.g);
-        sourceCoord = clamp(dispVec, 0.0, 1.0);
+        vec2 dispVec = vec2(sourceCoord.x + u_dispScale.x * dispMap.r, sourceCoord.y + u_dispScale.y * dispMap.g);
+        ${WRAP_MAP[wrap]}
+        sourceCoord = dispVec;
     }`
         },
         get disabled () {

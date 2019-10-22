@@ -2120,7 +2120,7 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>displacement()</span>
+            <span class='code strong strong truncate'>displacement(wrap)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -2129,7 +2129,7 @@ This will replace canvas DOM element with a fresh clone.</p>
   
 
   
-    <div class='pre p1 fill-light mt0'>displacement(): <a href="#displacementeffect">displacementEffect</a></div>
+    <div class='pre p1 fill-light mt0'>displacement(wrap: (<code>"CLAMP"</code> | <code>"DISCARD"</code> | <code>"WRAP"</code>)): <a href="#displacementeffect">displacementEffect</a></div>
   
   
 
@@ -2140,6 +2140,21 @@ This will replace canvas DOM element with a fresh clone.</p>
   
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>wrap</span> <code class='quiet'>((<code>"CLAMP"</code> | <code>"DISCARD"</code> | <code>"WRAP"</code>)
+            = <code>&#39;CLAMP&#39;</code>)</code>
+	    wrapping method to use
+
+          </div>
+          
+        </div>
+      
+    </div>
   
 
   

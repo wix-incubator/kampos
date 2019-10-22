@@ -50,7 +50,7 @@ export default function () {
 
         // prepare the source coordinates for sampling
         transDispVec = vec2(u_sourceDispScale.x * transDispMap.r, u_sourceDispScale.y * transDispMap.g);
-        sourceCoord = clamp(v_texCoord + transDispVec * u_transitionProgress, 0.0, 1.0);
+        sourceCoord = clamp(sourceCoord + transDispVec * u_transitionProgress, 0.0, 1.0);
     }`,
             main: `
     if (u_transitionEnabled) {

@@ -462,10 +462,17 @@
 
     /**
      * @function displacement
+     * @param {'CLAMP'|'DISCARD'|'WRAP'} [wrap='CLAMP'] wrapping method to use
      * @returns {displacementEffect}
      * @example displacement()
      */
     function displacement () {
+      var wrap = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'CLAMP';
+      var WRAP_MAP = {
+        CLAMP: "dispVec = clamp(dispVec, 0.0, 1.0);",
+        DISCARD: "if (dispVec.x < 0.0 || dispVec.x > 1.0 || dispVec.y > 1.0 || dispVec.y < 0.0) {\n            discard;\n        }",
+        WRAP: "dispVec = mod(dispVec, 1.0);"
+      };
       /**
        * @typedef {Object} displacementEffect
        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map
@@ -478,6 +485,7 @@
        * effect.map = img;
        * effect.scale = {x: 0.4};
        */
+
       return {
         vertex: {
           attribute: {
@@ -491,7 +499,7 @@
             u_dispMap: 'sampler2D',
             u_dispScale: 'vec2'
           },
-          source: "\n    if (u_displacementEnabled) {\n        vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb - 0.5;\n        vec2 dispVec = vec2(v_texCoord.x + u_dispScale.x * dispMap.r, v_texCoord.y + u_dispScale.y * dispMap.g);\n        sourceCoord = clamp(dispVec, 0.0, 1.0);\n    }"
+          source: "\n    if (u_displacementEnabled) {\n        vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb - 0.5;\n        vec2 dispVec = vec2(sourceCoord.x + u_dispScale.x * dispMap.r, sourceCoord.y + u_dispScale.y * dispMap.g);\n        ".concat(WRAP_MAP[wrap], "\n        sourceCoord = dispVec;\n    }")
         },
 
         get disabled() {
@@ -814,7 +822,7 @@
             u_sourceDispScale: 'vec2',
             u_toDispScale: 'vec2'
           },
-          source: "\n    vec3 transDispMap = vec3(1.0);\n    vec2 transDispVec = vec2(0.0);\n\n    if (u_transitionEnabled) {\n        // read the displacement texture once and create the displacement map\n        transDispMap = texture2D(u_transitionDispMap, v_transitionDispMapTexCoord).rgb - 0.5;\n\n        // prepare the source coordinates for sampling\n        transDispVec = vec2(u_sourceDispScale.x * transDispMap.r, u_sourceDispScale.y * transDispMap.g);\n        sourceCoord = clamp(v_texCoord + transDispVec * u_transitionProgress, 0.0, 1.0);\n    }",
+          source: "\n    vec3 transDispMap = vec3(1.0);\n    vec2 transDispVec = vec2(0.0);\n\n    if (u_transitionEnabled) {\n        // read the displacement texture once and create the displacement map\n        transDispMap = texture2D(u_transitionDispMap, v_transitionDispMapTexCoord).rgb - 0.5;\n\n        // prepare the source coordinates for sampling\n        transDispVec = vec2(u_sourceDispScale.x * transDispMap.r, u_sourceDispScale.y * transDispMap.g);\n        sourceCoord = clamp(sourceCoord + transDispVec * u_transitionProgress, 0.0, 1.0);\n    }",
           main: "\n    if (u_transitionEnabled) {\n        // prepare the target coordinates for sampling\n        transDispVec = vec2(u_toDispScale.x * transDispMap.r, u_toDispScale.y * transDispMap.g);\n        vec2 targetCoord = clamp(v_transitionToTexCoord + transDispVec * (1.0 - u_transitionProgress), 0.0, 1.0);\n\n        // sample the target\n        vec4 targetPixel = texture2D(u_transitionTo, targetCoord);\n\n        // mix the results of source and target\n        color = mix(color, targetPixel.rgb, u_transitionProgress);\n        alpha = mix(alpha, targetPixel.a, u_transitionProgress);\n    }"
         },
 
