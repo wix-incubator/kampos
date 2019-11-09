@@ -14,7 +14,7 @@ const vertexSimpleTemplate = ({
     constant = '',
     main = ''
 }) => `
-precision mediump float;
+precision highp float;
 ${uniform}
 ${attribute}
 attribute vec2 a_position;
@@ -34,7 +34,7 @@ const vertexMediaTemplate = ({
     constant = '',
     main = ''
 }) => `
-precision mediump float;
+precision highp float;
 ${uniform}
 ${attribute}
 attribute vec2 a_texCoord;
@@ -57,7 +57,7 @@ const fragmentSimpleTemplate = ({
     main = '',
     source = ''
 }) => `
-precision mediump float;
+precision highp float;
 ${varying}
 ${uniform}
 
@@ -78,7 +78,7 @@ const fragmentMediaTemplate = ({
     main = '',
     source = ''
 }) => `
-precision mediump float;
+precision highp float;
 ${varying}
 varying vec2 v_texCoord;
 ${uniform}

@@ -963,7 +963,7 @@
           constant = _ref$constant === void 0 ? '' : _ref$constant,
           _ref$main = _ref.main,
           main = _ref$main === void 0 ? '' : _ref$main;
-      return "\nprecision mediump float;\n".concat(uniform, "\n").concat(attribute, "\nattribute vec2 a_position;\n").concat(varying, "\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    ").concat(main, "\n    gl_Position = vec4(a_position.xy, 0.0, 1.0);\n}");
+      return "\nprecision highp float;\n".concat(uniform, "\n").concat(attribute, "\nattribute vec2 a_position;\n").concat(varying, "\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    ").concat(main, "\n    gl_Position = vec4(a_position.xy, 0.0, 1.0);\n}");
     };
 
     var vertexMediaTemplate = function vertexMediaTemplate(_ref2) {
@@ -977,7 +977,7 @@
           constant = _ref2$constant === void 0 ? '' : _ref2$constant,
           _ref2$main = _ref2.main,
           main = _ref2$main === void 0 ? '' : _ref2$main;
-      return "\nprecision mediump float;\n".concat(uniform, "\n").concat(attribute, "\nattribute vec2 a_texCoord;\nattribute vec2 a_position;\n").concat(varying, "\nvarying vec2 v_texCoord;\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    v_texCoord = a_texCoord;\n    ").concat(main, "\n    gl_Position = vec4(a_position.xy, 0.0, 1.0);\n}");
+      return "\nprecision highp float;\n".concat(uniform, "\n").concat(attribute, "\nattribute vec2 a_texCoord;\nattribute vec2 a_position;\n").concat(varying, "\nvarying vec2 v_texCoord;\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    v_texCoord = a_texCoord;\n    ").concat(main, "\n    gl_Position = vec4(a_position.xy, 0.0, 1.0);\n}");
     };
 
     var fragmentSimpleTemplate = function fragmentSimpleTemplate(_ref3) {
@@ -991,7 +991,7 @@
           main = _ref3$main === void 0 ? '' : _ref3$main,
           _ref3$source = _ref3.source,
           source = _ref3$source === void 0 ? '' : _ref3$source;
-      return "\nprecision mediump float;\n".concat(varying, "\n").concat(uniform, "\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    ").concat(source, "\n    vec3 color = vec3(0.0);\n    float alpha = 1.0;\n    ").concat(main, "\n    gl_FragColor = vec4(color, 1.0) * alpha;\n}");
+      return "\nprecision highp float;\n".concat(varying, "\n").concat(uniform, "\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    ").concat(source, "\n    vec3 color = vec3(0.0);\n    float alpha = 1.0;\n    ").concat(main, "\n    gl_FragColor = vec4(color, 1.0) * alpha;\n}");
     };
 
     var fragmentMediaTemplate = function fragmentMediaTemplate(_ref4) {
@@ -1005,7 +1005,7 @@
           main = _ref4$main === void 0 ? '' : _ref4$main,
           _ref4$source = _ref4.source,
           source = _ref4$source === void 0 ? '' : _ref4$source;
-      return "\nprecision mediump float;\n".concat(varying, "\nvarying vec2 v_texCoord;\n").concat(uniform, "\nuniform sampler2D u_source;\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    vec2 sourceCoord = v_texCoord;\n    ").concat(source, "\n    vec4 pixel = texture2D(u_source, sourceCoord);\n    vec3 color = pixel.rgb;\n    float alpha = pixel.a;\n    ").concat(main, "\n    gl_FragColor = vec4(color, 1.0) * alpha;\n}");
+      return "\nprecision highp float;\n".concat(varying, "\nvarying vec2 v_texCoord;\n").concat(uniform, "\nuniform sampler2D u_source;\n\nconst vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);\n").concat(constant, "\nvoid main() {\n    vec2 sourceCoord = v_texCoord;\n    ").concat(source, "\n    vec4 pixel = texture2D(u_source, sourceCoord);\n    vec3 color = pixel.rgb;\n    float alpha = pixel.a;\n    ").concat(main, "\n    gl_FragColor = vec4(color, 1.0) * alpha;\n}");
     };
 
     var TEXTURE_WRAP = {
