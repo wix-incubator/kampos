@@ -12,12 +12,14 @@ toc:
     children:
       - brightnessContrast
       - hueSaturation
+      - blend
       - alphaMask
       - duotone
       - displacement
       - turbulence
   - brightnessContrastEffect
   - hueSaturationEffect
+  - blendEffect
   - alphaMaskEffect
   - duotoneEffect
   - displacementEffect

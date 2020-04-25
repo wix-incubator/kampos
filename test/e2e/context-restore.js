@@ -47,6 +47,10 @@ const createServer = function () {
 
 async function initVideo (t, src, dims) {
     const page = t.context.page;
+
+    const body = await page.$('body');
+    await page.evaluate(b => b.classList.remove('image-test'), body);
+
     const source = await page.$('#video');
     t.context.source = source;
 

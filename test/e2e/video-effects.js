@@ -14,8 +14,10 @@ const PROJECT_PATH = path.resolve(__dirname, '../..');
 const SIMPLE_VIDEO_CANVAS_DIMS = {width: 854, height: 480};
 const SIMPLE_VIDEO_DIMS = {width: 854, height: 480};
 const SIMPLE_VIDEO_CANVAS_POS = {x: 0, y: 484};
+const IMAGE_CANVAS_POS = {x: 0, y: 480};
 const VIDEO_URL_PREFIX = '/test/e2e/';
 const SIMPLE_VIDEO_URL = `${VIDEO_URL_PREFIX}e2e-video.ogg`;
+const IMAGE_URL = `${VIDEO_URL_PREFIX}e2e-image.png`;
 
 let server;
 let browser;
@@ -49,6 +51,10 @@ const createServer = function () {
 
 async function initVideo (t, src, dims) {
     const page = t.context.page;
+
+    const body = await page.$('body');
+    await page.evaluate(b => b.classList.remove('image-test'), body);
+
     const source = await page.$('#video');
     t.context.source = source;
 
@@ -71,20 +77,55 @@ async function initVideo (t, src, dims) {
     }, source, src, dims);
 }
 
-async function drawVideo (t, filterContent, data, canvasDims) {
+async function initImage (t, src, dims) {
+    const page = t.context.page;
+
+    const body = await page.$('body');
+    await page.evaluate(b => b.classList.add('image-test'), body);
+
+    const source = await page.$('#image');
+    const container = await page.$('#image-container');
+    t.context.source = source;
+
+    await page.evaluate((image, container, url, dims) => {
+        container.setAttribute('width', dims.width);
+        container.setAttribute('height', dims.height);
+        image.setAttribute('width', dims.width);
+        image.setAttribute('height', dims.height);
+        return new Promise((resolve) => {
+            image.addEventListener('load', resolve);
+            image.setAttribute('href', url);
+        });
+    }, source, container, src, dims);
+}
+
+async function drawEffect (t, filterContent, data, canvasDims) {
     const page = t.context.page;
     const source = t.context.source;
 
-    t.context.kampos = await page.evaluateHandle((video, filterContent, data, canvasDims) => {
+    t.context.kampos = await page.evaluateHandle(async (source, filterContent, data, canvasDims) => {
         const target = document.querySelector('#canvas');
         const filter = document.querySelector('#filter');
+        const isVideo = source instanceof window.HTMLVideoElement;
+        let media;
+
+        if ( isVideo ) {
+            media = source;
+        }
+        else {
+            media = new Image();
+            media.src = source.getAttribute('href');
+            await new Promise(resolve => {
+                media.onload = resolve;
+            });
+        }
 
         target.style.width = `${canvasDims.width}px`;
         target.style.height = `${canvasDims.height}px`;
 
         const {Kampos, effects} = window.kampos;
         const effectsToRender = data.map(datum => {
-            const effect = effects[datum.name]();
+            const effect = effects[datum.name](datum.arg);
 
             if ( datum.path ) {
                 effect.uniforms[datum.path[0]].data[0] = datum.value;
@@ -111,15 +152,15 @@ async function drawVideo (t, filterContent, data, canvasDims) {
         if ( filterContent ) {
             filter.innerHTML = filterContent;
 
-            video.style.filter = `url(#${filter.id})`;
+            source.style.filter = `url(#${filter.id})`;
         }
 
         let instance = new Kampos({target, effects: effectsToRender});
 
-        const width = video.videoWidth;
-        const height = video.videoHeight;
+        const width = isVideo ? source.videoWidth : +source.getAttribute('width');
+        const height = isVideo ? source.videoHeight : +source.getAttribute('height');
 
-        instance.setSource({media: video, type: 'video', width, height});
+        instance.setSource({media, width, height});
         instance.play();
 
         return instance;
@@ -168,7 +209,7 @@ function takeScreenshot (page, filename, clip = {}) {
     });
 }
 
-async function getDiffPixels (t, canvasDims, canvasPos, threshold = 0.008) {
+async function getDiffPixels (t, canvasDims, canvasPos, threshold = 0.018) {
     const page = t.context.page;
     const {width, height} = canvasDims;
     const testFilePrefix = getTestFilenamePrefix(t);
@@ -204,6 +245,11 @@ async function getDiffPixels (t, canvasDims, canvasPos, threshold = 0.008) {
     }
 
     return promise;
+}
+
+function getBlendColorFilter (mode, color) {
+    return `<feFlood flood-color="${color[0]}" flood-opacity="${color[1] || 1}" result="color"></feFlood>
+<feBlend mode="${mode}" in="SourceGraphic" in2="color"></feBlend>`;
 }
 
 function getBrightnessFilter (value) {
@@ -242,7 +288,7 @@ function getDuotoneFilter (dark, light) {
 test.serial('brightness 1.0', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getBrightnessFilter(1.0),
+    await drawEffect(t, getBrightnessFilter(1.0),
         [{name: 'brightnessContrast', setter: 'brightness', value: 1.0}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -253,7 +299,7 @@ test.serial('brightness 1.0', async t => {
 test.serial('brightness 2.0', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getBrightnessFilter(2.0),
+    await drawEffect(t, getBrightnessFilter(2.0),
         [{name: 'brightnessContrast', setter: 'brightness', value: 2.0}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -264,7 +310,7 @@ test.serial('brightness 2.0', async t => {
 test.serial('brightness 0.5', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getBrightnessFilter(0.5),
+    await drawEffect(t, getBrightnessFilter(0.5),
         [{name: 'brightnessContrast', setter: 'brightness', value: 0.5}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -275,7 +321,7 @@ test.serial('brightness 0.5', async t => {
 test.serial('contrast 1.0', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getContrastFilter(1.0),
+    await drawEffect(t, getContrastFilter(1.0),
         [{name: 'brightnessContrast', setter: 'contrast', value: 1.0}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -286,7 +332,7 @@ test.serial('contrast 1.0', async t => {
 test.serial('contrast 2.0', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getContrastFilter(2.0),
+    await drawEffect(t, getContrastFilter(2.0),
         [{name: 'brightnessContrast', setter: 'contrast', value: 2.0}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -297,7 +343,7 @@ test.serial('contrast 2.0', async t => {
 test.serial('contrast 0.2', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getContrastFilter(0.2),
+    await drawEffect(t, getContrastFilter(0.2),
         [{name: 'brightnessContrast', setter: 'contrast', value: 0.2}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -308,7 +354,7 @@ test.serial('contrast 0.2', async t => {
 test.serial('hue 0.0', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getHueFilter(0),
+    await drawEffect(t, getHueFilter(0),
         [{name: 'hueSaturation', setter: 'hue', value: 0.0}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -319,7 +365,7 @@ test.serial('hue 0.0', async t => {
 test.serial('hue 90', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getHueFilter(90),
+    await drawEffect(t, getHueFilter(90),
         [{name: 'hueSaturation', setter: 'hue', value: 90.0}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -331,7 +377,7 @@ test.serial('hue 90', async t => {
 test.serial('hue 45', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getHueFilter(45),
+    await drawEffect(t, getHueFilter(45),
         [{name: 'hueSaturation', setter: 'hue', value: 45.0}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -342,7 +388,7 @@ test.serial('hue 45', async t => {
 test.serial('hue -90', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getHueFilter(-90),
+    await drawEffect(t, getHueFilter(-90),
         [{name: 'hueSaturation', setter: 'hue', value: -90}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -353,7 +399,7 @@ test.serial('hue -90', async t => {
 test.serial('hue -135', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getHueFilter(-135),
+    await drawEffect(t, getHueFilter(-135),
         [{name: 'hueSaturation', setter: 'hue', value: -135}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -364,7 +410,7 @@ test.serial('hue -135', async t => {
 test.serial('saturate 1.0', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getSaturateFilter(1.0),
+    await drawEffect(t, getSaturateFilter(1.0),
         [{name: 'hueSaturation', setter: 'saturation', value: 1.0}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -375,7 +421,7 @@ test.serial('saturate 1.0', async t => {
 test.serial('saturate 0.0', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getSaturateFilter(0.0),
+    await drawEffect(t, getSaturateFilter(0.0),
         [{name: 'hueSaturation', setter: 'saturation', value: 0.0}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -386,7 +432,7 @@ test.serial('saturate 0.0', async t => {
 test.serial('saturate 2.5', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getSaturateFilter(2.5),
+    await drawEffect(t, getSaturateFilter(2.5),
         [{name: 'hueSaturation', setter: 'saturation', value: 2.5}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
@@ -397,7 +443,7 @@ test.serial('saturate 2.5', async t => {
 test.serial('duotone golden-purple', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getDuotoneFilter(
+    await drawEffect(t, getDuotoneFilter(
         [0.7411764706, 0.0431372549, 0.568627451],
         [0.9882352941, 0.7333333333, 0.05098039216]),
         [{
@@ -416,7 +462,7 @@ test.serial('duotone golden-purple', async t => {
 test.serial('duotone strawberry-midnight', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getDuotoneFilter(
+    await drawEffect(t, getDuotoneFilter(
         [0.00392156862745098, 0.09803921568627451, 0.5764705882352941],
         [1.0, 0.1843137254901961, 0.5725490196078431]),
         [{
@@ -435,7 +481,7 @@ test.serial('duotone strawberry-midnight', async t => {
 test.serial('duotone seafoam-lead', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getDuotoneFilter(
+    await drawEffect(t, getDuotoneFilter(
         [0.12941176470588237, 0.12941176470588237, 0.12941176470588237],
         [0.0, 0.9803921568627451, 0.5725490196078431]),
         [{
@@ -454,7 +500,7 @@ test.serial('duotone seafoam-lead', async t => {
 test.serial('duotone seafoam-lead | brightness 2.0', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getDuotoneFilter(
+    await drawEffect(t, getDuotoneFilter(
         [0.12941176470588237, 0.12941176470588237, 0.12941176470588237],
         [0.0, 0.9803921568627451, 0.5725490196078431]) + getBrightnessFilter(2.0),
         [{
@@ -477,7 +523,7 @@ test.serial('duotone seafoam-lead | brightness 2.0', async t => {
 test.serial('brightness 2.0 | duotone seafoam-lead', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getBrightnessFilter(2.0) + getDuotoneFilter(
+    await drawEffect(t, getBrightnessFilter(2.0) + getDuotoneFilter(
         [0.12941176470588237, 0.12941176470588237, 0.12941176470588237],
         [0.0, 0.9803921568627451, 0.5725490196078431]),
         [{
@@ -500,7 +546,7 @@ test.serial('brightness 2.0 | duotone seafoam-lead', async t => {
 test.serial('duotone seafoam-lead | contrast 2.0', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getDuotoneFilter(
+    await drawEffect(t, getDuotoneFilter(
         [0.12941176470588237, 0.12941176470588237, 0.12941176470588237],
         [0.0, 0.9803921568627451, 0.5725490196078431]) + getContrastFilter(2.0),
         [{
@@ -523,7 +569,7 @@ test.serial('duotone seafoam-lead | contrast 2.0', async t => {
 test.serial('contrast 2.0 | duotone seafoam-lead', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getContrastFilter(2.0) + getDuotoneFilter(
+    await drawEffect(t, getContrastFilter(2.0) + getDuotoneFilter(
         [0.12941176470588237, 0.12941176470588237, 0.12941176470588237],
         [0.0, 0.9803921568627451, 0.5725490196078431]),
         [{
@@ -546,7 +592,7 @@ test.serial('contrast 2.0 | duotone seafoam-lead', async t => {
 test.serial('duotone seafoam-lead | contrast 0.2', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getDuotoneFilter(
+    await drawEffect(t, getDuotoneFilter(
         [0.12941176470588237, 0.12941176470588237, 0.12941176470588237],
         [0.0, 0.9803921568627451, 0.5725490196078431]) + getContrastFilter(0.2),
         [{
@@ -569,7 +615,7 @@ test.serial('duotone seafoam-lead | contrast 0.2', async t => {
 test.serial('contrast 0.2 | duotone seafoam-lead', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getContrastFilter(0.2) + getDuotoneFilter(
+    await drawEffect(t, getContrastFilter(0.2) + getDuotoneFilter(
         [0.12941176470588237, 0.12941176470588237, 0.12941176470588237],
         [0.0, 0.9803921568627451, 0.5725490196078431]),
         [{
@@ -592,7 +638,7 @@ test.serial('contrast 0.2 | duotone seafoam-lead', async t => {
 test.serial('duotone seafoam-lead | brightness 0.5 | contrast 2.0', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getDuotoneFilter(
+    await drawEffect(t, getDuotoneFilter(
         [0.12941176470588237, 0.12941176470588237, 0.12941176470588237],
         [0.0, 0.9803921568627451, 0.5725490196078431]) + getBrightnessFilter(0.5) + getContrastFilter(2.0),
         [{
@@ -617,7 +663,7 @@ test.serial('duotone seafoam-lead | brightness 0.5 | contrast 2.0', async t => {
 test.serial('brightness 0.5 | contrast 2.0 | duotone seafoam-lead', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawVideo(t, getBrightnessFilter(0.5) + getContrastFilter(2.0) + getDuotoneFilter(
+    await drawEffect(t, getBrightnessFilter(0.5) + getContrastFilter(2.0) + getDuotoneFilter(
         [0.12941176470588237, 0.12941176470588237, 0.12941176470588237],
         [0.0, 0.9803921568627451, 0.5725490196078431]),
         [{
@@ -635,6 +681,173 @@ test.serial('brightness 0.5 | contrast 2.0 | duotone seafoam-lead', async t => {
         }], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+test.serial('blend multiply orange 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('multiply', [`rgb(${255}, ${128}, ${0})`, '1']),
+        [{name: 'blend', setter: 'color', value: [1.0, 0.5, 0.0, 1.0], arg: 'multiply'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+test.failing('blend screen turquoise 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('screen', [`rgb(${64}, ${224}, ${208})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [64/255, 224/255, 208/255, 1.0], arg: 'screen'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+//TODO: getting just the background color in actual result
+test.failing('blend overlay magenta 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('overlay', [`rgb(${255 * 0.8}, ${0}, ${255 * 0.8})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [0.8, 0.0, 0.8, 1.0], arg: 'overlay'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+test.serial('blend darken magenta 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('darken', [`rgb(${255}, ${0}, ${255})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [1.0, 0.0, 1.0, 1.0], arg: 'darken'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+test.serial('blend lighten yellow 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('lighten', [`rgb(${255}, ${255}, ${0})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [1.0, 1.0, 0.0, 1.0], arg: 'lighten'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+// TODO: SVG filter not working
+test.failing('blend colorDodge firebrick 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('color-dodge', [`rgb(${178}, ${34}, ${34})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [178/255, 34/255, 34/255, 1.0], arg: 'colorDodge'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+test.failing('blend colorBurn darkolivegreen 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('color-burn', [`rgb(${85}, ${107}, ${47})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [85/255, 107/255, 47/255, 1.0], arg: 'colorBurn'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+test.failing('blend hardLight yogurtpink 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('hard-light', [`rgb(${200}, ${150}, ${180})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [200/255, 150/255, 180/255, 1.0], arg: 'hardLight'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+test.failing('blend softLight yellowgreen 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('soft-light', [`rgb(${154}, ${205}, ${50})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [154/255, 205/255, 50/255, 1.0], arg: 'softLight'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+test.failing('blend difference yellowgreen 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('difference', [`rgb(${154}, ${205}, ${50})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [154/255, 205/255, 50/255, 1.0], arg: 'difference'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+test.failing('blend exclusion yellowgreen 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('exclusion', [`rgb(${154}, ${205}, ${50})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [154/255, 205/255, 50/255, 1.0], arg: 'exclusion'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+test.failing('blend hue indianred 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('hue', [`rgb(${205}, ${92}, ${92})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [205/255, 92/255, 92/255, 1.0], arg: 'hue'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+test.failing('blend saturation indianred 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('saturation', [`rgb(${205}, ${92}, ${92})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [205/255, 92/255, 92/255, 1.0], arg: 'saturation'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+test.failing('blend color indianred 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('color', [`rgb(${205}, ${92}, ${92})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [205/255, 92/255, 92/255, 1.0], arg: 'color'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
+
+    t.is(diffPixels, 0);
+});
+
+test.failing('luminosity color indianred 1.0', async t => {
+    await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+
+    await drawEffect(t, getBlendColorFilter('luminosity', [`rgb(${205}, ${92}, ${92})`, '1.0']),
+        [{name: 'blend', setter: 'color', value: [205/255, 92/255, 92/255, 1.0], arg: 'luminosity'}], SIMPLE_VIDEO_CANVAS_DIMS);
+
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
     t.is(diffPixels, 0);
 });

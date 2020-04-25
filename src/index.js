@@ -1,4 +1,5 @@
 import alphaMask from './effects/alpha-mask';
+import blend from './effects/blend';
 import brightnessContrast from './effects/brightness-contrast';
 import hueSaturation from './effects/hue-saturation';
 import duotone from './effects/duotone';
@@ -14,6 +15,7 @@ import Ticker from './ticker';
 export default {
     effects: {
         alphaMask,
+        blend,
         brightnessContrast,
         hueSaturation,
         duotone,

@@ -93,6 +93,170 @@
       };
     }
 
+    var MODES_AUX = {
+      blend_luminosity: "float blend_luminosity (vec3 c) {\n    return dot(c, blendLum);\n}",
+      blend_saturation: "float blend_saturation (vec3 c) {\n    return max(max(c.r, c.g), c.b) - min(min(c.r, c.g), c.b);\n}",
+      blend_set_luminosity: "vec3 blend_clip_color (vec3 c) {\n    float l = blend_luminosity(c);\n    float cMin = min(min(c.r, c.g), c.b);\n    float cMax = max(max(c.r, c.g), c.b);\n    \n    if (cMin < 0.0)\n        return l + (((c - l) * l) / (l - cMin));\n    if (cMax > 1.0)\n        return l + (((c - l) * (1.0 - l)) / (cMax - l));\n    \n    return c;\n}\n\nvec3 blend_set_luminosity (vec3 c, float l) {\n    vec3 delta = vec3(l - blend_luminosity(c));\n    \n    return blend_clip_color(vec3(c.rgb + delta.rgb));\n}",
+      blend_set_saturation: "\nfloat getBlendMid (vec3 c) {\n    float bigger = max(c.r, c.g);\n    \n    if (bigger < c.b) {\n        return bigger;\n    }\n\n    float smaller = min(c.r, c.g);\n    \n    if (c.b < smaller) {\n        return smaller;\n    }\n    \n    return c.b;\n}\n    \nvec3 blend_set_saturation (vec3 c, float s) {\n    if (s == 0.0) return vec3(0.0);\n\n    float cMax = max(max(c.r, c.g), c.b);\n    float cMid = getBlendMid(c);\n    float cMin = min(min(c.r, c.g), c.b);\n    float r, g, b;\n    \n    cMid = (((cMid - cMin) * s) / (cMax - cMin));\n    cMax = s;\n    cMin = 0.0;\n    \n    if (c.r > c.g) {\n        // r > g\n        if (c.b > c.r) {\n            // g < r < b\n            g = cMin;\n            r = cMid;\n            b = cMax;\n        }\n        else if (c.g > c.b) {\n            // b < g < r\n            b = cMin;\n            g = cMid;\n            r = cMax;\n        }\n        else {\n            // g < b < r\n            g = cMin;     \n            b = cMid;\n            r = cMax;\n        }\n    }\n    // g > r\n    else if (c.g > c.b) {\n        // g > b\n        if (c.b > c.r) {\n            // r < b < g\n            r = cMin;\n            b = cMid;\n            g = cMax;\n        }\n        else {\n            // b < r < g\n            b = cMin;\n            r = cMid;\n            g = cMax;\n        }\n    }\n    else {\n        // r < g < b\n        r = cMin;\n        g = cMid;\n        b = cMax;\n    }\n    \n    return vec3(r, g, b);\n}"
+    };
+    var MODES_CONSNTANT = {
+      normal: '',
+      multiply: '',
+      screen: '',
+      overlay: "float blend_overlay (float b, float c) {\n    if (b <= 0.5)\n        return 2.0 * b * c;\n    else\n        return 1.0 - 2.0 * ((1.0 - b) * (1.0 - c));\n}",
+      darken: '',
+      lighten: '',
+      colorDodge: "float blend_colorDodge (float b, float c) {\n    if (b == 0.0)\n        return 0.0;\n    else if (c == 1.0)\n        return 1.0;\n    else\n        return min(1.0, b / (1.0 - c));\n}",
+      colorBurn: "float blend_colorBurn (float b, float c) {\n    if (b == 1.0) {\n        return 1.0;\n    }\n    else if (c == 0.0) {\n        return 0.0;\n    }\n    else {\n        return 1.0 - min(1.0, (1.0 - b) / c);\n    }\n}",
+      hardLight: "float blend_hardLight (float b, float c) {\n    if (c <= 0.5) {\n        return 2.0 * b * c;\n    }\n    else {\n        return 1.0 - 2.0 * ((1.0 - b) * (1.0 - c));\n    }\n}",
+      softLight: "float blend_softLight (float b, float c) {\n    if (c <= 0.5) {\n        return b - (1.0 - 2.0 * c) * b * (1.0 - b);\n    }\n    else {\n        float d;\n        \n        if (b <= 0.25) {\n            d = ((16.0 * b - 12.0) * b + 4.0) * b;\n        }\n        else {\n            d = sqrt(b);\n        }\n\n        return b + (2.0 * c - 1.0) * (d - b);\n    }\n}",
+      difference: "float blend_difference (float b, float c) {\n    return abs(b - c);\n}",
+      exclusion: "float blend_exclusion (float b, float c) {\n    return b + c - 2.0 * b * c;\n}",
+      hue: "".concat(MODES_AUX.blend_luminosity, "\n").concat(MODES_AUX.blend_saturation, "\n").concat(MODES_AUX.blend_set_saturation, "\n").concat(MODES_AUX.blend_set_luminosity),
+      saturation: "".concat(MODES_AUX.blend_luminosity, "\n").concat(MODES_AUX.blend_saturation, "\n").concat(MODES_AUX.blend_set_saturation, "\n").concat(MODES_AUX.blend_set_luminosity),
+      color: "".concat(MODES_AUX.blend_luminosity, "\n").concat(MODES_AUX.blend_set_luminosity),
+      luminosity: "".concat(MODES_AUX.blend_luminosity, "\n").concat(MODES_AUX.blend_set_luminosity)
+    };
+
+    function generateBlendVector(name) {
+      return "vec3(".concat(name, "(backdrop.r, source.r), ").concat(name, "(backdrop.g, source.g), ").concat(name, "(backdrop.b, source.b))");
+    }
+
+    var MODES_MAIN = {
+      normal: 'source',
+      multiply: 'source * backdrop',
+      screen: 'backdrop + source - backdrop * source',
+      overlay: generateBlendVector('blend_overlay'),
+      darken: generateBlendVector('min'),
+      lighten: generateBlendVector('max'),
+      colorDodge: generateBlendVector('blend_colorDodge'),
+      colorBurn: generateBlendVector('blend_colorBurn'),
+      hardLight: generateBlendVector('blend_hardLight'),
+      softLight: generateBlendVector('blend_softLight'),
+      difference: generateBlendVector('blend_difference'),
+      exclusion: generateBlendVector('blend_exclusion'),
+      hue: 'blend_set_luminosity(blend_set_saturation(source, blend_saturation(backdrop)), blend_luminosity(backdrop))',
+      saturation: 'blend_set_luminosity(blend_set_saturation(backdrop, blend_saturation(source)), blend_luminosity(backdrop))',
+      color: 'blend_set_luminosity(source, blend_luminosity(backdrop))',
+      luminosity: 'blend_set_luminosity(backdrop, blend_luminosity(source))'
+    };
+    /**
+     * @function blend
+     * @param {'normal'|'multiply'|'screen'|'overlay'|'darken'|'lighten'|'color-dodge'|'color-burn'|'hard-light'|'soft-light'|'difference'|'exclusion'|'hue'|'saturation'|'color'|'luminosity'} [mode='normal'] blend mode to use
+     * @returns {blendEffect}
+     * @example blend('colorBurn')
+     */
+
+    function blend () {
+      var mode = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'normal';
+
+      /**
+       * @typedef {Object} blendEffect
+       * @property {number[]} color Array of 4 numbers, normalized (0.0 - 1.0)
+       * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} image
+       * @property {boolean} disabled
+       *
+       * @example
+       * const img = new Image();
+       * img.src = 'picture.png';
+       * effect.color = [0.3, 0.55, 0.8, 1.0];
+       * effect.image = img;
+       */
+      return {
+        vertex: {
+          attribute: {
+            a_blendImageTexCoord: 'vec2'
+          },
+          main: "\n    v_blendImageTexCoord = a_blendImageTexCoord;"
+        },
+        fragment: {
+          uniform: {
+            u_blendEnabled: 'bool',
+            u_blendColorEnabled: 'bool',
+            u_blendImageEnabled: 'bool',
+            u_blendColor: 'vec4',
+            u_blendImage: 'sampler2D'
+          },
+          constant: "const vec3 blendLum = vec3(0.3, 0.59, 0.11);\n".concat(MODES_CONSNTANT[mode]),
+          main: "\n    if (u_blendEnabled) {\n        vec3 backdrop = vec3(0.0);\n        float backdropAlpha = 1.0;\n\n        if (u_blendColorEnabled) {\n            backdrop = u_blendColor.rgb;\n            backdropAlpha = u_blendColor.a;\n        }\n        if (u_blendImageEnabled) {\n            vec4 blendBackdropPixel = texture2D(u_blendImage, v_blendImageTexCoord);\n            if (u_blendColorEnabled) {\n                vec3 source = blendBackdropPixel.rgb;\n                float sourceAlpha = blendBackdropPixel.a;\n                backdrop = (1.0 - backdropAlpha) * source + backdropAlpha * clamp(".concat(MODES_MAIN[mode], ", 0.0, 1.0);\n                backdropAlpha = sourceAlpha + backdropAlpha * (1.0 - sourceAlpha);\n            }\n            else {\n                backdrop = blendBackdropPixel.rgb;\n                backdropAlpha = blendBackdropPixel.a;\n            }\n        }\n        vec3 source = vec3(color.rgb);\n        color = (1.0 - backdropAlpha) * source + backdropAlpha * clamp(").concat(MODES_MAIN[mode], ", 0.0, 1.0);\n        alpha = alpha + backdropAlpha * (1.0 - alpha);\n    }")
+        },
+
+        get color() {
+          return this.uniforms[1].data.slice(0);
+        },
+
+        set color(l) {
+          var _this = this;
+
+          if (!l || !l.length) {
+            this.uniforms[2].data[0] = 0;
+          } else {
+            this.uniforms[2].data[0] = 1;
+            l.forEach(function (c, i) {
+              if (!Number.isNaN(c)) {
+                _this.uniforms[1].data[i] = c;
+              }
+            });
+          }
+        },
+
+        get image() {
+          return this.textures[0].data;
+        },
+
+        set image(img) {
+          if (img) {
+            this.uniforms[4].data[0] = 1;
+            this.textures[0].data = img;
+          } else {
+            this.uniforms[4].data[0] = 0;
+          }
+        },
+
+        get disabled() {
+          return !this.uniforms[0].data[0];
+        },
+
+        set disabled(b) {
+          this.uniforms[0].data[0] = +!b;
+        },
+
+        varying: {
+          v_blendImageTexCoord: 'vec2'
+        },
+        uniforms: [{
+          name: 'u_blendEnabled',
+          type: 'i',
+          data: [1]
+        }, {
+          name: 'u_blendColor',
+          type: 'f',
+          data: [0.0, 0.0, 0.0, 1.0]
+        }, {
+          name: 'u_blendColorEnabled',
+          type: 'i',
+          data: [1]
+        }, {
+          name: 'u_blendImage',
+          type: 'i',
+          data: [1]
+        }, {
+          name: 'u_blendImageEnabled',
+          type: 'i',
+          data: [0]
+        }],
+        attributes: [{
+          name: 'a_blendImageTexCoord',
+          data: new Float32Array([0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
+          size: 2,
+          type: 'FLOAT'
+        }],
+        textures: [{
+          format: 'RGBA'
+        }]
+      };
+    }
+
     /**
      * @function brightnessContrast
      * @returns {brightnessContrastEffect}
@@ -2000,6 +2164,7 @@
     var index = {
       effects: {
         alphaMask: alphaMask,
+        blend: blend,
         brightnessContrast: brightnessContrast,
         hueSaturation: hueSaturation,
         duotone: duotone,

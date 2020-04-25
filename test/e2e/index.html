@@ -19,11 +19,32 @@
         video {
             margin: 0;
         }
+
+        #image-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .image-test #image-container {
+            position: static;
+        }
+
+        .image-test video {
+            display: none;
+        }
+
+        .image-test svg {
+            display: block;
+        }
     </style>
 </head>
 <body>
     <video id="video" src="" muted preload="auto" crossorigin="anonymous" playsinline></video>
-    <svg xmlns="http://www.w3.org/2000/svg">
+    <svg id="image-container">
+        <image id="image" href=""></image>
+    </svg>
+    <svg xmlns="http://www.w3.org/2000/svg" style="position: absolute; top: 0; left: 0;">
         <defs>
             <filter id="filter">
 
