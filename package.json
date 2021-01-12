@@ -14,7 +14,7 @@
     "test:unit:run": "floss --path test/unit.js",
     "test:unit:build": "cd test && rollup -c rollup.unit.js && cd -",
     "test:e2e": "ava test/e2e/*.js",
-    "test": "npm run test:unit && npm run test:e2e",
+    "test": "npm run test:e2e",
     "docs": "documentation build src/index.js -f html -o docs -c documentation.yml",
     "check": "npm-check -u"
   },
