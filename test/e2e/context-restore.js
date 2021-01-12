@@ -6,6 +6,9 @@ import puppeteer from 'puppeteer';
 import finalhandler from 'finalhandler';
 import serveStatic from 'serve-static';
 import getPort from 'get-port';
+import url from "url";
+
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 const PROJECT_PATH = path.resolve(__dirname, '../..');
 const SIMPLE_VIDEO_CANVAS_DIMS = {width: 854, height: 480};

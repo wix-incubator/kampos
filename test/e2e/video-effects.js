@@ -1,4 +1,5 @@
 import fs from 'fs';
+import url from 'url';
 import path from 'path';
 import http from 'http';
 import pify from 'pify';
@@ -8,7 +9,11 @@ import serveStatic from 'serve-static';
 import test from 'ava';
 import puppeteer from 'puppeteer';
 import pixelmatch from 'pixelmatch';
-import {PNG} from 'pngjs';
+import png from 'pngjs';
+
+const {PNG} = png;
+
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 const PROJECT_PATH = path.resolve(__dirname, '../..');
 const SIMPLE_VIDEO_CANVAS_DIMS = {width: 854, height: 480};
@@ -29,6 +34,11 @@ async function createBrowser () {
 
 async function setPage (t) {
     t.context.page = await browser.newPage();
+    await t.context.page.setViewport({
+        width: 1024,
+        height: 1024,
+        deviceScaleFactor: 1,
+    });
 }
 
 const createServer = function () {
