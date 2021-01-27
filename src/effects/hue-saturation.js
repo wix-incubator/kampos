@@ -1,9 +1,11 @@
 /**
  * @function hueSaturation
+ * @property {number} hue rotation in degrees
+ * @property {number} saturation
  * @returns {hueSaturationEffect}
  * @example hueSaturation()
  */
-export default function () {
+export default function (hue = 0.0, saturation = 1.0) {
     /**
      * @typedef {Object} hueSaturationEffect
      * @property {number} hue
@@ -71,7 +73,7 @@ const mat3 satmat = mat3(
             dot(color, v_saturation[2])
         );
     }
-    
+
     color = clamp(color, 0.0, 1.0);`
         },
         varying: {
@@ -117,12 +119,12 @@ const mat3 satmat = mat3(
             {
                 name: 'u_hue',
                 type: 'f',
-                data: [0.0]
+                data: [hue]
             },
             {
                 name: 'u_saturation',
                 type: 'f',
-                data: [1.0]
+                data: [saturation]
             }
         ]
     };
