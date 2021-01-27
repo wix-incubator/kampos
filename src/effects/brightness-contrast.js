@@ -1,9 +1,11 @@
 /**
  * @function brightnessContrast
+ * @property {number} brightness
+ * @property {number} contrast
  * @returns {brightnessContrastEffect}
  * @example brightnessContrast()
  */
-export default function () {
+export default function (brightness = 1.0, contrast = 1.0) {
     /**
      * @typedef {Object} brightnessContrastEffect
      * @property {number} brightness
@@ -74,12 +76,12 @@ export default function () {
             {
                 name: 'u_brightness',
                 type: 'f',
-                data: [1.0]
+                data: [brightness]
             },
             {
                 name: 'u_contrast',
                 type: 'f',
-                data: [1.0]
+                data: [contrast]
             }
         ]
     };
