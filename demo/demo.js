@@ -145,6 +145,29 @@ const sectionScripts = {
 
                 update();
             });
+    },
+
+    section5() {
+        const text5 = document.querySelector('#code5');
+        const preview5 = document.querySelector('#preview5');
+        const refresh5 = document.querySelector('#refresh5');
+
+        fetch('./cellular-noise.js')
+            .then(resp => resp.text())
+            .then(text => {
+                text5.value = text;
+                const doc = CodeMirror.fromTextArea(text5, {
+                    value: text,
+                    lineNumbers: true,
+                    theme: 'dracula'
+                });
+
+                const update = () => updatePreview(preview5, doc.getValue(), '');
+
+                refresh5.addEventListener('click', update);
+
+                update();
+            });
     }
 }
 
