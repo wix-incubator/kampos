@@ -5,6 +5,7 @@ import hueSaturation from './effects/hue-saturation';
 import duotone from './effects/duotone';
 import displacement from './effects/displacement';
 import perlinNoise from './noise/perlin-noise-3d';
+import cellular from './noise/cellular-noise-3d';
 import simplex from './noise/simplex-3d';
 import turbulence from './effects/turbulence';
 import fade from './transitions/fade';
@@ -28,7 +29,8 @@ export default {
     },
     noise: {
         perlinNoise,
-        simplex
+        simplex,
+        cellular
     },
     Kampos,
     Ticker
