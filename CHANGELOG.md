@@ -1,9 +1,14 @@
-### 0.3.6 (2021-02-07)
+### 0.3.7 (2021-02-07)
 
 *New:*
 
 - Added cellular noise.
 - `brightnessContrast` and `hueSaturation` effects now have initial default values in factory.
+
+### 0.3.6 (2021-01-13)
+
+*New:*
+
 - Initial work on `blend` effect.
 
 *Fixed:*
