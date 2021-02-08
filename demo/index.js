@@ -150,7 +150,7 @@
                 });
         },
 
-        section5() {
+        section5 () {
             const text5 = document.querySelector('#code5');
             const preview5 = document.querySelector('#preview5');
             const refresh5 = document.querySelector('#refresh5');
@@ -171,9 +171,33 @@
 
                     update();
                 });
+        },
+
+        section6() {
+            const text6 = document.querySelector('#code6');
+            const preview6 = document.querySelector('#preview6');
+            const videos2 = document.querySelector('#videos2');
+            const refresh6 = document.querySelector('#refresh6');
+
+            fetch('./dissolve-transition.js')
+                .then(resp => resp.text())
+                .then(text => {
+                    text6.value = text;
+                    const doc = CodeMirror.fromTextArea(text6, {
+                        value: text,
+                        lineNumbers: true,
+                        theme: 'dracula'
+                    });
+
+                    const update = () => updatePreview(preview6, doc.getValue(), videos2.innerHTML);
+
+                    refresh6.addEventListener('click', update);
+
+                    update();
+                });
         }
     };
 
-    insertSection('section1');
+    insertSection('section6');
 
 }());

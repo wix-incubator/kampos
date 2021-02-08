@@ -28,5 +28,7 @@ toc:
     children:
       - fadeTransition
       - displacementTransition
+      - dissolveTransition
   - fadeTransitionEffect
   - displacementTransitionEffect
+  - dissolveTransitionEffect

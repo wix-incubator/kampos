@@ -30,7 +30,7 @@ const render = {
     },
     set time(t) {
         this.uniforms[0].data[0] = t;
-    },
+    }
 };
 
 const instance = new Kampos({ target, effects: [render], noSource: true });

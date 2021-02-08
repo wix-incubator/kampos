@@ -10,6 +10,7 @@ import simplex from './noise/simplex-3d';
 import turbulence from './effects/turbulence';
 import fade from './transitions/fade';
 import displacementTransition from './transitions/displacement';
+import dissolve from './transitions/dissolve';
 import Kampos from './kampos';
 import Ticker from './ticker';
 
@@ -25,7 +26,8 @@ export default {
     },
     transitions: {
         fade,
-        displacement: displacementTransition
+        displacement: displacementTransition,
+        dissolve
     },
     noise: {
         perlinNoise,

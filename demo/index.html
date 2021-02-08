@@ -181,6 +181,10 @@
             #code5 + .CodeMirror {
                 height: 42rem;
             }
+
+            #code6 + .CodeMirror {
+                height: 110rem;
+            }
         }
     </style>
 </head>
@@ -304,7 +308,7 @@
     </template>
 
     <template id="section5">
-        <section id="displacement-transition">
+        <section id="cellular-noise">
             <p>
                 Cellular noise
             </p>
@@ -312,6 +316,19 @@
             <div class="code-container">
                 <button class="refresh-button" id="refresh5">Refresh</button>
                 <textarea id="code5"></textarea>
+            </div>
+        </section>
+    </template>
+
+    <template id="section6">
+        <section id="dissolve-transition">
+            <p>
+                Noise transition
+            </p>
+            <iframe id="preview6" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
+            <div class="code-container">
+                <button class="refresh-button" id="refresh6">Refresh</button>
+                <textarea id="code6"></textarea>
             </div>
         </section>
     </template>
@@ -333,6 +350,9 @@
             </li>
             <li>
                 <a href="#section5" data-section-id="section5">Cellular noise</a>
+            </li>
+            <li>
+                <a href="#section6" data-section-id="section6">Dissolve transition</a>
             </li>
         </ul>
     </nav>

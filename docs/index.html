@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset='utf-8'>
-  <title>kampos 0.3.5 | Documentation</title>
+  <title>kampos 0.3.7 | Documentation</title>
   <meta name='description' content='Tiny and fast effects compositor on WebGL'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' rel='stylesheet'>
@@ -15,7 +15,7 @@
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>kampos</h3>
-          <div class='mb1'><code>0.3.5</code></div>
+          <div class='mb1'><code>0.3.7</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -372,6 +372,12 @@
                         .displacementTransition
                       </a></li>
                     
+                      <li><a
+                        href='#dissolvetransition'
+                        class='regular pre-open'>
+                        .dissolveTransition
+                      </a></li>
+                    
                     </ul>
                   
                   
@@ -403,9 +409,29 @@
               
                 
                 <li><a
+                  href='#dissolvetransitioneffect'
+                  class="">
+                  dissolveTransitionEffect
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
                   href='#perlin-noise-3d'
                   class="">
                   perlin-noise-3d
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#cellular-noise-3d'
+                  class="">
+                  cellular-noise-3d
                   
                 </a>
                 
@@ -1966,6 +1992,23 @@ This will replace canvas DOM element with a fresh clone.</p>
   
 
   
+    <div class='py1 quiet mt1 prose-big'>Properties</div>
+    <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>brightness</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>contrast</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          
+          
+        </div>
+      
+    </div>
+  
 
   
     
@@ -2027,6 +2070,24 @@ This will replace canvas DOM element with a fresh clone.</p>
 
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Properties</div>
+    <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>hue</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          : rotation in degrees
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>saturation</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          
+          
+        </div>
+      
+    </div>
   
 
   
@@ -3212,6 +3273,68 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
       </div>
     </div>
   
+    <div class='border-bottom' id='dissolvetransition'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>dissolveTransition()</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  
+    <div class='pre p1 fill-light mt0'>dissolveTransition(): <a href="#dissolvetransitioneffect">dissolveTransitionEffect</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="#dissolvetransitioneffect">dissolveTransitionEffect</a></code>:
+        
+
+      
+    
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'>dissolveTransition()</pre>
+    
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
 </div>
 
   
@@ -3426,6 +3549,102 @@ effect.toScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.
   
   <div class='clearfix'>
     
+    <h3 class='fl m0' id='dissolvetransitioneffect'>
+      dissolveTransitionEffect
+    </h3>
+    
+    
+  </div>
+  
+
+  
+    <div class='pre p1 fill-light mt0'>dissolveTransitionEffect</div>
+  
+    <p>
+      Type:
+      <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>
+    </p>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Properties</div>
+    <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>to</span> <code class='quiet'>((ArrayBufferView | ImageData | <a href="https://developer.mozilla.org/docs/Web/API/HTMLImageElement">HTMLImageElement</a> | <a href="https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement">HTMLCanvasElement</a> | <a href="https://developer.mozilla.org/docs/Web/API/HTMLVideoElement">HTMLVideoElement</a> | ImageBitmap))</code>
+          : media source to transition into
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>map</span> <code class='quiet'>((ArrayBufferView | ImageData | <a href="https://developer.mozilla.org/docs/Web/API/HTMLImageElement">HTMLImageElement</a> | <a href="https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement">HTMLCanvasElement</a> | <a href="https://developer.mozilla.org/docs/Web/API/HTMLVideoElement">HTMLVideoElement</a> | ImageBitmap))</code>
+          : dissolve map to use
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>progress</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          : number between 0.0 and 1.0
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>disabled</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
+          
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> Image();
+img.src = <span class="hljs-string">'dissolve.jpg'</span>;
+effect.map = img;
+effect.to = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#video-to'</span>);
+effect.progress = <span class="hljs-number">0.5</span>;</pre>
+    
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
     <h3 class='fl m0' id='perlin-noise-3d'>
       perlin-noise-3d
     </h3>
@@ -3437,6 +3656,56 @@ effect.toScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.
   <p>Implementation of a 3D classic Perlin noise. Exposes a <code>noise(vec3 P)</code> function for use inside fragment shaders.</p>
 
     <div class='pre p1 fill-light mt0'>perlin-noise-3d</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='cellular-noise-3d'>
+      cellular-noise-3d
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>Cellular noise ("Worley noise") in 3D in GLSL. Exposes a <code>noise(vec3 P)</code> function for use inside fragment shaders.</p>
+
+    <div class='pre p1 fill-light mt0'>cellular-noise-3d</div>
   
   
 
