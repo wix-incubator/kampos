@@ -16,7 +16,8 @@
     "test:e2e": "ava test/e2e/*.js",
     "test": "npm run test:e2e",
     "docs": "documentation build src/index.js -f html -o docs -c documentation.yml",
-    "check": "npm-check -u"
+    "check": "npm-check -u",
+    "start": "npm run build && npm run demo && http-server"
   },
   "repository": {
     "type": "git",

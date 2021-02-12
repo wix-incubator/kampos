@@ -8,7 +8,9 @@ export default function () {
      * @typedef {Object} dissolveTransitionEffect
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map dissolve map to use
-     * @property {number} progress number between 0.0 and 1.0
+     * @property {number} low lower edge of intersection step, in range [0.0, 1.0]
+     * @property {number} high higher edge of intersection step, in range [0.0, 1.0]
+     * @property {number} progress number in range [0.0, 1.0]
      * @property {boolean} disabled
      *
      * @example
@@ -32,6 +34,8 @@ export default function () {
             uniform: {
                 u_transitionEnabled: 'bool',
                 u_transitionProgress: 'float',
+                u_dissolveLowEdge: 'float',
+                u_dissolveHighEdge: 'float',
                 u_transitionTo: 'sampler2D',
                 u_transitionDissolveMap: 'sampler2D'
             },
@@ -40,8 +44,9 @@ export default function () {
         vec4 targetPixel = texture2D(u_transitionTo, v_transitionToTexCoord);
         vec4 transDissolveMap = texture2D(u_transitionDissolveMap, v_transitionDissolveMapTexCoord);
 
-        float dissolveProgress = u_transitionProgress;
-        vec4 dissolveVector = smoothstep(0.49, 0.5, clamp(transDissolveMap + dissolveProgress, 0.0, 1.0));
+        float edgeDelta = u_dissolveHighEdge - u_dissolveLowEdge;
+        float dissolveProgress = u_transitionProgress * (1.0 + edgeDelta);
+        vec4 dissolveVector = smoothstep(u_dissolveLowEdge, u_dissolveHighEdge, clamp(transDissolveMap - 1.0 + dissolveProgress , 0.0, 1.0));
 
         // color = dissolveVector.rgb; // debug
         color = mix(color, targetPixel.rgb, dissolveVector.rgb);
@@ -58,7 +63,7 @@ export default function () {
             return this.uniforms[3].data[0];
         },
         set progress (p) {
-            this.uniforms[3].data[0] = p;
+            this.uniforms[3].data[0] = Math.min(Math.max(p, 0.0), 1.0);
         },
         get to () {
             return this.textures[0].data;
@@ -71,6 +76,18 @@ export default function () {
         },
         set map (img) {
             this.textures[1].data = img;
+        },
+        get low () {
+            return this.uniforms[4].data[0];
+        },
+        set low (low) {
+            this.uniforms[4].data[0] = Math.min(Math.max(low, 0.0), this.high);
+        },
+        get high () {
+            return this.uniforms[5].data[0];
+        },
+        set high (high) {
+            this.uniforms[5].data[0] = Math.min(Math.max(high, this.low), 1.0);
         },
         varying: {
             v_transitionToTexCoord: 'vec2',
@@ -96,6 +113,16 @@ export default function () {
                 name: 'u_transitionProgress',
                 type: 'f',
                 data: [0]
+            },
+            {
+                name: 'u_dissolveLowEdge',
+                type: 'f',
+                data: [0.0]
+            },
+            {
+                name: 'u_dissolveHighEdge',
+                type: 'f',
+                data: [0.01]
             }
         ],
         attributes: [

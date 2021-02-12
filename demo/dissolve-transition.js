@@ -7,87 +7,71 @@ const target = document.querySelector('#target');
 const mapTarget = document.createElement('canvas');
 const MAP_WIDTH = 854;
 const MAP_HEIGHT = 480;
+
+/* this factor controls the size of the blobs in the noise - increase for smaller blobs */
 const CELL_FACTOR = 4;
 
 mapTarget.width = MAP_WIDTH;
 mapTarget.height = MAP_HEIGHT;
 
-const USE_TURBULENCE = true;
-let dissolveMapEffects;
+/* create the turbulence effect we need for the map texture */
+const turbulence = effects.turbulence(noise.simplex);
 
-if (USE_TURBULENCE) {
-    // create the effects we need
-    const turbulence = effects.turbulence(noise.simplex);
-    // const turbulence = effects.turbulence(noise.cellular);
-    // create a simple effect that converts the turbulence return value into the output color
-    const render = {fragment: {main: 'color = vec3(turbulenceValue);'}};
+/* create a simple effect that converts the turbulence return value into the output color */
+const render = {fragment: {main: 'color = vec3(turbulenceValue);'}};
 
-    // try playing with this factor
-    const AMPLITUDE = CELL_FACTOR / MAP_WIDTH;
+/* try playing with this factor */
+const AMPLITUDE = CELL_FACTOR / MAP_WIDTH;
 
-    turbulence.frequency = {x: AMPLITUDE, y: AMPLITUDE};
-    turbulence.octaves = 1; // water
-    // turbulence.octaves = 8; // clouds
-    // change to false (or comment out) if you want to see the turbulence noise variant
-    turbulence.isFractal = true;
+turbulence.frequency = {x: AMPLITUDE, y: AMPLITUDE};
 
-    dissolveMapEffects = [turbulence, render];
-}
-else {
-    const render = {
-        fragment: {
-            uniform: {
-                u_resolution: 'vec2',
-                u_time: 'float'
-            },
-            constant: noise.cellular,
-            //constant: noise.simplex,
-            //constant: noise.perlinNoise,
-            main: `color = vec3(noise(vec3(gl_FragCoord.xy/u_resolution.xy, 0.0)));`
-        },
-        uniforms: [
-            {
-                name: 'u_resolution',
-                type: 'f',
-                data: [MAP_WIDTH / CELL_FACTOR, MAP_HEIGHT / CELL_FACTOR]
-            }
-        ]
-    };
+/* increase number on range (1, 8) to go from water-like effect into clouds-like one */
+turbulence.octaves = 1; // water
+//turbulence.octaves = 8; // clouds
 
-    dissolveMapEffects = [render];
-}
+/* change to false (or comment out) if you want to see the turbulence noise variant */
+turbulence.isFractal = true;
 
-const dissolveMap = new Kampos({ target: mapTarget, effects: dissolveMapEffects, noSource: true });
+const dissolveMap = new Kampos({ target: mapTarget, effects: [turbulence, render], noSource: true });
 
-// create the dissolve map by generating a single noise frame
+/* create the dissolve map by generating a single noise frame */
 dissolveMap.draw();
 
-// create the effects/transitions we need
+/* create the effects/transitions we need */
 const dissolve = transitions.dissolve();
 dissolve.map = mapTarget;
 
-// init kampos
+/* you can play with this value on the range of (0.0, 1.0) to go from hard clipping to a smooth smoke-like mask */
+dissolve.high = 0.02;
+
+/* init kampos */
 const instance = new Kampos({target, effects:[dissolve]});
 
-// make sure videos are loaded and playing
+/* make sure videos are loaded and playing*/
 prepareVideos([media1, media2])
     .then(() => {
         const width = media1.videoWidth;
         const height = media1.videoHeight;
 
-        // set media source
+        /* set media source */
         instance.setSource({media: media1, width, height});
 
-        // set media to transition into
+        /* set media to transition into*/
         dissolve.to = media2;
+        /* uncomment this line to allow map texture to update on every frame during transition */
+        //dissolve.textures[1].update = true;
 
-        // start kampos
+        /* start kampos */
         instance.play();
     });
 
-// this is invoked once in every animation frame, while the mouse over the canvas
+/* this is invoked once in every animation frame, while the mouse over the canvas */
 function draw (time) {
-    dissolve.progress = Math.sin(time * 4e-4);
+    /* uncomment the two lines below to start changing the map during transition */
+    //turbulence.time = time * 2;
+    //dissolveMap.draw();
+    /* you can reduce time factor for slower transition, or increase for faster */
+    dissolve.progress = Math.abs(Math.sin(time * 4e-4));
 }
 
 const loop = time => {
