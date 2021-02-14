@@ -8,8 +8,24 @@ const mapTarget = document.createElement('canvas');
 const MAP_WIDTH = 854;
 const MAP_HEIGHT = 480;
 
-/* this factor controls the size of the blobs in the noise - increase for smaller blobs */
-const CELL_FACTOR = 4;
+/* Change to true to see the effect with dynamic noise animation */
+const DYNAMIC = false;
+
+/* Try flipping between animation types */
+const TYPE = 'LIQUID';
+//const TYPE = 'SMOKE';
+const ANIMATIONS = {
+    SMOKE: {
+        octaves: 8,
+        edge: 0.4,
+        cellFactor: 4
+    },
+    LIQUID: {
+        octaves: 1,
+        edge: 0.03,
+        cellFactor: 2
+    }
+}
 
 mapTarget.width = MAP_WIDTH;
 mapTarget.height = MAP_HEIGHT;
@@ -20,14 +36,13 @@ const turbulence = effects.turbulence(noise.simplex);
 /* create a simple effect that converts the turbulence return value into the output color */
 const render = {fragment: {main: 'color = vec3(turbulenceValue);'}};
 
-/* try playing with this factor */
-const AMPLITUDE = CELL_FACTOR / MAP_WIDTH;
+/* this factor controls the size of the blobs in the noise - increase for smaller blobs */
+const AMPLITUDE = ANIMATIONS[TYPE].cellFactor / MAP_WIDTH;
 
 turbulence.frequency = {x: AMPLITUDE, y: AMPLITUDE};
 
 /* increase number on range (1, 8) to go from water-like effect into clouds-like one */
-turbulence.octaves = 1; // water
-//turbulence.octaves = 8; // clouds
+turbulence.octaves = ANIMATIONS[TYPE].octaves;
 
 /* change to false (or comment out) if you want to see the turbulence noise variant */
 turbulence.isFractal = true;
@@ -42,7 +57,7 @@ const dissolve = transitions.dissolve();
 dissolve.map = mapTarget;
 
 /* you can play with this value on the range of (0.0, 1.0) to go from hard clipping to a smooth smoke-like mask */
-dissolve.high = 0.02;
+dissolve.high = ANIMATIONS[TYPE].edge;
 
 /* init kampos */
 const instance = new Kampos({target, effects:[dissolve]});
@@ -58,8 +73,9 @@ prepareVideos([media1, media2])
 
         /* set media to transition into*/
         dissolve.to = media2;
-        /* uncomment this line to allow map texture to update on every frame during transition */
-        //dissolve.textures[1].update = true;
+        if (DYNAMIC) {
+            dissolve.textures[1].update = true;
+        }
 
         /* start kampos */
         instance.play();
@@ -67,11 +83,12 @@ prepareVideos([media1, media2])
 
 /* this is invoked once in every animation frame, while the mouse over the canvas */
 function draw (time) {
-    /* uncomment the two lines below to start changing the map during transition */
-    //turbulence.time = time * 2;
-    //dissolveMap.draw();
+    if (DYNAMIC) {
+        turbulence.time = time * 2;
+        dissolveMap.draw();
+    }
     /* you can reduce time factor for slower transition, or increase for faster */
-    dissolve.progress = Math.abs(Math.sin(time * 4e-4));
+    dissolve.progress = Math.abs(Math.sin(time * (DYNAMIC ? 2e-4 : 4e-4)));
 }
 
 const loop = time => {
