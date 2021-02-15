@@ -153,28 +153,51 @@
         target.width = width;
         target.height = height;
 
+        const mousePosition = [0.0, 0.0];
+
         const turbulence = effects.turbulence(noise.simplex);
         const render = {
             fragment: {
                 uniform: {
-                    u_resolution: 'vec2'
+                    u_resolution: 'vec2',
+                    u_pointer: 'vec2'
                 },
+                constant: `
+                vec3 A = vec3(0.5);
+                vec3 B = vec3(0.5);
+                vec3 C = vec3(1.0, 0.7, 0.4);
+                vec3 D = vec3(0.0, 0.15, 0.2);
+                vec3 palette(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
+                    return a + b * cos(6.28318 * (c * t + d));
+                }`,
                 main: `
                     vec2 st = gl_FragCoord.xy / u_resolution.xy;
-                    float dist = distance(vec2(0.5), st);
+                    float dist = distance(u_pointer, st);
                     alpha = smoothstep(turbulenceValue * 0.2, 0.2 + turbulenceValue * 0.2, dist);
-                    color = vec3(st, turbulenceValue) * .6;`
+                    color = palette(turbulenceValue, A, B, C, D);`
             },
             uniforms: [
                 {
                     name: 'u_resolution',
                     type: 'f',
                     data: [width, height]
+                },
+                {
+                    name: 'u_pointer',
+                    type: 'f',
+                    data: mousePosition
                 }
-            ]
+            ],
+            get mouse() {
+                return this.uniforms[1].data;
+            },
+            set mouse(data) {
+                this.uniforms[1].data[0] = data[0];
+                this.uniforms[1].data[1] = data[1];
+            }
         };
 
-        const FREQUENCY = 1 / (width > height ? width : height);
+        const FREQUENCY = 2 / (width > height ? width : height);
 
         turbulence.frequency = {x: FREQUENCY, y: FREQUENCY};
         turbulence.octaves = 6;
@@ -183,7 +206,13 @@
 
         const instance = new Kampos({target, effects:[turbulence, render], noSource: true});
         instance.play(() => {
+            render.mouse = mousePosition;
             turbulence.time = (Date.now() - start) * 2;
+        });
+
+        document.body.addEventListener('mousemove', (e) => {
+            mousePosition[0] = e.clientX / width;
+            mousePosition[1] = (height - e.clientY) / height;
         });
     </script>
 </body>
