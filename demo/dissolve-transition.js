@@ -30,34 +30,34 @@ const ANIMATIONS = {
 mapTarget.width = MAP_WIDTH;
 mapTarget.height = MAP_HEIGHT;
 
-/* create the turbulence effect we need for the map texture */
-const turbulence = effects.turbulence(noise.simplex);
-
-/* create a simple effect that converts the turbulence return value into the output color */
-const render = {fragment: {main: 'color = vec3(turbulenceValue);'}};
-
 /* this factor controls the size of the blobs in the noise - increase for smaller blobs */
 const AMPLITUDE = ANIMATIONS[TYPE].cellFactor / MAP_WIDTH;
-
-turbulence.frequency = {x: AMPLITUDE, y: AMPLITUDE};
+const frequency = {x: AMPLITUDE, y: AMPLITUDE};
 
 /* increase number on range (1, 8) to go from water-like effect into clouds-like one */
-turbulence.octaves = ANIMATIONS[TYPE].octaves;
+const octaves = ANIMATIONS[TYPE].octaves;
 
 /* change to false (or comment out) if you want to see the turbulence noise variant */
-turbulence.isFractal = true;
+const isFractal = true;
 
-const dissolveMap = new Kampos({ target: mapTarget, effects: [turbulence, render], noSource: true });
+/* create the turbulence effect we need for the map texture */
+const turbulence = effects.turbulence({
+    noise: noise.simplex,
+    frequency,
+    isFractal
+});
+
+const dissolveMap = new Kampos({ target: mapTarget, effects: [turbulence], noSource: true });
 
 /* create the dissolve map by generating a single noise frame */
 dissolveMap.draw();
 
-/* create the effects/transitions we need */
-const dissolve = transitions.dissolve();
-dissolve.map = mapTarget;
-
 /* you can play with this value on the range of (0.0, 1.0) to go from hard clipping to a smooth smoke-like mask */
-dissolve.high = ANIMATIONS[TYPE].edge;
+const high = ANIMATIONS[TYPE].edge;
+
+/* create the effects/transitions we need */
+const dissolve = transitions.dissolve({ high });
+dissolve.map = mapTarget;
 
 /* init kampos */
 const instance = new Kampos({target, effects:[dissolve]});
@@ -78,25 +78,13 @@ prepareVideos([media1, media2])
         }
 
         /* start kampos */
-        instance.play();
+        instance.play(function draw (time) {
+            /* this is invoked once in every animation frame, while the mouse over the canvas */
+            if (DYNAMIC) {
+                turbulence.time = time * 2;
+                dissolveMap.draw();
+            }
+            /* you can reduce time factor for slower transition, or increase for faster */
+            dissolve.progress = Math.abs(Math.sin(time * (DYNAMIC ? 2e-4 : 4e-4)));
+        });
     });
-
-/* this is invoked once in every animation frame, while the mouse over the canvas */
-function draw (time) {
-    if (DYNAMIC) {
-        turbulence.time = time * 2;
-        dissolveMap.draw();
-    }
-    /* you can reduce time factor for slower transition, or increase for faster */
-    dissolve.progress = Math.abs(Math.sin(time * (DYNAMIC ? 2e-4 : 4e-4)));
-}
-
-const loop = time => {
-    draw(time);
-    requestAnimationFrame(loop);
-}
-
-/*
- * start the loop
- */
-requestAnimationFrame(loop);

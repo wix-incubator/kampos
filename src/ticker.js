@@ -13,9 +13,9 @@ export default class Ticker {
      */
     start () {
         if ( ! this.animationFrameId ) {
-            const loop = () => {
+            const loop = (time) => {
                 this.animationFrameId = window.requestAnimationFrame(loop);
-                this.draw();
+                this.draw(time);
             };
 
             this.animationFrameId = window.requestAnimationFrame(loop);
@@ -32,9 +32,11 @@ export default class Ticker {
 
     /**
      * Invoke `.draw()` on all instances in the pool.
+     *
+     * @param {number} time
      */
-    draw () {
-        this.pool.forEach(instance => instance.draw());
+    draw (time) {
+        this.pool.forEach(instance => instance.draw(time));
     }
 
     /**

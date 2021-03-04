@@ -672,7 +672,7 @@ kampos.setSource(media);</pre>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>draw()</span>
+            <span class='code strong strong truncate'>draw(time)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -682,7 +682,7 @@ kampos.setSource(media);</pre>
 
   <p>Draw current scene.</p>
 
-    <div class='pre p1 fill-light mt0'>draw()</div>
+    <div class='pre p1 fill-light mt0'>draw(time: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</div>
   
   
 
@@ -693,6 +693,19 @@ kampos.setSource(media);</pre>
   
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>time</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
   
 
   
@@ -1110,7 +1123,7 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>draw()</span>
+            <span class='code strong strong truncate'>draw(time)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -1120,7 +1133,7 @@ This will replace canvas DOM element with a fresh clone.</p>
 
   <p>Invoke <code>.draw()</code> on all instances in the pool.</p>
 
-    <div class='pre p1 fill-light mt0'>draw()</div>
+    <div class='pre p1 fill-light mt0'>draw(time: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</div>
   
   
 
@@ -1131,6 +1144,19 @@ This will replace canvas DOM element with a fresh clone.</p>
   
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>time</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
   
 
   
@@ -1969,7 +1995,7 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>brightnessContrast()</span>
+            <span class='code strong strong truncate'>brightnessContrast(params?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -1978,7 +2004,7 @@ This will replace canvas DOM element with a fresh clone.</p>
   
 
   
-    <div class='pre p1 fill-light mt0'>brightnessContrast(): <a href="#brightnesscontrasteffect">brightnessContrastEffect</a></div>
+    <div class='pre p1 fill-light mt0'>brightnessContrast(params: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?): <a href="#brightnesscontrasteffect">brightnessContrastEffect</a></div>
   
   
 
@@ -1989,6 +2015,57 @@ This will replace canvas DOM element with a fresh clone.</p>
   
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>params</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
+	    
+          </div>
+          
+          <table class='mt1 mb2 fixed-table h5 col-12'>
+            <colgroup>
+              <col width='30%' />
+              <col width='70%' />
+            </colgroup>
+            <thead>
+              <tr class='bold fill-light'>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody class='mt1'>
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.brightness</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+  
+    (default <code>1.0</code>)
+  </td>
+  <td class='break-word'><span>initial brightness to use.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.contrast</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+  
+    (default <code>1.0</code>)
+  </td>
+  <td class='break-word'><span>initial contrast to use.
+</span></td>
+</tr>
+
+
+              
+            </tbody>
+          </table>
+          
+        </div>
+      
+    </div>
   
 
   
@@ -2028,7 +2105,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>brightnessContrast()</pre>
+      <pre class='p1 overflow-auto round fill-light'>brightnessContrast({<span class="hljs-attr">brightness</span>: <span class="hljs-number">1.5</span>, <span class="hljs-attr">contrast</span>: <span class="hljs-number">0.8</span>})</pre>
     
   
 
@@ -2048,7 +2125,7 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>hueSaturation()</span>
+            <span class='code strong strong truncate'>hueSaturation(params?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -2057,7 +2134,7 @@ This will replace canvas DOM element with a fresh clone.</p>
   
 
   
-    <div class='pre p1 fill-light mt0'>hueSaturation(): <a href="#huesaturationeffect">hueSaturationEffect</a></div>
+    <div class='pre p1 fill-light mt0'>hueSaturation(params: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?): <a href="#huesaturationeffect">hueSaturationEffect</a></div>
   
   
 
@@ -2068,6 +2145,57 @@ This will replace canvas DOM element with a fresh clone.</p>
   
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>params</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
+	    
+          </div>
+          
+          <table class='mt1 mb2 fixed-table h5 col-12'>
+            <colgroup>
+              <col width='30%' />
+              <col width='70%' />
+            </colgroup>
+            <thead>
+              <tr class='bold fill-light'>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody class='mt1'>
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.hue</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+  
+    (default <code>0.0</code>)
+  </td>
+  <td class='break-word'><span>initial hue value
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.saturation</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+  
+    (default <code>1.0</code>)
+  </td>
+  <td class='break-word'><span>initial saturation value
+</span></td>
+</tr>
+
+
+              
+            </tbody>
+          </table>
+          
+        </div>
+      
+    </div>
   
 
   
@@ -2108,7 +2236,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>hueSaturation()</pre>
+      <pre class='p1 overflow-auto round fill-light'>hueSaturation({<span class="hljs-attr">hue</span>: <span class="hljs-number">45</span>, <span class="hljs-attr">saturation</span>: <span class="hljs-number">1.3</span>})</pre>
     
   
 
@@ -2128,7 +2256,7 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>blend(mode)</span>
+            <span class='code strong strong truncate'>blend(params?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -2137,7 +2265,7 @@ This will replace canvas DOM element with a fresh clone.</p>
   
 
   
-    <div class='pre p1 fill-light mt0'>blend(mode: (<code>"normal"</code> | <code>"multiply"</code> | <code>"screen"</code> | <code>"overlay"</code> | <code>"darken"</code> | <code>"lighten"</code> | <code>"color-dodge"</code> | <code>"color-burn"</code> | <code>"hard-light"</code> | <code>"soft-light"</code> | <code>"difference"</code> | <code>"exclusion"</code> | <code>"hue"</code> | <code>"saturation"</code> | <code>"color"</code> | <code>"luminosity"</code>)): <a href="#blendeffect">blendEffect</a></div>
+    <div class='pre p1 fill-light mt0'>blend(params: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?): <a href="#blendeffect">blendEffect</a></div>
   
   
 
@@ -2154,11 +2282,47 @@ This will replace canvas DOM element with a fresh clone.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>mode</span> <code class='quiet'>((<code>"normal"</code> | <code>"multiply"</code> | <code>"screen"</code> | <code>"overlay"</code> | <code>"darken"</code> | <code>"lighten"</code> | <code>"color-dodge"</code> | <code>"color-burn"</code> | <code>"hard-light"</code> | <code>"soft-light"</code> | <code>"difference"</code> | <code>"exclusion"</code> | <code>"hue"</code> | <code>"saturation"</code> | <code>"color"</code> | <code>"luminosity"</code>)
-            = <code>&#39;normal&#39;</code>)</code>
-	    blend mode to use
-
+            <span class='code bold'>params</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
+	    
           </div>
+          
+          <table class='mt1 mb2 fixed-table h5 col-12'>
+            <colgroup>
+              <col width='30%' />
+              <col width='70%' />
+            </colgroup>
+            <thead>
+              <tr class='bold fill-light'>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody class='mt1'>
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.mode</span> <code class='quiet'>(<code>"normal"</code> | <code>"multiply"</code> | <code>"screen"</code> | <code>"overlay"</code> | <code>"darken"</code> | <code>"lighten"</code> | <code>"color-dodge"</code> | <code>"color-burn"</code> | <code>"hard-light"</code> | <code>"soft-light"</code> | <code>"difference"</code> | <code>"exclusion"</code> | <code>"hue"</code> | <code>"saturation"</code> | <code>"color"</code> | <code>"luminosity"</code>)</code>
+  
+    (default <code>&#39;normal&#39;</code>)
+  </td>
+  <td class='break-word'><span>blend mode to use
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.color</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>></code>
+  
+    (default <code>[0,0,0,1]</code>)
+  </td>
+  <td class='break-word'><span>Initial color to use when blending to a solid color
+</span></td>
+</tr>
+
+
+              
+            </tbody>
+          </table>
           
         </div>
       
@@ -2205,7 +2369,7 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>alphaMask()</span>
+            <span class='code strong strong truncate'>alphaMask(params?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -2214,7 +2378,7 @@ This will replace canvas DOM element with a fresh clone.</p>
   
 
   
-    <div class='pre p1 fill-light mt0'>alphaMask(): <a href="#alphamaskeffect">alphaMaskEffect</a></div>
+    <div class='pre p1 fill-light mt0'>alphaMask(params: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?): <a href="#alphamaskeffect">alphaMaskEffect</a></div>
   
   
 
@@ -2225,6 +2389,46 @@ This will replace canvas DOM element with a fresh clone.</p>
   
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>params</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
+	    
+          </div>
+          
+          <table class='mt1 mb2 fixed-table h5 col-12'>
+            <colgroup>
+              <col width='30%' />
+              <col width='70%' />
+            </colgroup>
+            <thead>
+              <tr class='bold fill-light'>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody class='mt1'>
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.isLuminance</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+  
+    (default <code>false</code>)
+  </td>
+  <td class='break-word'><span>whether to use luminance when reading mask values
+</span></td>
+</tr>
+
+
+              
+            </tbody>
+          </table>
+          
+        </div>
+      
+    </div>
   
 
   
@@ -2267,7 +2471,7 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>duotone()</span>
+            <span class='code strong strong truncate'>duotone(params?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -2276,7 +2480,7 @@ This will replace canvas DOM element with a fresh clone.</p>
   
 
   
-    <div class='pre p1 fill-light mt0'>duotone(): <a href="#duotoneeffect">duotoneEffect</a></div>
+    <div class='pre p1 fill-light mt0'>duotone(params: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?): <a href="#duotoneeffect">duotoneEffect</a></div>
   
   
 
@@ -2287,6 +2491,57 @@ This will replace canvas DOM element with a fresh clone.</p>
   
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>params</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
+	    
+          </div>
+          
+          <table class='mt1 mb2 fixed-table h5 col-12'>
+            <colgroup>
+              <col width='30%' />
+              <col width='70%' />
+            </colgroup>
+            <thead>
+              <tr class='bold fill-light'>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody class='mt1'>
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.dark</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>></code>
+  
+    (default <code>[0.741,0.0431,0.568,1]</code>)
+  </td>
+  <td class='break-word'><span>initial dark color to use.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.light</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>></code>
+  
+    (default <code>[0.988,0.733,0.051,1]</code>)
+  </td>
+  <td class='break-word'><span>initial light color to use.
+</span></td>
+</tr>
+
+
+              
+            </tbody>
+          </table>
+          
+        </div>
+      
+    </div>
   
 
   
@@ -2309,7 +2564,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>duotone()</pre>
+      <pre class='p1 overflow-auto round fill-light'>duotone({<span class="hljs-attr">dark</span>: [<span class="hljs-number">0.2</span>, <span class="hljs-number">0.11</span>, <span class="hljs-number">0.33</span>, <span class="hljs-number">1</span>], <span class="hljs-attr">light</span>: [<span class="hljs-number">0.88</span>, <span class="hljs-number">0.78</span>, <span class="hljs-number">0.43</span>, <span class="hljs-number">1</span>]})</pre>
     
   
 
@@ -2329,7 +2584,7 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>displacement(wrap)</span>
+            <span class='code strong strong truncate'>displacement(params?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -2338,7 +2593,7 @@ This will replace canvas DOM element with a fresh clone.</p>
   
 
   
-    <div class='pre p1 fill-light mt0'>displacement(wrap: (<code>"CLAMP"</code> | <code>"DISCARD"</code> | <code>"WRAP"</code>)): <a href="#displacementeffect">displacementEffect</a></div>
+    <div class='pre p1 fill-light mt0'>displacement(params: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?): <a href="#displacementeffect">displacementEffect</a></div>
   
   
 
@@ -2355,17 +2610,79 @@ This will replace canvas DOM element with a fresh clone.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>wrap</span> <code class='quiet'>((<code>"CLAMP"</code> | <code>"DISCARD"</code> | <code>"WRAP"</code>)
-            = <code>&#39;CLAMP&#39;</code>)</code>
-	    wrapping method to use
-
+            <span class='code bold'>params</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
+	    
           </div>
+          
+          <table class='mt1 mb2 fixed-table h5 col-12'>
+            <colgroup>
+              <col width='30%' />
+              <col width='70%' />
+            </colgroup>
+            <thead>
+              <tr class='bold fill-light'>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody class='mt1'>
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.wrap</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>?</code>
+  </td>
+  <td class='break-word'><span>wrapping method to use. Defaults to 
+<code>displacement.CLAMP</code>
+.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.scale</span> <code class='quiet'>{x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>}?</code>
+  </td>
+  <td class='break-word'><span>initial scale to use for x and y displacement. Defaults to 
+<code>{x: 0.0, y: 0.0}</code>
+ which means no displacement.
+</span></td>
+</tr>
+
+
+              
+            </tbody>
+          </table>
           
         </div>
       
     </div>
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Properties</div>
+    <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>CLAMP</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : media stretch the last value to the edge. This is the default behavior.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>DISCARD</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : discard values beyond the edge of the media - leaving a transparent pixel.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>WRAP</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : continue rendering values from opposite direction when reaching the edge.
+
+          
+        </div>
+      
+    </div>
   
 
   
@@ -2386,7 +2703,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>displacement()</pre>
+      <pre class='p1 overflow-auto round fill-light'>displacement({<span class="hljs-attr">wrap</span>: displacement.DISCARD, <span class="hljs-attr">scale</span>: {<span class="hljs-attr">x</span>: <span class="hljs-number">0.5</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">-0.5</span>}})</pre>
     
   
 
@@ -2406,7 +2723,7 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>turbulence(noise)</span>
+            <span class='code strong strong truncate'>turbulence(params)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -2415,7 +2732,7 @@ This will replace canvas DOM element with a fresh clone.</p>
   
 
   
-    <div class='pre p1 fill-light mt0'>turbulence(noise: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>): <a href="#turbulenceeffect">turbulenceEffect</a></div>
+    <div class='pre p1 fill-light mt0'>turbulence(params: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>): <a href="#turbulenceeffect">turbulenceEffect</a></div>
   
   
 
@@ -2432,16 +2749,118 @@ This will replace canvas DOM element with a fresh clone.</p>
       
         <div class='space-bottom0'>
           <div>
-            <span class='code bold'>noise</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
-	    3D noise implementation to use
-
+            <span class='code bold'>params</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">object</a>)</code>
+	    
           </div>
+          
+          <table class='mt1 mb2 fixed-table h5 col-12'>
+            <colgroup>
+              <col width='30%' />
+              <col width='70%' />
+            </colgroup>
+            <thead>
+              <tr class='bold fill-light'>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody class='mt1'>
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.noise</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
+  </td>
+  <td class='break-word'><span>3D noise implementation to use.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.output</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>?</code>
+  </td>
+  <td class='break-word'><span>how to output the 
+<code>turbulenceValue</code>
+ variable. Use 
+<code>turbulence.COLOR</code>
+ or 
+<code>turbulence.ALPHA</code>
+ for outputting to color or alpha correspondingly. Defaults to 
+<code>turbulence.COLOR</code>
+.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.frequency</span> <code class='quiet'>{x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>}</code>
+  
+    (default <code>{x:0.0,y:0.0}</code>)
+  </td>
+  <td class='break-word'><span>initial frequencies to use for x and y axes.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.octaves</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+  
+    (default <code>1</code>)
+  </td>
+  <td class='break-word'><span>initial number of octaves to use for turbulence noise generation.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.isFractal</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+  
+    (default <code>false</code>)
+  </td>
+  <td class='break-word'><span>initial number of octaves to use for turbulence noise generation.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.time</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+  
+    (default <code>0</code>)
+  </td>
+  <td class='break-word'><span>initial time for controlling initial noise value.
+</span></td>
+</tr>
+
+
+              
+            </tbody>
+          </table>
           
         </div>
       
     </div>
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Properties</div>
+    <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>COLOR</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>ALPHA</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          
+          
+        </div>
+      
+    </div>
   
 
   
@@ -2462,7 +2881,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>turbulence(noise)</pre>
+      <pre class='p1 overflow-auto round fill-light'>turbulence({<span class="hljs-attr">noise</span>: kampos.noise.simplex, <span class="hljs-attr">output</span>: turbulence.COLOR, <span class="hljs-attr">octaves</span>: <span class="hljs-number">4</span>, <span class="hljs-attr">isFractal</span>: <span class="hljs-literal">true</span>})</pre>
     
   
 
@@ -3034,7 +3453,7 @@ effect.scale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.4<
   
 
   <p>Generates a turbulence/fractal noise value stored into <code>turbulenceValue</code>.
-Depends on a <code>noise(vec3 P)</code> function to be declared. Currently it's possible to simply use it after <a href="perlinNoiseEffect">perlinNoiseEffect</a>.</p>
+Depends on a <code>noise(vec3 P)</code> function to be declared and injected via the <code>noise</code> param, for example, simply supplying the <a href="perlinNoiseEffect">perlinNoiseEffect</a>.</p>
 
     <div class='pre p1 fill-light mt0'>turbulenceEffect</div>
   
@@ -3215,7 +3634,7 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>displacementTransition()</span>
+            <span class='code strong strong truncate'>displacementTransition(params?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -3224,7 +3643,7 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
   
 
   
-    <div class='pre p1 fill-light mt0'>displacementTransition(): <a href="#displacementtransitioneffect">displacementTransitionEffect</a></div>
+    <div class='pre p1 fill-light mt0'>displacementTransition(params: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?): <a href="#displacementtransitioneffect">displacementTransitionEffect</a></div>
   
   
 
@@ -3235,6 +3654,19 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
   
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>params</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
+	    
+          </div>
+          
+        </div>
+      
+    </div>
   
 
   
@@ -3277,7 +3709,7 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>dissolveTransition()</span>
+            <span class='code strong strong truncate'>dissolveTransition(params?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -3286,7 +3718,7 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
   
 
   
-    <div class='pre p1 fill-light mt0'>dissolveTransition(): <a href="#dissolvetransitioneffect">dissolveTransitionEffect</a></div>
+    <div class='pre p1 fill-light mt0'>dissolveTransition(params: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?): <a href="#dissolvetransitioneffect">dissolveTransitionEffect</a></div>
   
   
 
@@ -3297,6 +3729,57 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
   
   
 
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>params</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
+	    
+          </div>
+          
+          <table class='mt1 mb2 fixed-table h5 col-12'>
+            <colgroup>
+              <col width='30%' />
+              <col width='70%' />
+            </colgroup>
+            <thead>
+              <tr class='bold fill-light'>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody class='mt1'>
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.low</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+  
+    (default <code>0.0</code>)
+  </td>
+  <td class='break-word'><span>initial lower edge of intersection step
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.high</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+  
+    (default <code>0.01</code>)
+  </td>
+  <td class='break-word'><span>initial higher edge of intersection step
+</span></td>
+</tr>
+
+
+              
+            </tbody>
+          </table>
+          
+        </div>
+      
+    </div>
   
 
   
@@ -3494,13 +3977,15 @@ effect.progress = <span class="hljs-number">0.5</span>;</pre>
       
         <div class='space-bottom0'>
           <span class='code bold'>sourceScale</span> <code class='quiet'>({x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?})</code>
-          
+          : displacement scale values of source media
+
           
         </div>
       
         <div class='space-bottom0'>
           <span class='code bold'>toScale</span> <code class='quiet'>({x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?})</code>
-          
+          : displacement scale values of target media
+
           
         </div>
       
@@ -3595,8 +4080,25 @@ effect.toScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.
         </div>
       
         <div class='space-bottom0'>
+          <span class='code bold'>low</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          : lower edge of intersection step, in range 
+[0.0, 1.0]
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>high</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          : higher edge of intersection step, in range 
+[0.0, 1.0]
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
           <span class='code bold'>progress</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
-          : number between 0.0 and 1.0
+          : number in range 
+[0.0, 1.0]
 
           
         </div>

@@ -1,9 +1,16 @@
 /**
  * @function duotone
+ * @param {Object} [params]
+ * @param {number[]} [params.dark=[0.741, 0.0431, 0.568, 1]] initial dark color to use.
+ * @param {number[]} [params.light=[0.988, 0.733, 0.051, 1]] initial light color to use.
  * @returns {duotoneEffect}
- * @example duotone()
+ *
+ * @example duotone({dark: [0.2, 0.11, 0.33, 1], light: [0.88, 0.78, 0.43, 1]})
  */
-export default function () {
+export default function ({
+    dark = [0.7411764706, 0.0431372549, 0.568627451, 1],
+    light = [0.9882352941, 0.7333333333, 0.05098039216, 1]
+ } = {}) {
     /**
      * @typedef {Object} duotoneEffect
      * @property {number[]} light Array of 4 numbers, normalized (0.0 - 1.0)
@@ -62,12 +69,12 @@ export default function () {
             {
                 name: 'u_light',
                 type: 'f',
-                data: [0.9882352941, 0.7333333333, 0.05098039216, 1]
+                data: light
             },
             {
                 name: 'u_dark',
                 type: 'f',
-                data: [0.7411764706, 0.0431372549, 0.568627451, 1]
+                data: dark
             }
         ]
     };

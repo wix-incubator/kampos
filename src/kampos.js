@@ -174,8 +174,10 @@ export default class Kampos {
 
     /**
      * Draw current scene.
+     *
+     * @param {number} time
      */
-    draw () {
+    draw (time) {
         if ( this.lostContext ) {
             const success = this.restoreContext();
 
@@ -184,7 +186,7 @@ export default class Kampos {
 
         const cb = this.config.beforeDraw;
 
-        if ( cb && cb() === false )
+        if ( cb && cb(time) === false )
             return;
 
         core.draw(this.gl, this.media, this.data, this.dimensions);
@@ -211,9 +213,9 @@ export default class Kampos {
             }
         }
         else if ( ! this.animationFrameId ) {
-            const loop = () => {
+            const loop = (time) => {
                 this.animationFrameId = window.requestAnimationFrame(loop);
-                this.draw();
+                this.draw(time);
             };
 
             this.animationFrameId = window.requestAnimationFrame(loop);

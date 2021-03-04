@@ -237,7 +237,7 @@ function draw (gl, media, data, dimensions) {
             gl.bindTexture(gl.TEXTURE_2D, tex.texture);
 
             if ( tex.update ) {
-                gl.texImage2D(gl.TEXTURE_2D, 0,gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.data);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl[tex.format], gl[tex.format], gl.UNSIGNED_BYTE, tex.data);
             }
         }
     }

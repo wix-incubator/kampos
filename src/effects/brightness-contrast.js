@@ -2,10 +2,14 @@
  * @function brightnessContrast
  * @property {number} brightness
  * @property {number} contrast
+ * @param {Object} [params]
+ * @param {number} [params.brightness=1.0] initial brightness to use.
+ * @param {number} [params.contrast=1.0] initial contrast to use.
  * @returns {brightnessContrastEffect}
- * @example brightnessContrast()
+ *
+ * @example brightnessContrast({brightness: 1.5, contrast: 0.8})
  */
-export default function (brightness = 1.0, contrast = 1.0) {
+export default function ({brightness = 1.0, contrast = 1.0} = {}) {
     /**
      * @typedef {Object} brightnessContrastEffect
      * @property {number} brightness

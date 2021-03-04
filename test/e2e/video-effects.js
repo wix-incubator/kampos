@@ -259,7 +259,7 @@ async function getDiffPixels (t, canvasDims, canvasPos, threshold = 0.018) {
 
 function getBlendColorFilter (mode, color) {
     return `<feFlood flood-color="${color[0]}" flood-opacity="${color[1] || 1}" result="color"></feFlood>
-<feBlend mode="${mode}" in="SourceGraphic" in2="color"></feBlend>`;
+<feBlend color-interpolation-filters="sRGB" mode="${mode}" in="SourceGraphic" in2="color"></feBlend>`;
 }
 
 function getBrightnessFilter (value) {
@@ -699,30 +699,29 @@ test.serial('blend multiply orange 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('multiply', [`rgb(${255}, ${128}, ${0})`, '1']),
-        [{name: 'blend', setter: 'color', value: [1.0, 0.5, 0.0, 1.0], arg: 'multiply'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [1.0, 0.5, 0.0, 1.0], arg: {mode: 'multiply'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
     t.is(diffPixels, 0);
 });
 
-test.failing('blend screen turquoise 1.0', async t => {
+test.serial('blend screen turquoise 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('screen', [`rgb(${64}, ${224}, ${208})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [64/255, 224/255, 208/255, 1.0], arg: 'screen'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [64/255, 224/255, 208/255, 1.0], arg: {mode: 'screen'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
     t.is(diffPixels, 0);
 });
 
-//TODO: getting just the background color in actual result
-test.failing('blend overlay magenta 1.0', async t => {
+test.serial('blend overlay magenta 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('overlay', [`rgb(${255 * 0.8}, ${0}, ${255 * 0.8})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [0.8, 0.0, 0.8, 1.0], arg: 'overlay'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [0.8, 0.0, 0.8, 1.0], arg: {mode: 'overlay'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
@@ -733,7 +732,7 @@ test.serial('blend darken magenta 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('darken', [`rgb(${255}, ${0}, ${255})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [1.0, 0.0, 1.0, 1.0], arg: 'darken'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [1.0, 0.0, 1.0, 1.0], arg: {mode: 'darken'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
@@ -744,7 +743,7 @@ test.serial('blend lighten yellow 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('lighten', [`rgb(${255}, ${255}, ${0})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [1.0, 1.0, 0.0, 1.0], arg: 'lighten'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [1.0, 1.0, 0.0, 1.0], arg: {mode: 'lighten'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
@@ -752,66 +751,66 @@ test.serial('blend lighten yellow 1.0', async t => {
 });
 
 // TODO: SVG filter not working
-test.failing('blend colorDodge firebrick 1.0', async t => {
+test.serial('blend colorDodge firebrick 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('color-dodge', [`rgb(${178}, ${34}, ${34})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [178/255, 34/255, 34/255, 1.0], arg: 'colorDodge'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [178/255, 34/255, 34/255, 1.0], arg: {mode: 'colorDodge'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
     t.is(diffPixels, 0);
 });
 
-test.failing('blend colorBurn darkolivegreen 1.0', async t => {
+test.serial('blend colorBurn darkolivegreen 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('color-burn', [`rgb(${85}, ${107}, ${47})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [85/255, 107/255, 47/255, 1.0], arg: 'colorBurn'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [85/255, 107/255, 47/255, 1.0], arg: {mode: 'colorBurn'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
     t.is(diffPixels, 0);
 });
 
-test.failing('blend hardLight yogurtpink 1.0', async t => {
+test.serial('blend hardLight yogurtpink 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('hard-light', [`rgb(${200}, ${150}, ${180})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [200/255, 150/255, 180/255, 1.0], arg: 'hardLight'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [200/255, 150/255, 180/255, 1.0], arg: {mode: 'hardLight'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
     t.is(diffPixels, 0);
 });
 
-test.failing('blend softLight yellowgreen 1.0', async t => {
+test.serial('blend softLight yellowgreen 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('soft-light', [`rgb(${154}, ${205}, ${50})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [154/255, 205/255, 50/255, 1.0], arg: 'softLight'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [154/255, 205/255, 50/255, 1.0], arg: {mode: 'softLight'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
     t.is(diffPixels, 0);
 });
 
-test.failing('blend difference yellowgreen 1.0', async t => {
+test.serial('blend difference yellowgreen 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('difference', [`rgb(${154}, ${205}, ${50})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [154/255, 205/255, 50/255, 1.0], arg: 'difference'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [154/255, 205/255, 50/255, 1.0], arg: {mode: 'difference'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
     t.is(diffPixels, 0);
 });
 
-test.failing('blend exclusion yellowgreen 1.0', async t => {
+test.serial('blend exclusion yellowgreen 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('exclusion', [`rgb(${154}, ${205}, ${50})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [154/255, 205/255, 50/255, 1.0], arg: 'exclusion'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [154/255, 205/255, 50/255, 1.0], arg: {mode: 'exclusion'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
@@ -822,40 +821,40 @@ test.failing('blend hue indianred 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('hue', [`rgb(${205}, ${92}, ${92})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [205/255, 92/255, 92/255, 1.0], arg: 'hue'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [205/255, 92/255, 92/255, 1.0], arg: {mode: 'hue'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
     t.is(diffPixels, 0);
 });
 
-test.failing('blend saturation indianred 1.0', async t => {
+test.serial('blend saturation indianred 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('saturation', [`rgb(${205}, ${92}, ${92})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [205/255, 92/255, 92/255, 1.0], arg: 'saturation'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [205/255, 92/255, 92/255, 1.0], arg: {mode: 'saturation'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
     t.is(diffPixels, 0);
 });
 
-test.failing('blend color indianred 1.0', async t => {
+test.serial('blend color indianred 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('color', [`rgb(${205}, ${92}, ${92})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [205/255, 92/255, 92/255, 1.0], arg: 'color'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [205/255, 92/255, 92/255, 1.0], arg: {mode: 'color'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
     t.is(diffPixels, 0);
 });
 
-test.failing('luminosity color indianred 1.0', async t => {
+test.serial('luminosity color indianred 1.0', async t => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('luminosity', [`rgb(${205}, ${92}, ${92})`, '1.0']),
-        [{name: 'blend', setter: 'color', value: [205/255, 92/255, 92/255, 1.0], arg: 'luminosity'}], SIMPLE_VIDEO_CANVAS_DIMS);
+        [{name: 'blend', setter: 'color', value: [205/255, 92/255, 92/255, 1.0], arg: {mode: 'luminosity'}}], SIMPLE_VIDEO_CANVAS_DIMS);
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 

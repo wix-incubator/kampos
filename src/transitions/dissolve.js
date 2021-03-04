@@ -1,9 +1,15 @@
 /**
  * @function dissolveTransition
+ * @param {Object} [params]
+ * @param {number} [params.low=0.0] initial lower edge of intersection step
+ * @param {number} [params.high=0.01] initial higher edge of intersection step
  * @returns {dissolveTransitionEffect}
  * @example dissolveTransition()
  */
-export default function () {
+export default function ({
+    low = 0.0,
+    high = 0.01
+} = {}) {
     /**
      * @typedef {Object} dissolveTransitionEffect
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
@@ -117,12 +123,12 @@ export default function () {
             {
                 name: 'u_dissolveLowEdge',
                 type: 'f',
-                data: [0.0]
+                data: [low]
             },
             {
                 name: 'u_dissolveHighEdge',
                 type: 'f',
-                data: [0.01]
+                data: [high]
             }
         ],
         attributes: [

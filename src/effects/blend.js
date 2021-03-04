@@ -9,37 +9,37 @@ const MODES_AUX = {
     float l = blend_luminosity(c);
     float cMin = min(min(c.r, c.g), c.b);
     float cMax = max(max(c.r, c.g), c.b);
-    
+
     if (cMin < 0.0)
         return l + (((c - l) * l) / (l - cMin));
     if (cMax > 1.0)
         return l + (((c - l) * (1.0 - l)) / (cMax - l));
-    
+
     return c;
 }
 
 vec3 blend_set_luminosity (vec3 c, float l) {
     vec3 delta = vec3(l - blend_luminosity(c));
-    
+
     return blend_clip_color(vec3(c.rgb + delta.rgb));
 }`,
     blend_set_saturation: `
 float getBlendMid (vec3 c) {
     float bigger = max(c.r, c.g);
-    
+
     if (bigger < c.b) {
         return bigger;
     }
 
     float smaller = min(c.r, c.g);
-    
+
     if (c.b < smaller) {
         return smaller;
     }
-    
+
     return c.b;
 }
-    
+
 vec3 blend_set_saturation (vec3 c, float s) {
     if (s == 0.0) return vec3(0.0);
 
@@ -47,11 +47,11 @@ vec3 blend_set_saturation (vec3 c, float s) {
     float cMid = getBlendMid(c);
     float cMin = min(min(c.r, c.g), c.b);
     float r, g, b;
-    
+
     cMid = (((cMid - cMin) * s) / (cMax - cMin));
     cMax = s;
     cMin = 0.0;
-    
+
     if (c.r > c.g) {
         // r > g
         if (c.b > c.r) {
@@ -68,7 +68,7 @@ vec3 blend_set_saturation (vec3 c, float s) {
         }
         else {
             // g < b < r
-            g = cMin;     
+            g = cMin;
             b = cMid;
             r = cMax;
         }
@@ -95,12 +95,12 @@ vec3 blend_set_saturation (vec3 c, float s) {
         g = cMid;
         b = cMax;
     }
-    
+
     return vec3(r, g, b);
 }`
 };
 
-const MODES_CONSNTANT = {
+const MODES_CONSTANT = {
     normal: '',
     multiply: '',
     screen: '',
@@ -145,7 +145,7 @@ const MODES_CONSNTANT = {
     }
     else {
         float d;
-        
+
         if (b <= 0.25) {
             d = ((16.0 * b - 12.0) * b + 4.0) * b;
         }
@@ -201,11 +201,16 @@ const MODES_MAIN = {
 
 /**
  * @function blend
- * @param {'normal'|'multiply'|'screen'|'overlay'|'darken'|'lighten'|'color-dodge'|'color-burn'|'hard-light'|'soft-light'|'difference'|'exclusion'|'hue'|'saturation'|'color'|'luminosity'} [mode='normal'] blend mode to use
+ * @param {Object} [params]
+ * @param {'normal'|'multiply'|'screen'|'overlay'|'darken'|'lighten'|'color-dodge'|'color-burn'|'hard-light'|'soft-light'|'difference'|'exclusion'|'hue'|'saturation'|'color'|'luminosity'} [params.mode='normal'] blend mode to use
+ * @param {number[]} [params.color=[0, 0, 0, 1]] Initial color to use when blending to a solid color
  * @returns {blendEffect}
  * @example blend('colorBurn')
  */
-export default function (mode='normal') {
+export default function ({
+    mode = 'normal',
+    color = [0.0, 0.0, 0.0, 1.0]
+} = {}) {
     /**
      * @typedef {Object} blendEffect
      * @property {number[]} color backdrop solid color as Array of 4 numbers, normalized (0.0 - 1.0)
@@ -235,7 +240,7 @@ export default function (mode='normal') {
                 u_blendImage: 'sampler2D',
             },
             constant: `const vec3 blendLum = vec3(0.3, 0.59, 0.11);
-${MODES_CONSNTANT[mode]}`,
+${MODES_CONSTANT[mode]}`,
             main: `
     if (u_blendEnabled) {
         vec3 backdrop = vec3(0.0);
@@ -309,7 +314,7 @@ ${MODES_CONSNTANT[mode]}`,
             {
                 name: 'u_blendColor',
                 type: 'f',
-                data: [0.0, 0.0, 0.0, 1.0]
+                data: color
             },
             {
                 name: 'u_blendColorEnabled',

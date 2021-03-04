@@ -1,3 +1,22 @@
+### 0.5.0 (2021-03-04)
+
+*New:*
+
+- `beforeDraw` callback now takes an argument `time` that will get the timestamp param of rAF injected into it.
+- All effects and transitions now take `params` argument, an `Object` that contains initial values to set.
+- `turbulence` effect now takes a new argument `params.output` which results in a code injected to the fragment shader for controlling the output of the effect. You can use the static properties of the effect:
+  - `turbulence.COLOR`: render the result value as a grayscale vector into `color`.
+  - `turbulence.ALPHA`: render the result value into `alpha`.
+
+*Breaking:*
+
+- `blend` effect now takes `noise`  as a property of `params` object.
+- `displacement` effect now takes `wrap`  as a property of `params` object, which are now static properties of the effect:
+  - `displacement.CLAMP`
+  - `displacement.DISCARD`
+  - `displacement.WRAP`
+- `tubulence` effect now takes the noise string argument as a property of `params`, as in: `params.noise`.
+
 ### 0.4.0 (2021-02-08)
 
 *New:*

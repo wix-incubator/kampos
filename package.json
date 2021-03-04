@@ -10,11 +10,11 @@
     "watch": "rollup -c -w",
     "demo": "cd demo && rollup -c && cd -",
     "watch:demo": "cd demo && rollup -c -w && cd -",
-    "test:unit": "npm run test:unit:build && npm run test:unit:run",
+    "test:unit": "### floss is still based on Mocha 6.x which has no ESM support ### npm run test:unit:build && npm run test:unit:run",
     "test:unit:run": "floss --path test/unit.js",
     "test:unit:build": "cd test && rollup -c rollup.unit.js && cd -",
     "test:e2e": "ava test/e2e/*.js",
-    "test": "npm run test:e2e",
+    "test": "npm run test:unit && npm run test:e2e",
     "docs": "documentation build src/index.js -f html -o docs -c documentation.yml",
     "check": "npm-check -u",
     "start": "npm run build && npm run demo && http-server"

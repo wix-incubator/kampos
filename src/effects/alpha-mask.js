@@ -1,9 +1,12 @@
 /**
  * @function alphaMask
+ * @param {Object} [params]
+ * @param {boolean} [params.isLuminance=false] whether to use luminance when reading mask values
  * @returns {alphaMaskEffect}
+ *
  * @example alphaMask()
  */
-export default function () {
+export default function ({isLuminance = false} = {}) {
     /**
      * @typedef {Object} alphaMaskEffect
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} mask
@@ -80,7 +83,7 @@ export default function () {
             {
                 name: 'u_alphaMaskIsLuminance',
                 type: 'i',
-                data: [0]
+                data: [+!!isLuminance]
             }
         ],
         attributes: [
@@ -97,7 +100,7 @@ export default function () {
         ],
         textures: [
             {
-                format: 'ALPHA'
+                format: isLuminance ? 'RGBA' : 'ALPHA'
             }
         ]
     };

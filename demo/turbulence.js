@@ -10,32 +10,32 @@ const media1 = document.querySelector('#video5');
 // uncomment here if you want to see just the turbulence
 //target2.parentNode.replaceChild(target, target2);
 
-// create the effects we need
-const turbulence = effects.turbulence(noise.simplex);
-// create a simple effect that converts the turbulence return value into the output color
-const render = {fragment: {main: 'color = vec3(turbulenceValue);'}};
-const disp = effects.displacement();
-
 // try playing with this factor
 const AMPLITUDE = 1 / target.width;
+const frequency = {x: AMPLITUDE, y: AMPLITUDE};
 
-turbulence.frequency = {x: AMPLITUDE, y: AMPLITUDE};
-turbulence.octaves = 4;
+const octaves = 4;
 // change to false (or comment out) if you want to see the turbulence noise variant
-turbulence.isFractal = true;
+const isFractal = true;
+
+// create the effects we need
+const turbulence = effects.turbulence({
+    noise: noise.simplex,
+    frequency,
+    octaves,
+    isFractal
+});
 
 // init kampos
-const instance = new Kampos({target, effects:[turbulence, render], noSource: true});
+const instance = new Kampos({target, effects:[turbulence], noSource: true});
+
+// create a simple effect that converts the turbulence return value into the output color
+const disp = effects.displacement();
 
 const instance2 = new Kampos({target: target2, effects:[disp]});
 
-// start playing the noise map in a loop
-const start = Date.now();
-
 // you can increase/decrease the time factor for a faster/slower animation
-instance.play(
-    () => turbulence.time = (Date.now() - start) * 2
-);
+instance.play(time => turbulence.time = time * 2);
 
 prepareVideos([media1])
     .then(() => {

@@ -2,10 +2,13 @@
  * @function hueSaturation
  * @property {number} hue rotation in degrees
  * @property {number} saturation
+ * @param {Object} [params]
+ * @param {number} [params.hue=0.0] initial hue value
+ * @param {number} [params.saturation=1.0] initial saturation value
  * @returns {hueSaturationEffect}
- * @example hueSaturation()
+ * @example hueSaturation({hue: 45, saturation: 1.3})
  */
-export default function (hue = 0.0, saturation = 1.0) {
+export default function ({hue = 0.0, saturation = 1.0} = {}) {
     /**
      * @typedef {Object} hueSaturationEffect
      * @property {number} hue

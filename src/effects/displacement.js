@@ -1,17 +1,20 @@
 /**
  * @function displacement
- * @param {'CLAMP'|'DISCARD'|'WRAP'} [wrap='CLAMP'] wrapping method to use
+ * @property {string} CLAMP stretch the last value to the edge. This is the default behavior.
+ * @property {string} DISCARD discard values beyond the edge of the media - leaving a transparent pixel.
+ * @property {string} WRAP continue rendering values from opposite direction when reaching the edge.
+ * @param {Object} [params]
+ * @param {string} [params.wrap] wrapping method to use. Defaults to `displacement.CLAMP`.
+ * @param {{x: number, y: number}} [params.scale] initial scale to use for x and y displacement. Defaults to `{x: 0.0, y: 0.0}` which means no displacement.
  * @returns {displacementEffect}
- * @example displacement()
+ *
+ * @example displacement({wrap: displacement.DISCARD, scale: {x: 0.5, y: -0.5}})
  */
-export default function (wrap='CLAMP') {
-    const WRAP_MAP = {
-        CLAMP: `dispVec = clamp(dispVec, 0.0, 1.0);`,
-        DISCARD: `if (dispVec.x < 0.0 || dispVec.x > 1.0 || dispVec.y > 1.0 || dispVec.y < 0.0) {
-            discard;
-        }`,
-        WRAP: `dispVec = mod(dispVec, 1.0);`
-    };
+function displacement ({
+   wrap = WRAP_METHODS.CLAMP,
+    scale
+} = {}) {
+    const { x: sx, y: sy } = (scale || { x: 0.0, y: 0.0 });
 
     /**
      * @typedef {Object} displacementEffect
@@ -43,7 +46,7 @@ export default function (wrap='CLAMP') {
     if (u_displacementEnabled) {
         vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb - 0.5;
         vec2 dispVec = vec2(sourceCoord.x + u_dispScale.x * dispMap.r, sourceCoord.y + u_dispScale.y * dispMap.g);
-        ${WRAP_MAP[wrap]}
+        ${wrap}
         sourceCoord = dispVec;
     }`
         },
@@ -86,7 +89,7 @@ export default function (wrap='CLAMP') {
             {
                 name: 'u_dispScale',
                 type: 'f',
-                data: [0.0, 0.0]
+                data: [sx, sy]
             }
         ],
         attributes: [
@@ -107,4 +110,16 @@ export default function (wrap='CLAMP') {
             }
         ]
     };
+}
+
+const WRAP_METHODS =  {
+    CLAMP: `dispVec = clamp(dispVec, 0.0, 1.0);`,
+    DISCARD: `if (dispVec.x < 0.0 || dispVec.x > 1.0 || dispVec.y > 1.0 || dispVec.y < 0.0) { discard; }`,
+    WRAP: `dispVec = mod(dispVec, 1.0);`
 };
+
+displacement.CLAMP = WRAP_METHODS.CLAMP;
+displacement.DISCARD = WRAP_METHODS.DISCARD;
+displacement.WRAP = WRAP_METHODS.WRAP;
+
+export default displacement;

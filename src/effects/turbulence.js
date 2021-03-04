@@ -1,11 +1,28 @@
 /**
  * @function turbulence
- * @param {string} noise 3D noise implementation to use
+ * @property {string} COLOR
+ * @property {string} ALPHA
+ * @param {object} params
+ * @param {string} params.noise 3D noise implementation to use.
+ * @param {string} [params.output] how to output the `turbulenceValue` variable. Use `turbulence.COLOR` or `turbulence.ALPHA` for outputting to color or alpha correspondingly. Defaults to `turbulence.COLOR`.
+ * @param {{x: number, y: number}} [params.frequency={x: 0.0, y: 0.0}] initial frequencies to use for x and y axes.
+ * @param {number} [params.octaves=1] initial number of octaves to use for turbulence noise generation.
+ * @param {boolean} [params.isFractal=false] initial number of octaves to use for turbulence noise generation.
+ * @param {number} [params.time=0] initial time for controlling initial noise value.
  * @returns {turbulenceEffect}
  *
- * @example turbulence(noise)
+ * @example turbulence({noise: kampos.noise.simplex, output: turbulence.COLOR, octaves: 4, isFractal: true})
  */
-export default function (noise) {
+function turbulence ({
+    noise,
+    output= OUTPUT_TYPES.COLOR,
+    frequency,
+    octaves = 1,
+    isFractal= false,
+    time = 0.0
+}) {
+    const { x: fx, y: fy } = (frequency || { x: 0.0, y: 0.0 });
+
     /**
      * @typedef {Object} turbulenceEffect
      * @property {{x: number?, y: number?}} frequency
@@ -13,7 +30,7 @@ export default function (noise) {
      * @property {boolean} isFractal
      *
      * @description Generates a turbulence/fractal noise value stored into `turbulenceValue`.
-     * Depends on a `noise(vec3 P)` function to be declared. Currently it's possible to simply use it after {@link perlinNoiseEffect}.
+     * Depends on a `noise(vec3 P)` function to be declared and injected via the `noise` param, for example, simply supplying the {@link perlinNoiseEffect}.
      *
      * @example
      * effect.frequency = {x: 0.0065};
@@ -57,16 +74,17 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         position.y *= 2.0;
         ratio *= 2.0;
     }
-    
+
     if (isFractal) {
         sum = (sum + 1.0) / 2.0;
     }
-    
+
     return clamp(sum, 0.0, 1.0);
 }`,
             main: `
     vec3 turbulenceSeed = vec3(gl_FragCoord.xy, u_time * 0.0001);
-    float turbulenceValue = turbulence(turbulenceSeed, u_turbulenceFrequency, u_turbulenceOctaves, u_isFractal);`
+    float turbulenceValue = turbulence(turbulenceSeed, u_turbulenceFrequency, u_turbulenceOctaves, u_isFractal);
+    ${output || ''}`
         },
         get frequency () {
             const [x, y] = this.uniforms[0].data;
@@ -100,23 +118,33 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
             {
                 name: 'u_turbulenceFrequency',
                 type: 'f',
-                data: [0.0, 0.0]
+                data: [fx, fy]
             },
             {
                 name: 'u_turbulenceOctaves',
                 type: 'i',
-                data: [1]
+                data: [octaves]
             },
             {
                 name: 'u_isFractal',
                 type: 'i',
-                data: [0]
+                data: [+!!isFractal]
             },
             {
                 name: 'u_time',
                 type: 'f',
-                data: [0.0]
+                data: [time]
             }
         ]
     };
-};
+}
+
+const OUTPUT_TYPES = {
+    COLOR: 'color = vec3(turbulenceValue);',
+    ALPHA: 'alpha = turbulenceValue;'
+}
+
+turbulence.COLOR = OUTPUT_TYPES.COLOR;
+turbulence.ALPHA = OUTPUT_TYPES.ALPHA;
+
+export default turbulence;

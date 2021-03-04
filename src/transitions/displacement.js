@@ -1,16 +1,22 @@
 /**
  * @function displacementTransition
+ * @param {Object} [params]
+ * @param {{x: number=0.0, y: number=0.0}} [params.sourceScale] initial displacement scale values of source media
+ * @param {{x: number=0.0, y: number=0.0}} [params.toScale] initial displacement scale values of target media
  * @returns {displacementTransitionEffect}
  * @example displacementTransition()
  */
-export default function () {
+export default function ({sourceScale, toScale} = {}) {
+    const { x: sSx, y: sSy } = (sourceScale || { x: 0.0, y: 0.0 });
+    const { x: tSx, y: tSy } = (toScale || { x: 0.0, y: 0.0 });
+
     /**
      * @typedef {Object} displacementTransitionEffect
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map displacement map to use
      * @property {number} progress number between 0.0 and 1.0
-     * @property {{x: number?, y: number?}} sourceScale
-     * @property {{x: number?, y: number?}} toScale
+     * @property {{x: number?, y: number?}} sourceScale displacement scale values of source media
+     * @property {{x: number?, y: number?}} toScale displacement scale values of target media
      * @property {boolean} disabled
      *
      * @example
@@ -138,12 +144,12 @@ export default function () {
             {
                 name: 'u_sourceDispScale',
                 type: 'f',
-                data: [0.0, 0.0]
+                data: [sSx, sSy]
             },
             {
                 name: 'u_toDispScale',
                 type: 'f',
-                data: [0.0, 0.0]
+                data: [tSx, tSy]
             }
         ],
         attributes: [

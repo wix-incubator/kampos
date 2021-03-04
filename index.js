@@ -6,10 +6,15 @@
 
     /**
      * @function alphaMask
+     * @param {Object} [params]
+     * @param {boolean} [params.isLuminance=false] whether to use luminance when reading mask values
      * @returns {alphaMaskEffect}
+     *
      * @example alphaMask()
      */
-    function alphaMask () {
+    function alphaMask ({
+      isLuminance = false
+    } = {}) {
       /**
        * @typedef {Object} alphaMaskEffect
        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} mask
@@ -90,7 +95,7 @@
         }, {
           name: 'u_alphaMaskIsLuminance',
           type: 'i',
-          data: [0]
+          data: [+!!isLuminance]
         }],
         attributes: [{
           name: 'a_alphaMaskTexCoord',
@@ -99,7 +104,7 @@
           type: 'FLOAT'
         }],
         textures: [{
-          format: 'ALPHA'
+          format: isLuminance ? 'RGBA' : 'ALPHA'
         }]
       };
     }
@@ -115,37 +120,37 @@
     float l = blend_luminosity(c);
     float cMin = min(min(c.r, c.g), c.b);
     float cMax = max(max(c.r, c.g), c.b);
-    
+
     if (cMin < 0.0)
         return l + (((c - l) * l) / (l - cMin));
     if (cMax > 1.0)
         return l + (((c - l) * (1.0 - l)) / (cMax - l));
-    
+
     return c;
 }
 
 vec3 blend_set_luminosity (vec3 c, float l) {
     vec3 delta = vec3(l - blend_luminosity(c));
-    
+
     return blend_clip_color(vec3(c.rgb + delta.rgb));
 }`,
       blend_set_saturation: `
 float getBlendMid (vec3 c) {
     float bigger = max(c.r, c.g);
-    
+
     if (bigger < c.b) {
         return bigger;
     }
 
     float smaller = min(c.r, c.g);
-    
+
     if (c.b < smaller) {
         return smaller;
     }
-    
+
     return c.b;
 }
-    
+
 vec3 blend_set_saturation (vec3 c, float s) {
     if (s == 0.0) return vec3(0.0);
 
@@ -153,11 +158,11 @@ vec3 blend_set_saturation (vec3 c, float s) {
     float cMid = getBlendMid(c);
     float cMin = min(min(c.r, c.g), c.b);
     float r, g, b;
-    
+
     cMid = (((cMid - cMin) * s) / (cMax - cMin));
     cMax = s;
     cMin = 0.0;
-    
+
     if (c.r > c.g) {
         // r > g
         if (c.b > c.r) {
@@ -174,7 +179,7 @@ vec3 blend_set_saturation (vec3 c, float s) {
         }
         else {
             // g < b < r
-            g = cMin;     
+            g = cMin;
             b = cMid;
             r = cMax;
         }
@@ -201,11 +206,11 @@ vec3 blend_set_saturation (vec3 c, float s) {
         g = cMid;
         b = cMax;
     }
-    
+
     return vec3(r, g, b);
 }`
     };
-    const MODES_CONSNTANT = {
+    const MODES_CONSTANT = {
       normal: '',
       multiply: '',
       screen: '',
@@ -250,7 +255,7 @@ vec3 blend_set_saturation (vec3 c, float s) {
     }
     else {
         float d;
-        
+
         if (b <= 0.25) {
             d = ((16.0 * b - 12.0) * b + 4.0) * b;
         }
@@ -305,12 +310,17 @@ ${MODES_AUX.blend_set_luminosity}`
     };
     /**
      * @function blend
-     * @param {'normal'|'multiply'|'screen'|'overlay'|'darken'|'lighten'|'color-dodge'|'color-burn'|'hard-light'|'soft-light'|'difference'|'exclusion'|'hue'|'saturation'|'color'|'luminosity'} [mode='normal'] blend mode to use
+     * @param {Object} [params]
+     * @param {'normal'|'multiply'|'screen'|'overlay'|'darken'|'lighten'|'color-dodge'|'color-burn'|'hard-light'|'soft-light'|'difference'|'exclusion'|'hue'|'saturation'|'color'|'luminosity'} [params.mode='normal'] blend mode to use
+     * @param {number[]} [params.color=[0, 0, 0, 1]] Initial color to use when blending to a solid color
      * @returns {blendEffect}
      * @example blend('colorBurn')
      */
 
-    function blend (mode = 'normal') {
+    function blend ({
+      mode = 'normal',
+      color = [0.0, 0.0, 0.0, 1.0]
+    } = {}) {
       /**
        * @typedef {Object} blendEffect
        * @property {number[]} color backdrop solid color as Array of 4 numbers, normalized (0.0 - 1.0)
@@ -340,7 +350,7 @@ ${MODES_AUX.blend_set_luminosity}`
             u_blendImage: 'sampler2D'
           },
           constant: `const vec3 blendLum = vec3(0.3, 0.59, 0.11);
-${MODES_CONSNTANT[mode]}`,
+${MODES_CONSTANT[mode]}`,
           main: `
     if (u_blendEnabled) {
         vec3 backdrop = vec3(0.0);
@@ -417,7 +427,7 @@ ${MODES_CONSNTANT[mode]}`,
         }, {
           name: 'u_blendColor',
           type: 'f',
-          data: [0.0, 0.0, 0.0, 1.0]
+          data: color
         }, {
           name: 'u_blendColorEnabled',
           type: 'i',
@@ -447,10 +457,17 @@ ${MODES_CONSNTANT[mode]}`,
      * @function brightnessContrast
      * @property {number} brightness
      * @property {number} contrast
+     * @param {Object} [params]
+     * @param {number} [params.brightness] initial brightness to use. Defaults to 1.0.
+     * @param {number} [params.contrast] initial contrast to use. Defaults to 1.0.
      * @returns {brightnessContrastEffect}
-     * @example brightnessContrast()
+     *
+     * @example brightnessContrast({brightness: 1.5, contrast: 0.8})
      */
-    function brightnessContrast (brightness = 1.0, contrast = 1.0) {
+    function brightnessContrast ({
+      brightness = 1.0,
+      contrast = 1.0
+    } = {}) {
       /**
        * @typedef {Object} brightnessContrastEffect
        * @property {number} brightness
@@ -540,10 +557,16 @@ ${MODES_CONSNTANT[mode]}`,
      * @function hueSaturation
      * @property {number} hue rotation in degrees
      * @property {number} saturation
+     * @param {Object} [params]
+     * @param {number} [params.hue] initial hue value
+     * @param {number} [params.saturation] initial saturation value
      * @returns {hueSaturationEffect}
-     * @example hueSaturation()
+     * @example hueSaturation({hue: 45, saturation: 1.3})
      */
-    function hueSaturation (hue = 0.0, saturation = 1.0) {
+    function hueSaturation ({
+      hue = 0.0,
+      saturation = 1.0
+    } = {}) {
       /**
        * @typedef {Object} hueSaturationEffect
        * @property {number} hue
@@ -673,10 +696,17 @@ const mat3 satmat = mat3(
 
     /**
      * @function duotone
+     * @param {Object} [params]
+     * @param {number[]} [params.dark] initial dark color to use.
+     * @param {number[]} [params.light] initial light color to use.
      * @returns {duotoneEffect}
-     * @example duotone()
+     *
+     * @example duotone({dark: [0.2, 0.11, 0.33, 1], light: [0.88, 0.78, 0.43, 1]})
      */
-    function duotone () {
+    function duotone ({
+      dark = [0.7411764706, 0.0431372549, 0.568627451, 1],
+      light = [0.9882352941, 0.7333333333, 0.05098039216, 1]
+    } = {}) {
       /**
        * @typedef {Object} duotoneEffect
        * @property {number[]} light Array of 4 numbers, normalized (0.0 - 1.0)
@@ -740,28 +770,37 @@ const mat3 satmat = mat3(
         }, {
           name: 'u_light',
           type: 'f',
-          data: [0.9882352941, 0.7333333333, 0.05098039216, 1]
+          data: light
         }, {
           name: 'u_dark',
           type: 'f',
-          data: [0.7411764706, 0.0431372549, 0.568627451, 1]
+          data: dark
         }]
       };
     }
 
     /**
      * @function displacement
-     * @param {'CLAMP'|'DISCARD'|'WRAP'} [wrap='CLAMP'] wrapping method to use
+     * @property {string} CLAMP
+     * @property {string} DISCARD
+     * @property {string} WRAP
+     * @param {Object} [params]
+     * @param {string} [params.wrap] wrapping method to use. Defaults to `displacement.CLAMP`.
+     * @param {x: number, y: number} [params.scale] initial scale to use for x and y displacement. Defaults to `{x: 0.0, y: 0.0}` which means no displacement.
      * @returns {displacementEffect}
-     * @example displacement()
+     *
+     * @example displacement({wrap: displacement.DISCARD, scale: {x: 0.5, y: -0.5}})
      */
-    function displacement (wrap = 'CLAMP') {
-      const WRAP_MAP = {
-        CLAMP: `dispVec = clamp(dispVec, 0.0, 1.0);`,
-        DISCARD: `if (dispVec.x < 0.0 || dispVec.x > 1.0 || dispVec.y > 1.0 || dispVec.y < 0.0) {
-            discard;
-        }`,
-        WRAP: `dispVec = mod(dispVec, 1.0);`
+    function displacement({
+      wrap = WRAP_METHODS.CLAMP,
+      scale
+    } = {}) {
+      const {
+        x: sx,
+        y: sy
+      } = scale || {
+        x: 0.0,
+        y: 0.0
       };
       /**
        * @typedef {Object} displacementEffect
@@ -794,7 +833,7 @@ const mat3 satmat = mat3(
     if (u_displacementEnabled) {
         vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb - 0.5;
         vec2 dispVec = vec2(sourceCoord.x + u_dispScale.x * dispMap.r, sourceCoord.y + u_dispScale.y * dispMap.g);
-        ${WRAP_MAP[wrap]}
+        ${wrap}
         sourceCoord = dispVec;
     }`
         },
@@ -845,7 +884,7 @@ const mat3 satmat = mat3(
         }, {
           name: 'u_dispScale',
           type: 'f',
-          data: [0.0, 0.0]
+          data: [sx, sy]
         }],
         attributes: [{
           name: 'a_displacementMapTexCoord',
@@ -858,6 +897,15 @@ const mat3 satmat = mat3(
         }]
       };
     }
+
+    const WRAP_METHODS = {
+      CLAMP: `dispVec = clamp(dispVec, 0.0, 1.0);`,
+      DISCARD: `if (dispVec.x < 0.0 || dispVec.x > 1.0 || dispVec.y > 1.0 || dispVec.y < 0.0) { discard; }`,
+      WRAP: `dispVec = mod(dispVec, 1.0);`
+    };
+    displacement.CLAMP = WRAP_METHODS.CLAMP;
+    displacement.DISCARD = WRAP_METHODS.DISCARD;
+    displacement.WRAP = WRAP_METHODS.WRAP;
 
     /*!
      * GLSL textureless classic 3D noise "cnoise",
@@ -1229,12 +1277,34 @@ float noise (vec3 v) {
 
     /**
      * @function turbulence
-     * @param {string} noise 3D noise implementation to use
+     * @property {string} COLOR
+     * @property {string} ALPHA
+     * @param {object} params
+     * @param {string} params.noise 3D noise implementation to use.
+     * @param {string} [params.output] how to output the `turbulenceValue` variable. Use {turbulence.COLOR} or {turbulence.ALPHA} for outputting to color or alpha correspondingly. Defaults to {turbulence.COLOR}.
+     * @param {x: number=0.0, y: number=0.0} [params.frequency] initial frequencies to use for x and y axes.
+     * @param {number} [params.octaves=1] initial number of octaves to use for turbulence noise generation.
+     * @param {boolean} [params.isFractal=false] initial number of octaves to use for turbulence noise generation.
+     * @param {number} [params.time=0] initial time for controlling initial noise value.
      * @returns {turbulenceEffect}
      *
-     * @example turbulence(noise)
+     * @example turbulence({noise, output: turbulence.COLOR, octaves: 4, isFractal: true})
      */
-    function turbulence (noise) {
+    function turbulence({
+      noise,
+      output = OUTPUT_TYPES.COLOR,
+      frequency,
+      octaves = 1,
+      isFractal = false,
+      time = 0.0
+    }) {
+      const {
+        x: fx,
+        y: fy
+      } = frequency || {
+        x: 0.0,
+        y: 0.0
+      };
       /**
        * @typedef {Object} turbulenceEffect
        * @property {{x: number?, y: number?}} frequency
@@ -1249,6 +1319,7 @@ float noise (vec3 v) {
        * effect.octaves = 4;
        * effect.isFractal = true;
        */
+
       return {
         fragment: {
           uniform: {
@@ -1286,16 +1357,17 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         position.y *= 2.0;
         ratio *= 2.0;
     }
-    
+
     if (isFractal) {
         sum = (sum + 1.0) / 2.0;
     }
-    
+
     return clamp(sum, 0.0, 1.0);
 }`,
           main: `
     vec3 turbulenceSeed = vec3(gl_FragCoord.xy, u_time * 0.0001);
-    float turbulenceValue = turbulence(turbulenceSeed, u_turbulenceFrequency, u_turbulenceOctaves, u_isFractal);`
+    float turbulenceValue = turbulence(turbulenceSeed, u_turbulenceFrequency, u_turbulenceOctaves, u_isFractal);
+    ${output || ''}`
         },
 
         get frequency() {
@@ -1341,22 +1413,29 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         uniforms: [{
           name: 'u_turbulenceFrequency',
           type: 'f',
-          data: [0.0, 0.0]
+          data: [fx, fy]
         }, {
           name: 'u_turbulenceOctaves',
           type: 'i',
-          data: [1]
+          data: [octaves]
         }, {
           name: 'u_isFractal',
           type: 'i',
-          data: [0]
+          data: [+!!isFractal]
         }, {
           name: 'u_time',
           type: 'f',
-          data: [0.0]
+          data: [time]
         }]
       };
     }
+
+    const OUTPUT_TYPES = {
+      COLOR: 'color = vec3(turbulenceValue);',
+      ALPHA: 'alpha = turbulenceValue;'
+    };
+    turbulence.COLOR = OUTPUT_TYPES.COLOR;
+    turbulence.ALPHA = OUTPUT_TYPES.ALPHA;
 
     /**
      * @function fadeTransition
@@ -1451,17 +1530,37 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
 
     /**
      * @function displacementTransition
+     * @param {Object} [params]
+     * @param {{x: number=0.0, y: number=0.0}} [params.sourceScale] initial displacement scale values of source media
+     * @param {{x: number=0.0, y: number=0.0}} [params.toScale] initial displacement scale values of target media
      * @returns {displacementTransitionEffect}
      * @example displacementTransition()
      */
-    function displacementTransition () {
+    function displacementTransition ({
+      sourceScale,
+      toScale
+    } = {}) {
+      const {
+        x: sSx,
+        y: sSy
+      } = sourceScale || {
+        x: 0.0,
+        y: 0.0
+      };
+      const {
+        x: tSx,
+        y: tSy
+      } = toScale || {
+        x: 0.0,
+        y: 0.0
+      };
       /**
        * @typedef {Object} displacementTransitionEffect
        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map displacement map to use
        * @property {number} progress number between 0.0 and 1.0
-       * @property {{x: number?, y: number?}} sourceScale
-       * @property {{x: number?, y: number?}} toScale
+       * @property {{x: number?, y: number?}} sourceScale displacement scale values of source media
+       * @property {{x: number?, y: number?}} toScale displacement scale values of target media
        * @property {boolean} disabled
        *
        * @example
@@ -1472,6 +1571,7 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
        * effect.sourceScale = {x: 0.4};
        * effect.toScale = {x: 0.8};
        */
+
       return {
         vertex: {
           attribute: {
@@ -1605,11 +1705,11 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         }, {
           name: 'u_sourceDispScale',
           type: 'f',
-          data: [0.0, 0.0]
+          data: [sSx, sSy]
         }, {
           name: 'u_toDispScale',
           type: 'f',
-          data: [0.0, 0.0]
+          data: [tSx, tSy]
         }],
         attributes: [{
           name: 'a_transitionToTexCoord',
@@ -1633,10 +1733,16 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
 
     /**
      * @function dissolveTransition
+     * @param {Object} [params]
+     * @param {number} [params.low=0.0] initial lower edge of intersection step
+     * @param {number} [params.high=0.01] initial higher edge of intersection step
      * @returns {dissolveTransitionEffect}
      * @example dissolveTransition()
      */
-    function dissolve () {
+    function dissolve ({
+      low = 0.0,
+      high = 0.01
+    } = {}) {
       /**
        * @typedef {Object} dissolveTransitionEffect
        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
@@ -1758,11 +1864,11 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         }, {
           name: 'u_dissolveLowEdge',
           type: 'f',
-          data: [0.0]
+          data: [low]
         }, {
           name: 'u_dissolveHighEdge',
           type: 'f',
-          data: [0.01]
+          data: [high]
         }],
         attributes: [{
           name: 'a_transitionToTexCoord',
@@ -2598,17 +2704,19 @@ void main() {
       }
       /**
        * Draw current scene.
+       *
+       * @param {number} time
        */
 
 
-      draw() {
+      draw(time) {
         if (this.lostContext) {
           const success = this.restoreContext();
           if (!success) return;
         }
 
         const cb = this.config.beforeDraw;
-        if (cb && cb() === false) return;
+        if (cb && cb(time) === false) return;
         core.draw(this.gl, this.media, this.data, this.dimensions);
       }
       /**
@@ -2633,9 +2741,9 @@ void main() {
             this.ticker.add(this);
           }
         } else if (!this.animationFrameId) {
-          const loop = () => {
+          const loop = time => {
             this.animationFrameId = window.requestAnimationFrame(loop);
-            this.draw();
+            this.draw(time);
           };
 
           this.animationFrameId = window.requestAnimationFrame(loop);
@@ -2817,9 +2925,9 @@ void main() {
 
       start() {
         if (!this.animationFrameId) {
-          const loop = () => {
+          const loop = time => {
             this.animationFrameId = window.requestAnimationFrame(loop);
-            this.draw();
+            this.draw(time);
           };
 
           this.animationFrameId = window.requestAnimationFrame(loop);
@@ -2836,11 +2944,13 @@ void main() {
       }
       /**
        * Invoke `.draw()` on all instances in the pool.
+       *
+       * @param {number} time
        */
 
 
-      draw() {
-        this.pool.forEach(instance => instance.draw());
+      draw(time) {
+        this.pool.forEach(instance => instance.draw(time));
       }
       /**
        * Add an instance to the pool.
