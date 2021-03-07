@@ -155,7 +155,7 @@
 
         const mousePosition = [0.5, 0.5];
 
-        const turbulence = effects.turbulence(noise.simplex);
+        const turbulence = effects.turbulence({noise: noise.simplex, output: '\n'});
         const render = {
             fragment: {
                 uniform: {
@@ -201,13 +201,11 @@
 
         turbulence.frequency = {x: FREQUENCY, y: FREQUENCY};
         turbulence.octaves = 6;
-        //turbulence.isFractal = true;
-        const start = Date.now();
 
         const instance = new Kampos({target, effects:[turbulence, render], noSource: true});
-        instance.play(() => {
+        instance.play((time) => {
             render.mouse = mousePosition;
-            turbulence.time = (Date.now() - start) * 2;
+            turbulence.time = time * 2;
         });
 
         document.body.addEventListener('mousemove', (e) => {
