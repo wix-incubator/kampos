@@ -458,8 +458,8 @@ ${MODES_CONSTANT[mode]}`,
      * @property {number} brightness
      * @property {number} contrast
      * @param {Object} [params]
-     * @param {number} [params.brightness] initial brightness to use. Defaults to 1.0.
-     * @param {number} [params.contrast] initial contrast to use. Defaults to 1.0.
+     * @param {number} [params.brightness=1.0] initial brightness to use.
+     * @param {number} [params.contrast=1.0] initial contrast to use.
      * @returns {brightnessContrastEffect}
      *
      * @example brightnessContrast({brightness: 1.5, contrast: 0.8})
@@ -558,8 +558,8 @@ ${MODES_CONSTANT[mode]}`,
      * @property {number} hue rotation in degrees
      * @property {number} saturation
      * @param {Object} [params]
-     * @param {number} [params.hue] initial hue value
-     * @param {number} [params.saturation] initial saturation value
+     * @param {number} [params.hue=0.0] initial hue value
+     * @param {number} [params.saturation=1.0] initial saturation value
      * @returns {hueSaturationEffect}
      * @example hueSaturation({hue: 45, saturation: 1.3})
      */
@@ -697,8 +697,8 @@ const mat3 satmat = mat3(
     /**
      * @function duotone
      * @param {Object} [params]
-     * @param {number[]} [params.dark] initial dark color to use.
-     * @param {number[]} [params.light] initial light color to use.
+     * @param {number[]} [params.dark=[0.741, 0.0431, 0.568, 1]] initial dark color to use.
+     * @param {number[]} [params.light=[0.988, 0.733, 0.051, 1]] initial light color to use.
      * @returns {duotoneEffect}
      *
      * @example duotone({dark: [0.2, 0.11, 0.33, 1], light: [0.88, 0.78, 0.43, 1]})
@@ -781,12 +781,12 @@ const mat3 satmat = mat3(
 
     /**
      * @function displacement
-     * @property {string} CLAMP
-     * @property {string} DISCARD
-     * @property {string} WRAP
+     * @property {string} CLAMP stretch the last value to the edge. This is the default behavior.
+     * @property {string} DISCARD discard values beyond the edge of the media - leaving a transparent pixel.
+     * @property {string} WRAP continue rendering values from opposite direction when reaching the edge.
      * @param {Object} [params]
      * @param {string} [params.wrap] wrapping method to use. Defaults to `displacement.CLAMP`.
-     * @param {x: number, y: number} [params.scale] initial scale to use for x and y displacement. Defaults to `{x: 0.0, y: 0.0}` which means no displacement.
+     * @param {{x: number, y: number}} [params.scale] initial scale to use for x and y displacement. Defaults to `{x: 0.0, y: 0.0}` which means no displacement.
      * @returns {displacementEffect}
      *
      * @example displacement({wrap: displacement.DISCARD, scale: {x: 0.5, y: -0.5}})
@@ -1281,14 +1281,14 @@ float noise (vec3 v) {
      * @property {string} ALPHA
      * @param {object} params
      * @param {string} params.noise 3D noise implementation to use.
-     * @param {string} [params.output] how to output the `turbulenceValue` variable. Use {turbulence.COLOR} or {turbulence.ALPHA} for outputting to color or alpha correspondingly. Defaults to {turbulence.COLOR}.
-     * @param {x: number=0.0, y: number=0.0} [params.frequency] initial frequencies to use for x and y axes.
+     * @param {string} [params.output] how to output the `turbulenceValue` variable. Use `turbulence.COLOR` or `turbulence.ALPHA` for outputting to color or alpha correspondingly. Defaults to `turbulence.COLOR`.
+     * @param {{x: number, y: number}} [params.frequency={x: 0.0, y: 0.0}] initial frequencies to use for x and y axes.
      * @param {number} [params.octaves=1] initial number of octaves to use for turbulence noise generation.
      * @param {boolean} [params.isFractal=false] initial number of octaves to use for turbulence noise generation.
      * @param {number} [params.time=0] initial time for controlling initial noise value.
      * @returns {turbulenceEffect}
      *
-     * @example turbulence({noise, output: turbulence.COLOR, octaves: 4, isFractal: true})
+     * @example turbulence({noise: kampos.noise.simplex, output: turbulence.COLOR, octaves: 4, isFractal: true})
      */
     function turbulence({
       noise,
@@ -1312,7 +1312,7 @@ float noise (vec3 v) {
        * @property {boolean} isFractal
        *
        * @description Generates a turbulence/fractal noise value stored into `turbulenceValue`.
-       * Depends on a `noise(vec3 P)` function to be declared. Currently it's possible to simply use it after {@link perlinNoiseEffect}.
+       * Depends on a `noise(vec3 P)` function to be declared and injected via the `noise` param, for example, simply supplying the {@link perlinNoiseEffect}.
        *
        * @example
        * effect.frequency = {x: 0.0065};
@@ -2111,7 +2111,9 @@ void main() {
         source,
         attributes,
         uniforms,
-        textures
+        textures,
+        extensions,
+        vao
       } = data;
 
       if (media && source && source.texture) {
@@ -2122,9 +2124,14 @@ void main() {
       } // Tell it to use our program (pair of shaders)
 
 
-      gl.useProgram(program); // set attribute buffers with data
+      gl.useProgram(program);
 
-      _enableVertexAttributes(gl, attributes); // set uniforms with data
+      if (vao) {
+        extensions.vao.bindVertexArrayOES(vao);
+      } else {
+        // set attribute buffers with data
+        _enableVertexAttributes(gl, attributes);
+      } // set uniforms with data
 
 
       _setUniforms(gl, uniforms);
@@ -2209,22 +2216,41 @@ void main() {
 
       if (error) {
         throw new Error(`${type} error:: ${error}\n${fragmentSrc}`);
+      }
+
+      let vaoExt, vao;
+
+      try {
+        vaoExt = gl.getExtension('OES_vertex_array_object');
+        vao = vaoExt.createVertexArrayOES();
+        vaoExt.bindVertexArrayOES(vao);
+      } catch (e) {// ignore
       } // setup the vertex data
 
 
-      const attributes = _initVertexAttributes(gl, program, data.attributes); // setup uniforms
+      const attributes = _initVertexAttributes(gl, program, data.attributes);
+
+      if (vao) {
+        _enableVertexAttributes(gl, attributes);
+
+        vaoExt.bindVertexArrayOES(null);
+      } // setup uniforms
 
 
       const uniforms = _initUniforms(gl, program, data.uniforms);
 
       return {
+        extensions: {
+          vao: vaoExt
+        },
         program,
         vertexShader,
         fragmentShader,
         source,
         attributes,
         uniforms,
-        textures: data.textures
+        textures: data.textures,
+        vao
       };
     }
 

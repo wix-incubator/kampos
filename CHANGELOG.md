@@ -1,3 +1,9 @@
+### 0.5.1 (2021-03-26)
+
+*New:*
+
+- Added usage of the `OES_vertex_array_object` extension for improved drawing performance.
+
 ### 0.5.0 (2021-03-04)
 
 *New:*

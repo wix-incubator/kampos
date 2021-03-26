@@ -202,7 +202,7 @@ function resize (gl, dimensions) {
  * @param {{width: number, height: number}} dimensions
  */
 function draw (gl, media, data, dimensions) {
-    const {program, source, attributes, uniforms, textures} = data;
+    const {program, source, attributes, uniforms, textures, extensions, vao} = data;
 
     if ( media && source && source.texture ) {
         // bind the source texture
@@ -215,8 +215,13 @@ function draw (gl, media, data, dimensions) {
     // Tell it to use our program (pair of shaders)
     gl.useProgram(program);
 
-    // set attribute buffers with data
-    _enableVertexAttributes(gl, attributes);
+    if ( vao ) {
+        extensions.vao.bindVertexArrayOES(vao);
+    }
+    else {
+        // set attribute buffers with data
+        _enableVertexAttributes(gl, attributes);
+    }
 
     // set uniforms with data
     _setUniforms(gl, uniforms);
@@ -254,10 +259,13 @@ function draw (gl, media, data, dimensions) {
  * @param {kamposSceneData} data
  */
 function destroy (gl, data) {
-    const {program, vertexShader, fragmentShader, source, attributes} = data;
+    const {program, vertexShader, fragmentShader, source, attributes, extensions, vao} = data;
 
     // delete buffers
     (attributes || []).forEach(attr => gl.deleteBuffer(attr.buffer));
+
+    if ( vao )
+        extensions.vao.deleteVertexArrayOES(vao);
 
     // delete texture
     if ( source && source.texture )
@@ -294,20 +302,39 @@ function _initProgram (gl, effects, noSource=false) {
         throw new Error(`${type} error:: ${error}\n${fragmentSrc}`);
     }
 
+    let vaoExt, vao;
+    try {
+        vaoExt = gl.getExtension('OES_vertex_array_object');
+        vao = vaoExt.createVertexArrayOES();
+        vaoExt.bindVertexArrayOES(vao);
+    }
+    catch (e) {
+        // ignore
+    }
+
     // setup the vertex data
     const attributes = _initVertexAttributes(gl, program, data.attributes);
+
+    if ( vao ) {
+        _enableVertexAttributes(gl, attributes);
+        vaoExt.bindVertexArrayOES(null);
+    }
 
     // setup uniforms
     const uniforms = _initUniforms(gl, program, data.uniforms);
 
     return {
+        extensions: {
+            vao: vaoExt
+        },
         program,
         vertexShader,
         fragmentShader,
         source,
         attributes,
         uniforms,
-        textures: data.textures
+        textures: data.textures,
+        vao
     };
 }
 
@@ -597,10 +624,12 @@ function _getTextureWrap (key) {
  * @private
  * @typedef {Object} kamposSceneData
  * @property {WebGLProgram} program
+ * @property {{vao: OES_vertex_array_object?}} extensions
  * @property {WebGLShader} vertexShader
  * @property {WebGLShader} fragmentShader
  * @property {kamposTarget} source
  * @property {kamposAttribute[]} attributes
+ * @property {WebGLVertexArrayObjectOES} [vao]
  *
  * @typedef {Object} kamposTarget
  * @property {WebGLTexture} texture
