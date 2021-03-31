@@ -2174,10 +2174,13 @@ void main() {
         vertexShader,
         fragmentShader,
         source,
-        attributes
+        attributes,
+        extensions,
+        vao
       } = data; // delete buffers
 
-      (attributes || []).forEach(attr => gl.deleteBuffer(attr.buffer)); // delete texture
+      (attributes || []).forEach(attr => gl.deleteBuffer(attr.buffer));
+      if (vao) extensions.vao.deleteVertexArrayOES(vao); // delete texture
 
       if (source && source.texture) gl.deleteTexture(source.texture); // delete program
 
@@ -2542,10 +2545,12 @@ void main() {
      * @private
      * @typedef {Object} kamposSceneData
      * @property {WebGLProgram} program
+     * @property {{vao: OES_vertex_array_object?}} extensions
      * @property {WebGLShader} vertexShader
      * @property {WebGLShader} fragmentShader
      * @property {kamposTarget} source
      * @property {kamposAttribute[]} attributes
+     * @property {WebGLVertexArrayObjectOES} [vao]
      *
      * @typedef {Object} kamposTarget
      * @property {WebGLTexture} texture
