@@ -510,9 +510,9 @@
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">import</span> { Kampos, effects} <span class="hljs-keyword">from</span> <span class="hljs-string">'kampos'</span>;
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">import</span> { Kampos, effects} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;kampos&#x27;</span>;
 
-<span class="hljs-keyword">const</span> target = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#canvas'</span>);
+<span class="hljs-keyword">const</span> target = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;#canvas&#x27;</span>);
 <span class="hljs-keyword">const</span> hueSat = effects.hueSaturation();
 <span class="hljs-keyword">const</span> kampos = <span class="hljs-keyword">new</span> Kampos({target, <span class="hljs-attr">effects</span>: [hueSat]});</pre>
     
@@ -651,7 +651,7 @@ or after <a href="#kamposdestroy">Kampos#destroy</a>.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> media = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#video'</span>);
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> media = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;#video&#x27;</span>);
 kampos.setSource(media);</pre>
     
   
@@ -1963,7 +1963,6 @@ This will replace canvas DOM element with a fresh clone.</p>
   
 
   
-
     <div class='pre p1 fill-light mt0'>effects</div>
   
   
@@ -2092,7 +2091,6 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class='py1 quiet mt1 prose-big'>Returns</div>
       <code><a href="#brightnesscontrasteffect">brightnessContrastEffect</a></code>:
         
-
       
     
   
@@ -2223,7 +2221,6 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class='py1 quiet mt1 prose-big'>Returns</div>
       <code><a href="#huesaturationeffect">hueSaturationEffect</a></code>:
         
-
       
     
   
@@ -2336,7 +2333,6 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class='py1 quiet mt1 prose-big'>Returns</div>
       <code><a href="#blendeffect">blendEffect</a></code>:
         
-
       
     
   
@@ -2349,7 +2345,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>blend(<span class="hljs-string">'colorBurn'</span>)</pre>
+      <pre class='p1 overflow-auto round fill-light'>blend(<span class="hljs-string">&#x27;colorBurn&#x27;</span>)</pre>
     
   
 
@@ -2438,7 +2434,6 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class='py1 quiet mt1 prose-big'>Returns</div>
       <code><a href="#alphamaskeffect">alphaMaskEffect</a></code>:
         
-
       
     
   
@@ -2551,7 +2546,6 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class='py1 quiet mt1 prose-big'>Returns</div>
       <code><a href="#duotoneeffect">duotoneEffect</a></code>:
         
-
       
     
   
@@ -2690,7 +2684,6 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class='py1 quiet mt1 prose-big'>Returns</div>
       <code><a href="#displacementeffect">displacementEffect</a></code>:
         
-
       
     
   
@@ -2703,7 +2696,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>displacement({<span class="hljs-attr">wrap</span>: displacement.DISCARD, <span class="hljs-attr">scale</span>: {<span class="hljs-attr">x</span>: <span class="hljs-number">0.5</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">-0.5</span>}})</pre>
+      <pre class='p1 overflow-auto round fill-light'>displacement({<span class="hljs-attr">wrap</span>: displacement.DISCARD, <span class="hljs-attr">scale</span>: {<span class="hljs-attr">x</span>: <span class="hljs-number">0.5</span>, <span class="hljs-attr">y</span>: -<span class="hljs-number">0.5</span>}})</pre>
     
   
 
@@ -2868,7 +2861,6 @@ This will replace canvas DOM element with a fresh clone.</p>
       <div class='py1 quiet mt1 prose-big'>Returns</div>
       <code><a href="#turbulenceeffect">turbulenceEffect</a></code>:
         
-
       
     
   
@@ -3162,7 +3154,7 @@ effect.saturation = <span class="hljs-number">0.8</span>;</pre>
     
       
       <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> Image();
-img.src = <span class="hljs-string">'picture.png'</span>;
+img.src = <span class="hljs-string">&#x27;picture.png&#x27;</span>;
 effect.color = [<span class="hljs-number">0.3</span>, <span class="hljs-number">0.55</span>, <span class="hljs-number">0.8</span>, <span class="hljs-number">1.0</span>];
 effect.image = img;</pre>
     
@@ -3249,7 +3241,7 @@ effect.image = img;</pre>
     
       
       <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> Image();
-img.src = <span class="hljs-string">'picture.png'</span>;
+img.src = <span class="hljs-string">&#x27;picture.png&#x27;</span>;
 effect.mask = img;
 effect.disabled = <span class="hljs-literal">true</span>;</pre>
     
@@ -3421,7 +3413,7 @@ effect.dark = [<span class="hljs-number">0.2</span>, <span class="hljs-number">0
     
       
       <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> Image();
-img.src = <span class="hljs-string">'disp.jpg'</span>;
+img.src = <span class="hljs-string">&#x27;disp.jpg&#x27;</span>;
 effect.map = img;
 effect.scale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.4</span>};</pre>
     
@@ -3540,7 +3532,6 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
   
 
   
-
     <div class='pre p1 fill-light mt0'>transitions</div>
   
   
@@ -3601,7 +3592,6 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
       <div class='py1 quiet mt1 prose-big'>Returns</div>
       <code><a href="#fadetransitioneffect">fadeTransitionEffect</a></code>:
         
-
       
     
   
@@ -3676,7 +3666,6 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
       <div class='py1 quiet mt1 prose-big'>Returns</div>
       <code><a href="#displacementtransitioneffect">displacementTransitionEffect</a></code>:
         
-
       
     
   
@@ -3789,7 +3778,6 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
       <div class='py1 quiet mt1 prose-big'>Returns</div>
       <code><a href="#dissolvetransitioneffect">dissolveTransitionEffect</a></code>:
         
-
       
     
   
@@ -3901,7 +3889,7 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>effect.to = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#video-to'</span>);
+      <pre class='p1 overflow-auto round fill-light'>effect.to = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;#video-to&#x27;</span>);
 effect.progress = <span class="hljs-number">0.5</span>;</pre>
     
   
@@ -4009,9 +3997,9 @@ effect.progress = <span class="hljs-number">0.5</span>;</pre>
     
       
       <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> Image();
-img.src = <span class="hljs-string">'disp.jpg'</span>;
+img.src = <span class="hljs-string">&#x27;disp.jpg&#x27;</span>;
 effect.map = img;
-effect.to = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#video-to'</span>);
+effect.to = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;#video-to&#x27;</span>);
 effect.sourceScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.4</span>};
 effect.toScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.8</span>};</pre>
     
@@ -4081,24 +4069,21 @@ effect.toScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.
       
         <div class='space-bottom0'>
           <span class='code bold'>low</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
-          : lower edge of intersection step, in range 
-[0.0, 1.0]
+          : lower edge of intersection step, in range [0.0, 1.0]
 
           
         </div>
       
         <div class='space-bottom0'>
           <span class='code bold'>high</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
-          : higher edge of intersection step, in range 
-[0.0, 1.0]
+          : higher edge of intersection step, in range [0.0, 1.0]
 
           
         </div>
       
         <div class='space-bottom0'>
           <span class='code bold'>progress</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
-          : number in range 
-[0.0, 1.0]
+          : number in range [0.0, 1.0]
 
           
         </div>
@@ -4123,9 +4108,9 @@ effect.toScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.
     
       
       <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> Image();
-img.src = <span class="hljs-string">'dissolve.jpg'</span>;
+img.src = <span class="hljs-string">&#x27;dissolve.jpg&#x27;</span>;
 effect.map = img;
-effect.to = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">'#video-to'</span>);
+effect.to = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;#video-to&#x27;</span>);
 effect.progress = <span class="hljs-number">0.5</span>;</pre>
     
   

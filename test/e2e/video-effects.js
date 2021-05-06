@@ -83,7 +83,10 @@ async function initVideo (t, src, dims) {
             });
         }
 
-        return _initVideo().then(() => video.pause());
+        return _initVideo().then(() => {
+            video.pause();
+            video.currentTIme = 1;
+        });
     }, source, src, dims);
 }
 
@@ -219,7 +222,7 @@ function takeScreenshot (page, filename, clip = {}) {
     });
 }
 
-async function getDiffPixels (t, canvasDims, canvasPos, threshold = 0.018) {
+async function getDiffPixels (t, canvasDims, canvasPos, threshold = 0.14) {
     const page = t.context.page;
     const {width, height} = canvasDims;
     const testFilePrefix = getTestFilenamePrefix(t);
@@ -306,13 +309,13 @@ test.serial('brightness 1.0', async t => {
     t.is(diffPixels, 0);
 });
 
-test.serial('brightness 2.0', async t => {
+test.serial('brightness 1.5', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawEffect(t, getBrightnessFilter(2.0),
-        [{name: 'brightnessContrast', setter: 'brightness', value: 2.0}], SIMPLE_VIDEO_CANVAS_DIMS);
+    await drawEffect(t, getBrightnessFilter(1.5),
+        [{name: 'brightnessContrast', setter: 'brightness', value: 1.5}], SIMPLE_VIDEO_CANVAS_DIMS);
 
-    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS, 0.2);
 
     t.is(diffPixels, 0);
 });
@@ -339,13 +342,13 @@ test.serial('contrast 1.0', async t => {
     t.is(diffPixels, 0);
 });
 
-test.serial('contrast 2.0', async t => {
+test.serial('contrast 1.5', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawEffect(t, getContrastFilter(2.0),
-        [{name: 'brightnessContrast', setter: 'contrast', value: 2.0}], SIMPLE_VIDEO_CANVAS_DIMS);
+    await drawEffect(t, getContrastFilter(1.5),
+        [{name: 'brightnessContrast', setter: 'contrast', value: 1.5}], SIMPLE_VIDEO_CANVAS_DIMS);
 
-    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS, 0.2);
 
     t.is(diffPixels, 0);
 });
@@ -439,13 +442,13 @@ test.serial('saturate 0.0', async t => {
     t.is(diffPixels, 0);
 });
 
-test.serial('saturate 2.5', async t => {
+test.serial('saturate 1.5', async t => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
-    await drawEffect(t, getSaturateFilter(2.5),
-        [{name: 'hueSaturation', setter: 'saturation', value: 2.5}], SIMPLE_VIDEO_CANVAS_DIMS);
+    await drawEffect(t, getSaturateFilter(1.5),
+        [{name: 'hueSaturation', setter: 'saturation', value: 1.5}], SIMPLE_VIDEO_CANVAS_DIMS);
 
-    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
+    const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS, 0.2);
 
     t.is(diffPixels, 0);
 });

@@ -2820,8 +2820,11 @@ void main() {
             height: dims.height
           };
         } else {
-          this.config.target.removeEventListener('webglcontextlost', this._loseContext, true);
-          this.config.target.removeEventListener('webglcontextcreationerror', this._contextCreationError, false);
+          if (this.config) {
+            this.config.target.removeEventListener('webglcontextlost', this._loseContext, true);
+            this.config.target.removeEventListener('webglcontextcreationerror', this._contextCreationError, false);
+          }
+
           this.config = null;
           this.dimensions = null;
         }

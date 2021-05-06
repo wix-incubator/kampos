@@ -273,6 +273,119 @@ describe('kampos', function() {
         });
     });
 
+    describe('Kampos#destroy', function () {
+        let canvas, instance, video;
+
+        beforeEach(function () {
+            canvas = document.createElement('canvas');
+            video = document.createElement('video');
+        });
+
+        it('should stop a started animation loop', function () {
+            instance = new Kampos({target: canvas, effects: [brightnessContrast]});
+            const stop = instance.stop;
+            let stopCalls = 0;
+
+            instance.stop = () => {
+                stopCalls++;
+                stop.call(instance);
+            }
+
+            assert(instance);
+            assert(instance.gl instanceof WebGLRenderingContext);
+            assert(instance.data);
+
+            instance.setSource(video);
+            assert(instance.media instanceof HTMLVideoElement);
+
+            instance.play();
+
+            assert(instance.animationFrameId);
+
+            instance.destroy();
+
+            assert(stopCalls === 1);
+        });
+
+        it('keepState=false :: should delete all cached objects on the instance', function () {
+            instance = new Kampos({target: canvas, effects: [brightnessContrast]});
+
+            assert(instance);
+            assert(instance.gl instanceof WebGLRenderingContext);
+            assert(instance.data);
+
+            instance.setSource(video);
+            assert(instance.media instanceof HTMLVideoElement);
+
+            instance.play();
+
+            assert(instance.animationFrameId);
+
+            instance.destroy(false);
+
+            assert(instance._source == null);
+            assert(instance.dimensions === null);
+            assert(instance.data === null);
+            assert(instance.config === null);
+            assert(instance.gl === null);
+            assert(instance.media === null);
+        });
+
+        it('keepState=true :: should delete all BUT keep _source, dimensions, & config', function () {
+            instance = new Kampos({target: canvas, effects: [brightnessContrast]});
+            const config = instance.config;
+
+            assert(instance);
+            assert(instance.gl instanceof WebGLRenderingContext);
+            assert(instance.data);
+
+            instance.setSource({media: video, width: 640, height: 480});
+            assert(instance.media instanceof HTMLVideoElement);
+
+            const dimensions = instance.dimensions;
+
+            instance.play();
+
+            assert(instance.animationFrameId);
+
+            instance.destroy(true);
+
+            assert(instance.data === null);
+            assert(instance.gl === null);
+            assert(instance.media === null);
+            assert(instance.config === config);
+            assert(instance.dimensions === dimensions);
+            assert(instance._source.media);
+            assert(instance._source.width);
+            assert(instance._source.height);
+        });
+
+        it('should not throw if called more than once', function () {
+            instance = new Kampos({target: canvas, effects: [brightnessContrast]});
+            const config = instance.config;
+            const dimensions = instance.dimensions;
+
+            assert(instance);
+            assert(instance.gl instanceof WebGLRenderingContext);
+            assert(instance.data);
+
+            instance.setSource(video);
+            assert(instance.media instanceof HTMLVideoElement);
+
+            instance.play();
+
+            assert(instance.animationFrameId);
+
+            instance.destroy(false);
+            instance.destroy(false);
+        });
+
+        afterEach(function () {
+            canvas = null;
+            video = null;
+        });
+    });
+
     describe('Kampos#restoreContext', function () {
         let canvas, instance, video;
 

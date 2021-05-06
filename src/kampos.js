@@ -262,12 +262,13 @@ export default class Kampos {
             };
         }
         else {
-            this.config.target.removeEventListener('webglcontextlost', this._loseContext, true);
-            this.config.target.removeEventListener('webglcontextcreationerror', this._contextCreationError, false);
+            if (this.config) {
+                this.config.target.removeEventListener('webglcontextlost', this._loseContext, true);
+                this.config.target.removeEventListener('webglcontextcreationerror', this._contextCreationError, false);
+            }
 
             this.config = null;
             this.dimensions = null;
-
         }
 
         this.gl = null;

@@ -1,3 +1,9 @@
+### 0.5.2 (2021-05-07)
+
+*Fixed:*
+
+- Fixed error when called `desotry()` more than once.
+
 ### 0.5.1 (2021-03-26)
 
 *New:*
