@@ -1,3 +1,14 @@
+### 0.6.0 (2021-06-29)
+
+*New:*
+
+- Added support for simple plane geometry using new `plane: {segments: number | {x: number, y: number}}`config.
+- Added `extends: string` property to attribute config which takes a name of an attribute to extend its properties for simplifying coords attribute creation.
+
+*Fixed:*
+
+- Fixed shader error reporting to correctly report vertex shader errors.
+
 ### 0.5.2 (2021-05-07)
 
 *Fixed:*
