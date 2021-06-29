@@ -99,9 +99,7 @@
         }],
         attributes: [{
           name: 'a_alphaMaskTexCoord',
-          data: new Float32Array([0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
-          size: 2,
-          type: 'FLOAT'
+          extends: 'a_texCoord'
         }],
         textures: [{
           format: isLuminance ? 'RGBA' : 'ALPHA'
@@ -443,9 +441,7 @@ ${MODES_CONSTANT[mode]}`,
         }],
         attributes: [{
           name: 'a_blendImageTexCoord',
-          data: new Float32Array([0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
-          size: 2,
-          type: 'FLOAT'
+          extends: 'a_texCoord'
         }],
         textures: [{
           format: 'RGBA'
@@ -888,9 +884,7 @@ const mat3 satmat = mat3(
         }],
         attributes: [{
           name: 'a_displacementMapTexCoord',
-          data: new Float32Array([0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
-          size: 2,
-          type: 'FLOAT'
+          extends: 'a_texCoord'
         }],
         textures: [{
           format: 'RGB'
@@ -1517,9 +1511,7 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         }],
         attributes: [{
           name: 'a_transitionToTexCoord',
-          data: new Float32Array([0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
-          size: 2,
-          type: 'FLOAT'
+          extends: 'a_texCoord'
         }],
         textures: [{
           format: 'RGBA',
@@ -1713,14 +1705,10 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         }],
         attributes: [{
           name: 'a_transitionToTexCoord',
-          data: new Float32Array([0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
-          size: 2,
-          type: 'FLOAT'
+          extends: 'a_texCoord'
         }, {
           name: 'a_transitionDispMapTexCoord',
-          data: new Float32Array([0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
-          size: 2,
-          type: 'FLOAT'
+          extends: 'a_texCoord'
         }],
         textures: [{
           format: 'RGBA',
@@ -1872,14 +1860,10 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         }],
         attributes: [{
           name: 'a_transitionToTexCoord',
-          data: new Float32Array([0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
-          size: 2,
-          type: 'FLOAT'
+          extends: 'a_texCoord'
         }, {
           name: 'a_transitionDissolveMapTexCoord',
-          data: new Float32Array([0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
-          size: 2,
-          type: 'FLOAT'
+          extends: 'a_texCoord'
         }],
         textures: [{
           format: 'RGBA',
@@ -1994,12 +1978,17 @@ void main() {
       repeat: 'REPEAT',
       mirror: 'MIRRORED_REPEAT'
     };
+    const SHADER_ERROR_TYPES = {
+      vertex: 'VERTEX',
+      fragment: 'FRAGMENT'
+    };
     /**
      * Initialize a compiled WebGLProgram for the given canvas and effects.
      *
      * @private
      * @param {Object} config
      * @param {WebGLRenderingContext} config.gl
+     * @param {Object} config.plane
      * @param {Object[]} config.effects
      * @param {{width: number, heignt: number}} [config.dimensions]
      * @param {boolean} [config.noSource]
@@ -2008,11 +1997,12 @@ void main() {
 
     function init({
       gl,
+      plane,
       effects,
       dimensions,
       noSource
     }) {
-      const programData = _initProgram(gl, effects, noSource);
+      const programData = _initProgram(gl, plane, effects, noSource);
 
       return {
         gl,
@@ -2099,13 +2089,14 @@ void main() {
      *
      * @private
      * @param {WebGLRenderingContext} gl
+     * @param {planeConfig} plane
      * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} media
      * @param {kamposSceneData} data
      * @param {{width: number, height: number}} dimensions
      */
 
 
-    function draw(gl, media, data, dimensions) {
+    function draw(gl, plane = {}, media, data, dimensions) {
       const {
         program,
         source,
@@ -2115,6 +2106,10 @@ void main() {
         extensions,
         vao
       } = data;
+      const {
+        xSegments = 1,
+        ySegments = 1
+      } = plane;
 
       if (media && source && source.texture) {
         // bind the source texture
@@ -2157,7 +2152,7 @@ void main() {
       } // Draw the rectangles
 
 
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      gl.drawArrays(gl.TRIANGLES, 0, 6 * xSegments * ySegments);
     }
     /**
      * Free all resources attached to a specific webgl context.
@@ -2190,7 +2185,7 @@ void main() {
       gl.deleteShader(fragmentShader);
     }
 
-    function _initProgram(gl, effects, noSource = false) {
+    function _initProgram(gl, plane, effects, noSource = false) {
       const source = noSource ? null : {
         texture: createTexture(gl).texture,
         buffer: null
@@ -2202,7 +2197,7 @@ void main() {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
       }
 
-      const data = _mergeEffectsData(effects, noSource);
+      const data = _mergeEffectsData(plane, effects, noSource);
 
       const vertexSrc = _stringifyShaderSrc(data.vertex, noSource ? vertexSimpleTemplate : vertexMediaTemplate);
 
@@ -2218,7 +2213,7 @@ void main() {
       } = _getWebGLProgram(gl, vertexSrc, fragmentSrc);
 
       if (error) {
-        throw new Error(`${type} error:: ${error}\n${fragmentSrc}`);
+        throw new Error(`${type} error:: ${error}\n${type === SHADER_ERROR_TYPES.fragment ? fragmentSrc : vertexSrc}`);
       }
 
       let vaoExt, vao;
@@ -2257,7 +2252,7 @@ void main() {
       };
     }
 
-    function _mergeEffectsData(effects, noSource = false) {
+    function _mergeEffectsData(plane, effects, noSource = false) {
       return effects.reduce((result, config) => {
         const {
           attributes = [],
@@ -2279,7 +2274,7 @@ void main() {
         merge('vertex');
         merge('fragment');
         attributes.forEach(attribute => {
-          const found = result.attributes.some((attr, n) => {
+          const found = result.attributes.some(attr => {
             if (attr.name === attribute.name) {
               Object.assign(attr, attribute);
               return true;
@@ -2290,15 +2285,67 @@ void main() {
             result.attributes.push(attribute);
           }
         });
+        result.attributes.forEach(attr => {
+          if (attr.extends) {
+            const found = result.attributes.some(attrToExtend => {
+              if (attrToExtend.name === attr.extends) {
+                Object.assign(attr, attrToExtend, {
+                  name: attr.name
+                });
+                return true;
+              }
+            });
+
+            if (!found) {
+              throw new Error(`Could not find attribute ${attr.extends} to extend`);
+            }
+          }
+        });
         result.uniforms.push(...uniforms);
         result.textures.push(...textures);
         Object.assign(result.vertex.varying, varying);
         Object.assign(result.fragment.varying, varying);
         return result;
-      }, getEffectDefaults(noSource));
+      }, getEffectDefaults(plane, noSource));
     }
 
-    function getEffectDefaults(noSource) {
+    function _getPlaneCoords({
+      xEnd,
+      yEnd,
+      factor
+    }, plane = {}) {
+      const {
+        xSegments = 1,
+        ySegments = 1
+      } = plane;
+      const result = [];
+
+      for (let i = 0; i < xSegments; i++) {
+        for (let j = 0; j < ySegments; j++) {
+          /* A */
+          result.push(xEnd * i / xSegments - factor, yEnd * j / ySegments - factor);
+          /* B */
+
+          result.push(xEnd * i / xSegments - factor, yEnd * (j + 1) / ySegments - factor);
+          /* C */
+
+          result.push(xEnd * (i + 1) / xSegments - factor, yEnd * j / ySegments - factor);
+          /* D */
+
+          result.push(xEnd * (i + 1) / xSegments - factor, yEnd * j / ySegments - factor);
+          /* E */
+
+          result.push(xEnd * i / xSegments - factor, yEnd * (j + 1) / ySegments - factor);
+          /* F */
+
+          result.push(xEnd * (i + 1) / xSegments - factor, yEnd * (j + 1) / ySegments - factor);
+        }
+      }
+
+      return result;
+    }
+
+    function getEffectDefaults(plane, noSource) {
       /*
        * Default uniforms
        */
@@ -2313,7 +2360,11 @@ void main() {
 
       const attributes = [{
         name: 'a_position',
-        data: new Float32Array([-1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]),
+        data: new Float32Array(_getPlaneCoords({
+          xEnd: 2,
+          yEnd: 2,
+          factor: 1
+        }, plane)),
         size: 2,
         type: 'FLOAT'
       }];
@@ -2321,7 +2372,11 @@ void main() {
       if (!noSource) {
         attributes.push({
           name: 'a_texCoord',
-          data: new Float32Array([0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
+          data: new Float32Array(_getPlaneCoords({
+            xEnd: 1,
+            yEnd: 1,
+            factor: 0
+          }, plane)),
           size: 2,
           type: 'FLOAT'
         });
@@ -2416,7 +2471,7 @@ void main() {
 
       const exception = {
         error: gl.getShaderInfoLog(shader),
-        type: type === gl.VERTEX_SHADER ? 'VERTEX' : 'FRAGMENT'
+        type: type === gl.VERTEX_SHADER ? SHADER_ERROR_TYPES.vertex : SHADER_ERROR_TYPES.fragment
       };
       gl.deleteShader(shader);
       return exception;
@@ -2652,6 +2707,7 @@ void main() {
         config = config || this.config;
         let {
           target,
+          plane,
           effects,
           ticker,
           noSource
@@ -2670,9 +2726,21 @@ void main() {
         }
 
         const {
+          x: xSegments = 1,
+          y: ySegments = 1
+        } = plane && plane.segments ? typeof plane.segments === 'object' ? plane.segments : {
+          x: plane.segments,
+          y: plane.segments
+        } : {};
+        this.plane = {
+          xSegments,
+          ySegments
+        };
+        const {
           data
         } = core.init({
           gl,
+          plane: this.plane,
           effects,
           dimensions: this.dimensions,
           noSource
@@ -2748,7 +2816,7 @@ void main() {
 
         const cb = this.config.beforeDraw;
         if (cb && cb(time) === false) return;
-        core.draw(this.gl, this.media, this.data, this.dimensions);
+        core.draw(this.gl, this.plane, this.media, this.data, this.dimensions);
       }
       /**
        * Starts the animation loop.
@@ -2885,6 +2953,7 @@ void main() {
      * @typedef {Object} kamposConfig
      * @property {HTMLCanvasElement} target
      * @property {effectConfig[]} effects
+     * @property {planeConfig} plane
      * @property {Ticker} [ticker]
      * @property {boolean} [noSource]
      * @property {function} [beforeDraw] function to run before each draw call. If it returns `false` {@link kampos#draw} will not be called.
@@ -2911,6 +2980,11 @@ void main() {
      */
 
     /**
+     * @typedef {Object} planeConfig
+     * @property {number|{x: number: y: number}} segments
+     */
+
+    /**
      * @typedef {Object} shaderConfig
      * @property {string} [main]
      * @property {string} [source]
@@ -2929,8 +3003,9 @@ void main() {
 
     /**
      * @typedef {Object} Attribute
-     * @property {string} name
-     * @property {number} size
+     * @property {string} extends name of another attribute to extend
+     * @property {string} name name of attribute to use inside the shader
+     * @property {number} size attribute size - number of elements to read on each iteration
      * @property {string} type
      * @property {ArrayBufferView} data
      */

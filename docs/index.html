@@ -447,6 +447,16 @@
                 
                 </li>
               
+                
+                <li><a
+                  href='#planeconfig'
+                  class="">
+                  planeConfig
+                  
+                </a>
+                
+                </li>
+              
             </ul>
           </div>
           <div class='mt1 h6 quiet'>
@@ -1366,6 +1376,12 @@ This will replace canvas DOM element with a fresh clone.</p>
         </div>
       
         <div class='space-bottom0'>
+          <span class='code bold'>plane</span> <code class='quiet'>(<a href="#planeconfig">planeConfig</a>)</code>
+          
+          
+        </div>
+      
+        <div class='space-bottom0'>
           <span class='code bold'>ticker</span> <code class='quiet'>(<a href="#ticker">Ticker</a>?)</code>
           
           
@@ -1729,14 +1745,23 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div>
       
         <div class='space-bottom0'>
-          <span class='code bold'>name</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          <span class='code bold'>extends</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : name of another attribute to extend
+
           
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>name</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : name of attribute to use inside the shader
+
           
         </div>
       
         <div class='space-bottom0'>
           <span class='code bold'>size</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
-          
+          : attribute size - number of elements to read on each iteration
+
           
         </div>
       
@@ -1813,7 +1838,8 @@ This will replace canvas DOM element with a fresh clone.</p>
       
         <div class='space-bottom0'>
           <span class='code bold'>name</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
-          
+          : name of the uniform to be used in the shader
+
           
         </div>
       
@@ -4243,6 +4269,60 @@ effect.progress = <span class="hljs-number">0.5</span>;</pre>
   <p>Implementation of a 3D Simplex noise. Exposes a <code>noise(vec3 v)</code> function for use inside fragment shaders.</p>
 
     <div class='pre p1 fill-light mt0'>simplex-3d</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='planeconfig'>
+      planeConfig
+    </h3>
+    
+    
+  </div>
+  
+
+  
+    <div class='pre p1 fill-light mt0'>planeConfig</div>
+  
+    <p>
+      Type:
+      <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>
+    </p>
   
   
 

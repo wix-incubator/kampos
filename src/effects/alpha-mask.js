@@ -89,13 +89,7 @@ export default function ({isLuminance = false} = {}) {
         attributes: [
             {
                 name: 'a_alphaMaskTexCoord',
-                data: new Float32Array([
-                    0.0, 0.0,
-                    0.0, 1.0,
-                    1.0, 0.0,
-                    1.0, 1.0]),
-                size: 2,
-                type: 'FLOAT'
+                extends: 'a_texCoord'
             }
         ],
         textures: [

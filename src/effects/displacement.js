@@ -95,13 +95,7 @@ function displacement ({
         attributes: [
             {
                 name: 'a_displacementMapTexCoord',
-                data: new Float32Array([
-                    0.0, 0.0,
-                    0.0, 1.0,
-                    1.0, 0.0,
-                    1.0, 1.0]),
-                size: 2,
-                type: 'FLOAT'
+                extends: 'a_texCoord'
             }
         ],
         textures: [

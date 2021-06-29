@@ -93,7 +93,7 @@ export default class Kampos {
      */
     init (config) {
         config = config || this.config;
-        let {target, effects, ticker, noSource} = config;
+        let {target, plane, effects, ticker, noSource} = config;
 
         if ( Kampos.preventContextCreation )
             return false;
@@ -118,7 +118,17 @@ export default class Kampos {
                 return false;
         }
 
-        const {data} = core.init({gl, effects, dimensions: this.dimensions, noSource});
+        const {x: xSegments = 1, y: ySegments = 1} = plane && plane.segments
+            ? typeof plane.segments === 'object'
+                ? plane.segments
+                : {x: plane.segments, y: plane.segments}
+            : {};
+        this.plane = {
+            xSegments,
+            ySegments
+        };
+
+        const {data} = core.init({gl, plane: this.plane, effects, dimensions: this.dimensions, noSource});
 
         this.gl = gl;
         this.data = data;
@@ -189,7 +199,7 @@ export default class Kampos {
         if ( cb && cb(time) === false )
             return;
 
-        core.draw(this.gl, this.media, this.data, this.dimensions);
+        core.draw(this.gl, this.plane, this.media, this.data, this.dimensions);
     }
 
     /**
@@ -331,6 +341,7 @@ export default class Kampos {
  * @typedef {Object} kamposConfig
  * @property {HTMLCanvasElement} target
  * @property {effectConfig[]} effects
+ * @property {planeConfig} plane
  * @property {Ticker} [ticker]
  * @property {boolean} [noSource]
  * @property {function} [beforeDraw] function to run before each draw call. If it returns `false` {@link kampos#draw} will not be called.
@@ -357,6 +368,11 @@ export default class Kampos {
  */
 
 /**
+ * @typedef {Object} planeConfig
+ * @property {number|{x: number: y: number}} segments
+ */
+
+/**
  * @typedef {Object} shaderConfig
  * @property {string} [main]
  * @property {string} [source]
@@ -375,15 +391,16 @@ export default class Kampos {
 
 /**
  * @typedef {Object} Attribute
- * @property {string} name
- * @property {number} size
+ * @property {string} extends name of another attribute to extend
+ * @property {string} name name of attribute to use inside the shader
+ * @property {number} size attribute size - number of elements to read on each iteration
  * @property {string} type
  * @property {ArrayBufferView} data
  */
 
 /**
  * @typedef {Object} Uniform
- * @property {string} name
+ * @property {string} name name of the uniform to be used in the shader
  * @property {number} [size] defaults to `data.length`
  * @property {string} type
  * @property {Array} data

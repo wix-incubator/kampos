@@ -53,148 +53,82 @@
             insertSection(id);
         });
 
+    function startDemo (script, ids) {
+        const code = document.querySelector(`#${ids.code}`);
+        const preview = document.querySelector(`#${ids.preview}`);
+        const video = document.querySelector(`#${ids.video}`);
+        const refresh = document.querySelector(`#${ids.refresh}`);
+
+        fetch(script)
+            .then(resp => resp.text())
+            .then(text => {
+                code.value = text;
+                const doc = CodeMirror.fromTextArea(code, {
+                    value: text,
+                    lineNumbers: true,
+                    theme: 'dracula'
+                });
+
+                const update = () => updatePreview(preview, doc.getValue(), video ? video.innerHTML : '');
+
+                refresh.addEventListener('click', update);
+
+                update();
+            });
+    }
+
     const sectionScripts = {
         section1 () {
-            const text1 = document.querySelector('#code1');
-            const preview1 = document.querySelector('#preview1');
-            const videos1 = document.querySelector('#videos1');
-            const refresh1 = document.querySelector('#refresh1');
-
-            fetch('./turbulence.js')
-                .then(resp => resp.text())
-                .then(text => {
-                    text1.value = text;
-                    const doc = CodeMirror.fromTextArea(text1, {
-                        value: text,
-                        lineNumbers: true,
-                        theme: 'dracula'
-                    });
-
-                    const update = () => updatePreview(preview1, doc.getValue(), videos1.innerHTML);
-
-                    refresh1.addEventListener('click', update);
-
-                    update();
-                });
+            startDemo('./turbulence.js', {
+                code: 'code1',
+                preview: 'preview1',
+                video: 'videos1',
+                refresh: 'refresh1'
+            });
         },
 
         section2 () {
-            const text2 = document.querySelector('#code2');
-            const preview2 = document.querySelector('#preview2');
-            const videos2 = document.querySelector('#videos2');
-            const refresh2 = document.querySelector('#refresh2');
-
-            fetch('./hue-fade.js')
-                .then(resp => resp.text())
-                .then(text => {
-                    text2.value = text;
-                    const doc = CodeMirror.fromTextArea(text2, {
-                        value: text,
-                        lineNumbers: true,
-                        theme: 'dracula'
-                    });
-
-                    const update = () => updatePreview(preview2, doc.getValue(), videos2.innerHTML);
-
-                    refresh2.addEventListener('click', update);
-
-                    update();
-                });
+            startDemo('./hue-fade.js', {
+                code: 'code2',
+                preview: 'preview2',
+                video: 'videos2',
+                refresh: 'refresh2'
+            });
         },
 
         section3 () {
-            const text3 = document.querySelector('#code3');
-            const preview3 = document.querySelector('#preview3');
-            const videos3 = document.querySelector('#videos3');
-            const refresh3 = document.querySelector('#refresh3');
-
-            fetch('./disp.js')
-                .then(resp => resp.text())
-                .then(text => {
-                    text3.value = text;
-                    const doc = CodeMirror.fromTextArea(text3, {
-                        value: text,
-                        lineNumbers: true,
-                        theme: 'dracula'
-                    });
-
-                    const update = () => updatePreview(preview3, doc.getValue(), videos3.innerHTML);
-
-                    refresh3.addEventListener('click', update);
-
-                    update();
-                });
+            startDemo('./disp.js', {
+                code: 'code3',
+                preview: 'preview3',
+                video: 'videos3',
+                refresh: 'refresh3'
+            });
         },
 
         section4 () {
-            const text4 = document.querySelector('#code4');
-            const preview4 = document.querySelector('#preview4');
-            const videos4 = document.querySelector('#videos4');
-            const refresh4 = document.querySelector('#refresh4');
-
-            fetch('./duotone.js')
-                .then(resp => resp.text())
-                .then(text => {
-                    text4.value = text;
-                    const doc = CodeMirror.fromTextArea(text4, {
-                        value: text,
-                        lineNumbers: true,
-                        theme: 'dracula'
-                    });
-
-                    const update = () => updatePreview(preview4, doc.getValue(), videos4.innerHTML);
-
-                    refresh4.addEventListener('click', update);
-
-                    update();
-                });
+            startDemo('./duotone.js', {
+                code: 'code4',
+                preview: 'preview4',
+                video: 'videos4',
+                refresh: 'refresh4'
+            });
         },
 
         section5 () {
-            const text5 = document.querySelector('#code5');
-            const preview5 = document.querySelector('#preview5');
-            const refresh5 = document.querySelector('#refresh5');
-
-            fetch('./cellular-noise.js')
-                .then(resp => resp.text())
-                .then(text => {
-                    text5.value = text;
-                    const doc = CodeMirror.fromTextArea(text5, {
-                        value: text,
-                        lineNumbers: true,
-                        theme: 'dracula'
-                    });
-
-                    const update = () => updatePreview(preview5, doc.getValue(), '');
-
-                    refresh5.addEventListener('click', update);
-
-                    update();
-                });
+            startDemo('./cellular-noise.js', {
+                code: 'code5',
+                preview: 'preview5',
+                refresh: 'refresh5'
+            });
         },
 
         section6() {
-            const text6 = document.querySelector('#code6');
-            const preview6 = document.querySelector('#preview6');
-            const videos2 = document.querySelector('#videos2');
-            const refresh6 = document.querySelector('#refresh6');
-
-            fetch('./dissolve-transition.js')
-                .then(resp => resp.text())
-                .then(text => {
-                    text6.value = text;
-                    const doc = CodeMirror.fromTextArea(text6, {
-                        value: text,
-                        lineNumbers: true,
-                        theme: 'dracula'
-                    });
-
-                    const update = () => updatePreview(preview6, doc.getValue(), videos2.innerHTML);
-
-                    refresh6.addEventListener('click', update);
-
-                    update();
-                });
+            startDemo('./dissolve-transition.js', {
+                code: 'code6',
+                preview: 'preview6',
+                video: 'videos2',
+                refresh: 'refresh6'
+            });
         }
     };
 
