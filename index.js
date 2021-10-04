@@ -3012,7 +3012,7 @@ void main() {
 
     /**
      * @typedef {Object} Uniform
-     * @property {string} name
+     * @property {string} name name of the uniform to be used in the shader
      * @property {number} [size] defaults to `data.length`
      * @property {string} type
      * @property {Array} data

@@ -13,6 +13,7 @@
             body, html {margin: 0; height: 100%; overflow: hidden;}
             canvas {width: 100%; height: 100%;}
             video {display: none;}
+            .clickable {cursor: pointer;}
         </style>
         <script src="../index.js"></script>
         <script src="./utils.js"></script>
@@ -129,9 +130,18 @@
                 video: 'videos2',
                 refresh: 'refresh6'
             });
+        },
+
+        section7() {
+            startDemo('./dissolve-gallery.js', {
+                code: 'code7',
+                preview: 'preview7',
+                video: 'none',
+                refresh: 'refresh7'
+            });
         }
     };
 
-    insertSection('section6');
+    insertSection('section7');
 
 }());

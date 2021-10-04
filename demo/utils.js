@@ -5,6 +5,7 @@
 function loadImage (src) {
     return new Promise(resolve => {
         const img = new Image();
+        img.crossOrigin = 'anonymous';
 
         img.onload = function () {
             resolve(this);
