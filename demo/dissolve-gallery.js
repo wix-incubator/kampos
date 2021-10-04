@@ -98,7 +98,7 @@ Promise.all([
             instance.play(function draw () {
                 const time = performance.now() - start;
 
-                /* this is invoked once in every animation frame, while the mouse over the canvas */
+                /* this is invoked once in every animation frame */
                 if (DYNAMIC) {
                     turbulence.time = time * 2;
                     dissolveMap.draw();
