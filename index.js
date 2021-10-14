@@ -1769,7 +1769,9 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
           main: `
     if (u_transitionEnabled) {
         vec4 targetPixel = texture2D(u_transitionTo, v_transitionToTexCoord);
-        vec4 transDissolveMap = texture2D(u_transitionDissolveMap, v_transitionDissolveMapTexCoord);
+        vec3 transDissolveMapColor = texture2D(u_transitionDissolveMap, v_transitionDissolveMapTexCoord).rgb;
+        float transDissolveMapAlpha = dot(transDissolveMapColor, lumcoeff);
+        vec4 transDissolveMap = vec4(transDissolveMapColor, transDissolveMapAlpha);
 
         float edgeDelta = u_dissolveHighEdge - u_dissolveLowEdge;
         float dissolveProgress = u_transitionProgress * (1.0 + edgeDelta);
@@ -1869,7 +1871,7 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
           format: 'RGBA',
           update: true
         }, {
-          format: 'RGBA',
+          format: 'RGB',
           update: false
         }]
       };
