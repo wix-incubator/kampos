@@ -108,7 +108,7 @@ Promise.all([
                 const progress = easeOutCubic(time * (DYNAMIC ? 2e-4 : 4e-4));
                 dissolve.progress = progress;
 
-                if (progress * 100 >= 99) {
+                if (progress * 100 >= 99.9) {
                     instance.stop();
 
                     // bind the event again

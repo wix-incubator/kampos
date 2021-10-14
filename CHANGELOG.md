@@ -1,3 +1,9 @@
+### 0.6.1 (2021-10-14)
+
+*Fixed:*
+
+- Fixed dissolve transition to take alpha channel progress from the luminance of the map.
+
 ### 0.6.0 (2021-06-29)
 
 *New:*
