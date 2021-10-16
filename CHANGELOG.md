@@ -1,3 +1,9 @@
+### 0.7.0 (2021-10-16)
+
+*New:*
+
+- `transitions.dissolve` now has support for transitioning into a color by disabling the target media with `extureEnabled: false`. `color` argument is used to control the color and defaults to transparent black: `[0, 0, 0, 0]`.
+
 ### 0.6.1 (2021-10-14)
 
 *Fixed:*

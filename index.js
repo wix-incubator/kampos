@@ -1724,20 +1724,26 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
      * @param {Object} [params]
      * @param {number} [params.low=0.0] initial lower edge of intersection step
      * @param {number} [params.high=0.01] initial higher edge of intersection step
+     * @param {number[]} [params.color=[0, 0, 0, 0]] color to transition to if not transitioning to media
+     * @param {boolean} [params.textureEnabled=true] whether to enable transition to texture instead of color
      * @returns {dissolveTransitionEffect}
      * @example dissolveTransition()
      */
     function dissolve ({
       low = 0.0,
-      high = 0.01
+      high = 0.01,
+      color = [0.0, 0.0, 0.0, 0.0],
+      textureEnabled = true
     } = {}) {
       /**
        * @typedef {Object} dissolveTransitionEffect
        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
        * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map dissolve map to use
+       * @property {number[]} color a solid color to transition to with alpha channel, Array of 4 number in range [0.0, 1.0]
        * @property {number} low lower edge of intersection step, in range [0.0, 1.0]
        * @property {number} high higher edge of intersection step, in range [0.0, 1.0]
        * @property {number} progress number in range [0.0, 1.0]
+       * @property {boolean} textureEnabled whether to enable transitioning to texture instead of color
        * @property {boolean} disabled
        *
        * @example
@@ -1760,15 +1766,22 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         fragment: {
           uniform: {
             u_transitionEnabled: 'bool',
+            u_dissolveToTextureEnabled: 'bool',
             u_transitionProgress: 'float',
             u_dissolveLowEdge: 'float',
             u_dissolveHighEdge: 'float',
+            u_transitionColorTo: 'vec4',
             u_transitionTo: 'sampler2D',
             u_transitionDissolveMap: 'sampler2D'
           },
           main: `
     if (u_transitionEnabled) {
-        vec4 targetPixel = texture2D(u_transitionTo, v_transitionToTexCoord);
+        vec4 targetPixel = u_transitionColorTo;
+
+        if (u_dissolveToTextureEnabled) {
+            targetPixel = texture2D(u_transitionTo, v_transitionToTexCoord);
+        }
+
         vec3 transDissolveMapColor = texture2D(u_transitionDissolveMap, v_transitionDissolveMapTexCoord).rgb;
         float transDissolveMapAlpha = dot(transDissolveMapColor, lumcoeff);
         vec4 transDissolveMap = vec4(transDissolveMapColor, transDissolveMapAlpha);
@@ -1791,12 +1804,32 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
           this.uniforms[0].data[0] = +!b;
         },
 
+        get textureEnabled() {
+          return !this.uniforms[7].data[0];
+        },
+
+        set textureEnabled(b) {
+          this.uniforms[7].data[0] = +!!b;
+        },
+
         get progress() {
           return this.uniforms[3].data[0];
         },
 
         set progress(p) {
           this.uniforms[3].data[0] = Math.min(Math.max(p, 0.0), 1.0);
+        },
+
+        get color() {
+          return this.uniforms[6].data.slice();
+        },
+
+        set color(colorTo) {
+          colorTo.forEach((c, i) => {
+            if (!Number.isNaN(c)) {
+              this.uniforms[6].data[i] = c;
+            }
+          });
         },
 
         get to() {
@@ -1859,6 +1892,14 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
           name: 'u_dissolveHighEdge',
           type: 'f',
           data: [high]
+        }, {
+          name: 'u_transitionColorTo',
+          type: 'f',
+          data: color
+        }, {
+          name: 'u_dissolveToTextureEnabled',
+          type: 'i',
+          data: [+!!textureEnabled]
         }],
         attributes: [{
           name: 'a_transitionToTexCoord',
