@@ -1,3 +1,9 @@
+### 0.7.1 (2023-02-13)
+
+*Fixed:*
+
+- Ignore test files from NPM that contain invalid characters on Windows systems.
+
 ### 0.7.0 (2021-10-16)
 
 *New:*
