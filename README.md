@@ -12,11 +12,14 @@ only using WebGL, which means it works everywhere!
 ## Intro
 Read the [blog post](https://www.wix.engineering/post/introducing-kampos-a-tiny-and-fast-effects-compositor) introducing kampos on Wix Engineering Blog.
 
+## Posts
+CSS-Tricks: [Nailing That Cool Dissolve Transition](https://css-tricks.com/nailing-that-cool-dissolve-transition/)
+
 ## Demo
-Check out the [live demo](https://wix.github.io/kampos/demo/).
+Check out the [live demo](https://wix-incubator.github.io/kampos/demo/).
 
 ## Documentation
-For API reference and examples, read [the docs](https://wix.github.io/kampos/docs/).
+For API reference and examples, read [the docs](https://wix-incubator.github.io/kampos/docs/).
 
 ## Features
 * Filter effects for images and videos that you can mix and compose.

@@ -1,3 +1,9 @@
+### 0.7.2 (2023-03-27)
+
+*Fixed:*
+
+- Fixed URLs of docs & demos.
+
 ### 0.7.1 (2023-02-13)
 
 *Fixed:*
