@@ -3,7 +3,7 @@
  *
  * @class Ticker
  */
-export default class Ticker {
+export class Ticker {
     constructor () {
         this.pool = [];
     }
