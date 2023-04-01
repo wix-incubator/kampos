@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset='utf-8'>
-  <title>kampos 0.6.0 | Documentation</title>
+  <title>kampos 0.8.0 | Documentation</title>
   <meta name='description' content='Tiny and fast effects compositor on WebGL'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' rel='stylesheet'>
@@ -15,7 +15,7 @@
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>kampos</h3>
-          <div class='mb1'><code>0.6.0</code></div>
+          <div class='mb1'><code>0.8.0</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -520,11 +520,11 @@
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">import</span> { Kampos, effects} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;kampos&#x27;</span>;
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">import</span> { <span class="hljs-title class_">Kampos</span>, effects} <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;kampos&#x27;</span>;
 
-<span class="hljs-keyword">const</span> target = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;#canvas&#x27;</span>);
-<span class="hljs-keyword">const</span> hueSat = effects.hueSaturation();
-<span class="hljs-keyword">const</span> kampos = <span class="hljs-keyword">new</span> Kampos({target, <span class="hljs-attr">effects</span>: [hueSat]});</pre>
+<span class="hljs-keyword">const</span> target = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;#canvas&#x27;</span>);
+<span class="hljs-keyword">const</span> hueSat = effects.<span class="hljs-title function_">hueSaturation</span>();
+<span class="hljs-keyword">const</span> kampos = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Kampos</span>({target, <span class="hljs-attr">effects</span>: [hueSat]});</pre>
     
   
 
@@ -661,8 +661,8 @@ or after <a href="#kamposdestroy">Kampos#destroy</a>.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> media = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;#video&#x27;</span>);
-kampos.setSource(media);</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> media = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;#video&#x27;</span>);
+kampos.<span class="hljs-title function_">setSource</span>(media);</pre>
     
   
 
@@ -2129,7 +2129,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>brightnessContrast({<span class="hljs-attr">brightness</span>: <span class="hljs-number">1.5</span>, <span class="hljs-attr">contrast</span>: <span class="hljs-number">0.8</span>})</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">brightnessContrast</span>({<span class="hljs-attr">brightness</span>: <span class="hljs-number">1.5</span>, <span class="hljs-attr">contrast</span>: <span class="hljs-number">0.8</span>})</pre>
     
   
 
@@ -2259,7 +2259,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>hueSaturation({<span class="hljs-attr">hue</span>: <span class="hljs-number">45</span>, <span class="hljs-attr">saturation</span>: <span class="hljs-number">1.3</span>})</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">hueSaturation</span>({<span class="hljs-attr">hue</span>: <span class="hljs-number">45</span>, <span class="hljs-attr">saturation</span>: <span class="hljs-number">1.3</span>})</pre>
     
   
 
@@ -2371,7 +2371,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>blend(<span class="hljs-string">&#x27;colorBurn&#x27;</span>)</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">blend</span>(<span class="hljs-string">&#x27;colorBurn&#x27;</span>)</pre>
     
   
 
@@ -2472,7 +2472,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>alphaMask()</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">alphaMask</span>()</pre>
     
   
 
@@ -2584,7 +2584,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>duotone({<span class="hljs-attr">dark</span>: [<span class="hljs-number">0.2</span>, <span class="hljs-number">0.11</span>, <span class="hljs-number">0.33</span>, <span class="hljs-number">1</span>], <span class="hljs-attr">light</span>: [<span class="hljs-number">0.88</span>, <span class="hljs-number">0.78</span>, <span class="hljs-number">0.43</span>, <span class="hljs-number">1</span>]})</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">duotone</span>({<span class="hljs-attr">dark</span>: [<span class="hljs-number">0.2</span>, <span class="hljs-number">0.11</span>, <span class="hljs-number">0.33</span>, <span class="hljs-number">1</span>], <span class="hljs-attr">light</span>: [<span class="hljs-number">0.88</span>, <span class="hljs-number">0.78</span>, <span class="hljs-number">0.43</span>, <span class="hljs-number">1</span>]})</pre>
     
   
 
@@ -2722,7 +2722,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>displacement({<span class="hljs-attr">wrap</span>: displacement.DISCARD, <span class="hljs-attr">scale</span>: {<span class="hljs-attr">x</span>: <span class="hljs-number">0.5</span>, <span class="hljs-attr">y</span>: -<span class="hljs-number">0.5</span>}})</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">displacement</span>({<span class="hljs-attr">wrap</span>: displacement.<span class="hljs-property">DISCARD</span>, <span class="hljs-attr">scale</span>: {<span class="hljs-attr">x</span>: <span class="hljs-number">0.5</span>, <span class="hljs-attr">y</span>: -<span class="hljs-number">0.5</span>}})</pre>
     
   
 
@@ -2899,7 +2899,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>turbulence({<span class="hljs-attr">noise</span>: kampos.noise.simplex, <span class="hljs-attr">output</span>: turbulence.COLOR, <span class="hljs-attr">octaves</span>: <span class="hljs-number">4</span>, <span class="hljs-attr">isFractal</span>: <span class="hljs-literal">true</span>})</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">turbulence</span>({<span class="hljs-attr">noise</span>: kampos.<span class="hljs-property">noise</span>.<span class="hljs-property">simplex</span>, <span class="hljs-attr">output</span>: turbulence.<span class="hljs-property">COLOR</span>, <span class="hljs-attr">octaves</span>: <span class="hljs-number">4</span>, <span class="hljs-attr">isFractal</span>: <span class="hljs-literal">true</span>})</pre>
     
   
 
@@ -3002,9 +3002,9 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>effect.brightness = <span class="hljs-number">1.5</span>;
-effect.contrast = <span class="hljs-number">0.9</span>;
-effect.contrastDisabled = <span class="hljs-literal">true</span>;</pre>
+      <pre class='p1 overflow-auto round fill-light'>effect.<span class="hljs-property">brightness</span> = <span class="hljs-number">1.5</span>;
+effect.<span class="hljs-property">contrast</span> = <span class="hljs-number">0.9</span>;
+effect.<span class="hljs-property">contrastDisabled</span> = <span class="hljs-literal">true</span>;</pre>
     
   
 
@@ -3093,8 +3093,8 @@ effect.contrastDisabled = <span class="hljs-literal">true</span>;</pre>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>effect.hue = <span class="hljs-number">45</span>;
-effect.saturation = <span class="hljs-number">0.8</span>;</pre>
+      <pre class='p1 overflow-auto round fill-light'>effect.<span class="hljs-property">hue</span> = <span class="hljs-number">45</span>;
+effect.<span class="hljs-property">saturation</span> = <span class="hljs-number">0.8</span>;</pre>
     
   
 
@@ -3179,10 +3179,10 @@ effect.saturation = <span class="hljs-number">0.8</span>;</pre>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> Image();
-img.src = <span class="hljs-string">&#x27;picture.png&#x27;</span>;
-effect.color = [<span class="hljs-number">0.3</span>, <span class="hljs-number">0.55</span>, <span class="hljs-number">0.8</span>, <span class="hljs-number">1.0</span>];
-effect.image = img;</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Image</span>();
+img.<span class="hljs-property">src</span> = <span class="hljs-string">&#x27;picture.png&#x27;</span>;
+effect.<span class="hljs-property">color</span> = [<span class="hljs-number">0.3</span>, <span class="hljs-number">0.55</span>, <span class="hljs-number">0.8</span>, <span class="hljs-number">1.0</span>];
+effect.<span class="hljs-property">image</span> = img;</pre>
     
   
 
@@ -3266,10 +3266,10 @@ effect.image = img;</pre>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> Image();
-img.src = <span class="hljs-string">&#x27;picture.png&#x27;</span>;
-effect.mask = img;
-effect.disabled = <span class="hljs-literal">true</span>;</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Image</span>();
+img.<span class="hljs-property">src</span> = <span class="hljs-string">&#x27;picture.png&#x27;</span>;
+effect.<span class="hljs-property">mask</span> = img;
+effect.<span class="hljs-property">disabled</span> = <span class="hljs-literal">true</span>;</pre>
     
   
 
@@ -3354,8 +3354,8 @@ effect.disabled = <span class="hljs-literal">true</span>;</pre>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>effect.light = [<span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.8</span>];
-effect.dark = [<span class="hljs-number">0.2</span>, <span class="hljs-number">0.6</span>, <span class="hljs-number">0.33</span>];</pre>
+      <pre class='p1 overflow-auto round fill-light'>effect.<span class="hljs-property">light</span> = [<span class="hljs-number">1.0</span>, <span class="hljs-number">1.0</span>, <span class="hljs-number">0.8</span>];
+effect.<span class="hljs-property">dark</span> = [<span class="hljs-number">0.2</span>, <span class="hljs-number">0.6</span>, <span class="hljs-number">0.33</span>];</pre>
     
   
 
@@ -3438,10 +3438,10 @@ effect.dark = [<span class="hljs-number">0.2</span>, <span class="hljs-number">0
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> Image();
-img.src = <span class="hljs-string">&#x27;disp.jpg&#x27;</span>;
-effect.map = img;
-effect.scale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.4</span>};</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Image</span>();
+img.<span class="hljs-property">src</span> = <span class="hljs-string">&#x27;disp.jpg&#x27;</span>;
+effect.<span class="hljs-property">map</span> = img;
+effect.<span class="hljs-property">scale</span> = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.4</span>};</pre>
     
   
 
@@ -3526,9 +3526,9 @@ Depends on a <code>noise(vec3 P)</code> function to be declared and injected via
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>effect.frequency = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.0065</span>};
-effect.octaves = <span class="hljs-number">4</span>;
-effect.isFractal = <span class="hljs-literal">true</span>;</pre>
+      <pre class='p1 overflow-auto round fill-light'>effect.<span class="hljs-property">frequency</span> = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.0065</span>};
+effect.<span class="hljs-property">octaves</span> = <span class="hljs-number">4</span>;
+effect.<span class="hljs-property">isFractal</span> = <span class="hljs-literal">true</span>;</pre>
     
   
 
@@ -3630,7 +3630,7 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>fadeTransition()</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">fadeTransition</span>()</pre>
     
   
 
@@ -3704,7 +3704,7 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>displacementTransition()</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">displacementTransition</span>()</pre>
     
   
 
@@ -3789,6 +3789,28 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
 
 
               
+                <tr>
+  <td class='break-word'><span class='code bold'>params.color</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>></code>
+  
+    (default <code>[0,0,0,0]</code>)
+  </td>
+  <td class='break-word'><span>color to transition to if not transitioning to media
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.textureEnabled</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+  
+    (default <code>true</code>)
+  </td>
+  <td class='break-word'><span>whether to enable transition to texture instead of color
+</span></td>
+</tr>
+
+
+              
             </tbody>
           </table>
           
@@ -3816,7 +3838,7 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>dissolveTransition()</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">dissolveTransition</span>()</pre>
     
   
 
@@ -3915,8 +3937,8 @@ effect.isFractal = <span class="hljs-literal">true</span>;</pre>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'>effect.to = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;#video-to&#x27;</span>);
-effect.progress = <span class="hljs-number">0.5</span>;</pre>
+      <pre class='p1 overflow-auto round fill-light'>effect.<span class="hljs-property">to</span> = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;#video-to&#x27;</span>);
+effect.<span class="hljs-property">progress</span> = <span class="hljs-number">0.5</span>;</pre>
     
   
 
@@ -4022,12 +4044,12 @@ effect.progress = <span class="hljs-number">0.5</span>;</pre>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> Image();
-img.src = <span class="hljs-string">&#x27;disp.jpg&#x27;</span>;
-effect.map = img;
-effect.to = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;#video-to&#x27;</span>);
-effect.sourceScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.4</span>};
-effect.toScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.8</span>};</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Image</span>();
+img.<span class="hljs-property">src</span> = <span class="hljs-string">&#x27;disp.jpg&#x27;</span>;
+effect.<span class="hljs-property">map</span> = img;
+effect.<span class="hljs-property">to</span> = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;#video-to&#x27;</span>);
+effect.<span class="hljs-property">sourceScale</span> = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.4</span>};
+effect.<span class="hljs-property">toScale</span> = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.8</span>};</pre>
     
   
 
@@ -4094,6 +4116,13 @@ effect.toScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.
         </div>
       
         <div class='space-bottom0'>
+          <span class='code bold'>color</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>>)</code>
+          : a solid color to transition to with alpha channel, Array of 4 number in range [0.0, 1.0]
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
           <span class='code bold'>low</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
           : lower edge of intersection step, in range [0.0, 1.0]
 
@@ -4110,6 +4139,13 @@ effect.toScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.
         <div class='space-bottom0'>
           <span class='code bold'>progress</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
           : number in range [0.0, 1.0]
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>textureEnabled</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
+          : whether to enable transitioning to texture instead of color
 
           
         </div>
@@ -4133,11 +4169,11 @@ effect.toScale = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> Image();
-img.src = <span class="hljs-string">&#x27;dissolve.jpg&#x27;</span>;
-effect.map = img;
-effect.to = <span class="hljs-built_in">document</span>.querySelector(<span class="hljs-string">&#x27;#video-to&#x27;</span>);
-effect.progress = <span class="hljs-number">0.5</span>;</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-keyword">const</span> img = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Image</span>();
+img.<span class="hljs-property">src</span> = <span class="hljs-string">&#x27;dissolve.jpg&#x27;</span>;
+effect.<span class="hljs-property">map</span> = img;
+effect.<span class="hljs-property">to</span> = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;#video-to&#x27;</span>);
+effect.<span class="hljs-property">progress</span> = <span class="hljs-number">0.5</span>;</pre>
     
   
 
