@@ -15,7 +15,7 @@
             video {display: none;}
             .clickable {cursor: pointer;}
         </style>
-        <script src="../index.js"></script>
+        <script src="../index.umd.js"></script>
         <script src="./utils.js"></script>
     </head>
     <body>
@@ -144,4 +144,4 @@
 
     insertSection('section7');
 
-}());
+})();

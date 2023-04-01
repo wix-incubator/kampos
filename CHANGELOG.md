@@ -1,8 +1,13 @@
-### 0.7.2 (2023-03-27)
+### 0.8.0 (2023-04-01)
+
+*Breaking:*
+
+ - `index.js` now uses ES modules. For a UMD distribution please use `index.umd.js`
 
 *Fixed:*
 
 - Fixed URLs of docs & demos.
+- Rewrote Floss tests to run with Ava.
 
 ### 0.7.1 (2023-02-13)
 

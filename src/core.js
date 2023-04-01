@@ -1,12 +1,3 @@
-export default {
-    init,
-    draw,
-    destroy,
-    resize,
-    getWebGLContext,
-    createTexture
-}
-
 const vertexSimpleTemplate = ({
     uniform = '',
     attribute = '',
@@ -119,7 +110,7 @@ const SHADER_ERROR_TYPES = {
  * @param {boolean} [config.noSource]
  * @return {{gl: WebGLRenderingContext, data: kamposSceneData, [dimensions]: {width: number, height: number}}}
  */
-function init ({gl, plane, effects, dimensions, noSource}) {
+export function init ({gl, plane, effects, dimensions, noSource}) {
 
     const programData = _initProgram(gl, plane, effects, noSource);
 
@@ -137,7 +128,7 @@ let WEBGL_CONTEXT_SUPPORTED = false;
  * @param {HTMLCanvasElement} canvas
  * @return {WebGLRenderingContext|null}
  */
-function getWebGLContext (canvas) {
+export function getWebGLContext (canvas) {
     let context;
 
     const config = {
@@ -170,7 +161,7 @@ function getWebGLContext (canvas) {
  * @param {{width: number, height: number}} [dimensions]
  * @return {boolean}
  */
-function resize (gl, dimensions) {
+export function resize (gl, dimensions) {
     const canvas = gl.canvas;
     const realToCSSPixels = 1; //window.devicePixelRatio;
     const {width, height} = dimensions || {};
@@ -208,7 +199,7 @@ function resize (gl, dimensions) {
  * @param {kamposSceneData} data
  * @param {{width: number, height: number}} dimensions
  */
-function draw (gl, plane = {}, media, data, dimensions) {
+export function draw (gl, plane = {}, media, data, dimensions) {
     const {program, source, attributes, uniforms, textures, extensions, vao} = data;
     const {xSegments = 1, ySegments = 1} = plane;
 
@@ -266,7 +257,7 @@ function draw (gl, plane = {}, media, data, dimensions) {
  * @param {WebGLRenderingContext} gl
  * @param {kamposSceneData} data
  */
-function destroy (gl, data) {
+export function destroy (gl, data) {
     const {program, vertexShader, fragmentShader, source, attributes, extensions, vao} = data;
 
     // delete buffers
@@ -591,7 +582,7 @@ function _createShader (gl, type, source) {
  * @param {Object} config.wrap
  * @return {{texture: WebGLTexture, width: number, height: number}}
  */
-function createTexture (gl, {width=1, height=1, data=null, format='RGBA', wrap='stretch'}={}) {
+export function createTexture (gl, {width=1, height=1, data=null, format='RGBA', wrap='stretch'}={}) {
     const texture = gl.createTexture();
 
     gl.bindTexture(gl.TEXTURE_2D, texture);

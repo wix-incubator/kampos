@@ -1,4 +1,4 @@
-import core from './core';
+import * as core from './core.js';
 
 /**
  * Initialize a WebGL target with effects.
@@ -12,7 +12,7 @@ import core from './core';
  * const hueSat = effects.hueSaturation();
  * const kampos = new Kampos({target, effects: [hueSat]});
  */
-export default class Kampos {
+export class Kampos {
     /**
      * @constructor
      */
