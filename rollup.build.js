@@ -4,10 +4,8 @@ import filesize from 'rollup-plugin-filesize';
 const config = {
     input: 'src/index.js',
     output: {
-        name: 'kampos',
         file: 'index.js',
-        format: 'umd',
-        sourcemap: false
+        format: 'esm'
     },
     plugins: [
         progress({

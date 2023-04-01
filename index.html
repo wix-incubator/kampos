@@ -142,8 +142,8 @@
         <h1>kampos</h1>
         <h2>Tiny and fast effects compositor</h2>
     </main>
-    <script>
-        const {Kampos, effects, noise} = window.kampos;
+    <script type="module">
+        import {Kampos, effects, noise} from './index.js';
 
         const target = document.querySelector('#target');
         const body = document.body;
