@@ -136,6 +136,15 @@ const sectionScripts = {
             video: 'none',
             refresh: 'refresh7'
         });
+    },
+
+    section8() {
+        startDemo('./kaleidoscope.js', {
+            code: 'code8',
+            preview: 'preview8',
+            video: 'videos4',
+            refresh: 'refresh8'
+        });
     }
 }
 
