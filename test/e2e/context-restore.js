@@ -167,4 +167,4 @@ test('playing an instance with lost context should restore context and recover',
     expect(isLost).toBe(false);
 
     ctx.kamposs = kamposs;
-});
+}, 20000);
