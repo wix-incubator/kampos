@@ -21,7 +21,7 @@ const SIMPLE_VIDEO_DIMS = {width: 854, height: 480};
 const SIMPLE_VIDEO_CANVAS_POS = {x: 0, y: 484};
 const IMAGE_CANVAS_POS = {x: 0, y: 480};
 const VIDEO_URL_PREFIX = '/test/e2e/';
-const SIMPLE_VIDEO_URL = `${VIDEO_URL_PREFIX}e2e-video.ogg`;
+const SIMPLE_VIDEO_URL = `${VIDEO_URL_PREFIX}e2e-video.webm`;
 const IMAGE_URL = `${VIDEO_URL_PREFIX}e2e-image.png`;
 
 let server;
