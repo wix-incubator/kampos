@@ -14,16 +14,14 @@ const PROJECT_PATH = path.resolve(__dirname, '../..');
 const SIMPLE_VIDEO_CANVAS_DIMS = {width: 854, height: 480};
 const SIMPLE_VIDEO_DIMS = {width: 854, height: 480};
 const VIDEO_URL_PREFIX = '/test/e2e/';
-const SIMPLE_VIDEO_URL = `${VIDEO_URL_PREFIX}e2e-video.ogg`;
+const SIMPLE_VIDEO_URL = `${VIDEO_URL_PREFIX}e2e-video.webm`;
 
 let server;
 let browser;
 let pageUrl;
 
 async function createBrowser () {
-    browser = await puppeteer.launch({
-        headless: false
-    });
+    browser = await puppeteer.launch();
 }
 
 async function setPage (t) {
