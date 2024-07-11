@@ -37,21 +37,19 @@
   },
   "homepage": "https://wix-incubator.github.io/kampos/",
   "devDependencies": {
-    "@babel/core": "^7.21.3",
-    "ava": "^5.2.0",
+    "ava": "^6.1.2",
     "documentation": "^14.0.1",
     "finalhandler": "^1.2.0",
-    "get-port": "^6.1.2",
-    "node-canvas-webgl": "^0.2.7",
+    "get-port": "^7.1.0",
     "npm-check": "^6.0.1",
     "pify": "^6.1.0",
     "pixelmatch": "^5.3.0",
     "pngjs": "^7.0.0",
-    "puppeteer": "^19.8.0",
-    "rollup": "^3.20.2",
-    "rollup-plugin-babel": "^4.4.0",
+    "puppeteer": "^22.6.1",
+    "rollup": "^4.13.2",
     "rollup-plugin-filesize": "^10.0.0",
     "rollup-plugin-progress": "^1.1.2",
-    "serve-static": "^1.15.0"
+    "serve-static": "^1.15.0",
+    "node-canvas-webgl": "^0.3.0"
   }
 }
