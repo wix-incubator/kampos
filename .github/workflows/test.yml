@@ -30,15 +30,19 @@ jobs:
         name: List the state of node modules
         continue-on-error: true
         run: npm list
-      - name: Install node-canvas dependencies
+      - name: Install system dependencies
         run: |
           sudo apt update
-          sudo apt install -y libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev librsvg2-dev libxt-dev libxi-dev libgl-dev libxext-dev
+          sudo apt install -y libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev librsvg2-dev libxt-dev libxi-dev mesa-utils libgl1-mesa-dev xvfb
+      - name: Start Xvfb
+        run: |
+          /usr/bin/Xvfb :99 -ac &
+          export DISPLAY=:99
       - name: Install dependencies
         run: npm install
       - name: Build
         run: npm run build
       - name: Unit tests
-        run: npm run test:unit
+        run: xvfb-run npm run test:unit
       - name: E2e tests
-        run: npm run test:e2e
+        run: xvfb-run npm run test:e2e
