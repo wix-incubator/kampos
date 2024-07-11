@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { expect, test, beforeAll, afterAll, beforeEach, afterEach } from 'vitest'
 import path from 'path';
 import http from 'http';
 import pify from 'pify';
@@ -24,8 +24,8 @@ async function createBrowser () {
     browser = await puppeteer.launch();
 }
 
-async function setPage (t) {
-    t.context.page = await browser.newPage();
+async function setPage (ctx) {
+    ctx.page = await browser.newPage();
 }
 
 const createServer = function () {
@@ -46,14 +46,14 @@ const createServer = function () {
     });
 };
 
-async function initVideo (t, src, dims) {
-    const page = t.context.page;
+async function initVideo (ctx, src, dims) {
+    const page = ctx.page;
 
     const body = await page.$('body');
     await page.evaluate(b => b.classList.remove('image-test'), body);
 
     const source = await page.$('#video');
-    t.context.source = source;
+    ctx.source = source;
 
     await page.evaluate((video, url, dims) => {
         video.src = url;
@@ -88,15 +88,15 @@ beforeAll(async () => {
     await createBrowser();
 });
 
-beforeEach(async () => {
-    await setPage(t);
+beforeEach(async (ctx) => {
+    await setPage(ctx);
 
-    await t.context.page.goto(pageUrl);
+    await ctx.page.goto(pageUrl);
 });
 
-afterEach(async () => {
-    // await t.context.page.evaluate(vgls => vgls && vgls.forEach(vgl => vgl.destroy()), t.context.vgls);
-    await t.context.page.close();
+afterEach(async (ctx) => {
+    // await ctx.page.evaluate(vgls => vgls && vgls.forEach(vgl => vgl.destroy()), ctx.vgls);
+    await ctx.page.close();
 });
 
 afterAll(async () => {
@@ -104,12 +104,12 @@ afterAll(async () => {
     server.close();
 });
 
-test('playing an instance with lost context should restore context and recover', async () => {
-    await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
+test('playing an instance with lost context should restore context and recover', async (ctx) => {
+    await initVideo(ctx, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     const NUM_CONTEXTS = 17;
-    const page = t.context.page;
-    const source = t.context.source;
+    const page = ctx.page;
+    const source = ctx.source;
 
     const kamposs = await page.evaluateHandle((video, canvasDims, NUM_CONTEXTS) => {
         const _target = document.querySelector('#canvas');
@@ -138,7 +138,7 @@ test('playing an instance with lost context should restore context and recover',
         return instances;
     }, source, SIMPLE_VIDEO_CANVAS_DIMS, NUM_CONTEXTS);
 
-    const stateHandle = await t.context.page.evaluateHandle(kamposs => {
+    const stateHandle = await ctx.page.evaluateHandle(kamposs => {
         return kamposs.reduce((acc, kampos) => {
             acc[kampos.config.target.id] = kampos.lostContext;
 
@@ -161,10 +161,10 @@ test('playing an instance with lost context should restore context and recover',
         return instance
     }, kamposs, source);
 
-    const isLostHandle = await t.context.page.evaluateHandle(kampos => kampos.gl.isContextLost(), kampos);
+    const isLostHandle = await ctx.page.evaluateHandle(kampos => kampos.gl.isContextLost(), kampos);
     const isLost = await isLostHandle.jsonValue();
 
     expect(isLost).toBe(false);
 
-    t.context.kamposs = kamposs;
+    ctx.kamposs = kamposs;
 });
