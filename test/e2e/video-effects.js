@@ -1,3 +1,4 @@
+import { expect, test, beforeAll, beforeEach, afterEach, afterAll } from 'vitest'
 import fs from 'fs';
 import url from 'url';
 import path from 'path';
@@ -6,7 +7,6 @@ import pify from 'pify';
 import getPort from 'get-port';
 import finalhandler from 'finalhandler';
 import serveStatic from 'serve-static';
-import test from 'ava';
 import puppeteer from 'puppeteer';
 import pixelmatch from 'pixelmatch';
 import png from 'pngjs';
@@ -180,7 +180,7 @@ async function drawEffect (t, filterContent, data, canvasDims) {
     }, source, filterContent, data, canvasDims);
 }
 
-test.before(async () => {
+beforeAll(async () => {
     server = await createServer();
     const port = server.port;
     const host = server.host;
@@ -194,18 +194,18 @@ test.before(async () => {
     await createBrowser();
 });
 
-test.beforeEach(async t => {
+beforeEach(async () => {
     await setPage(t);
 
     await t.context.page.goto(pageUrl);
 });
 
-test.afterEach(async t => {
+afterEach(async () => {
     await t.context.page.evaluate(kampos => kampos.destroy(), t.context.kampos);
     await t.context.page.close();
 });
 
-test.after(async () => {
+afterAll(async () => {
     await browser.close();
     server.close();
 });
@@ -246,8 +246,8 @@ async function getDiffPixels (t, canvasDims, canvasPos, threshold = 0.14) {
             return;
         }
 
-        t.is(expected.width, actual.width);
-        t.is(expected.height, actual.height);
+        expect(expected.width).toBe(actual.width);
+        expect(expected.height).toBe(actual.height);
 
         const diff = new PNG({width, height});
         const diffPixels = pixelmatch(expected.data, actual.data, diff.data, width, height, {threshold});
@@ -298,7 +298,7 @@ function getDuotoneFilter (dark, light) {
                                      0                     0 0 1 0"></feColorMatrix>`;
 }
 
-test.serial('brightness 1.0', async t => {
+test('brightness 1.0', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBrightnessFilter(1.0),
@@ -306,10 +306,10 @@ test.serial('brightness 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('brightness 1.5', async t => {
+test('brightness 1.5', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBrightnessFilter(1.5),
@@ -317,10 +317,10 @@ test.serial('brightness 1.5', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS, 0.2);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('brightness 0.5', async t => {
+test('brightness 0.5', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBrightnessFilter(0.5),
@@ -328,10 +328,10 @@ test.serial('brightness 0.5', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('contrast 1.0', async t => {
+test('contrast 1.0', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getContrastFilter(1.0),
@@ -339,10 +339,10 @@ test.serial('contrast 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('contrast 1.5', async t => {
+test('contrast 1.5', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getContrastFilter(1.5),
@@ -350,10 +350,10 @@ test.serial('contrast 1.5', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS, 0.2);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('contrast 0.2', async t => {
+test('contrast 0.2', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getContrastFilter(0.2),
@@ -361,10 +361,10 @@ test.serial('contrast 0.2', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('hue 0.0', async t => {
+test('hue 0.0', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getHueFilter(0),
@@ -372,10 +372,10 @@ test.serial('hue 0.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('hue 90', async t => {
+test('hue 90', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getHueFilter(90),
@@ -383,11 +383,11 @@ test.serial('hue 90', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
 
-test.serial('hue 45', async t => {
+test('hue 45', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getHueFilter(45),
@@ -395,10 +395,10 @@ test.serial('hue 45', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('hue -90', async t => {
+test('hue -90', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getHueFilter(-90),
@@ -406,10 +406,10 @@ test.serial('hue -90', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('hue -135', async t => {
+test('hue -135', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getHueFilter(-135),
@@ -417,10 +417,10 @@ test.serial('hue -135', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('saturate 1.0', async t => {
+test('saturate 1.0', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getSaturateFilter(1.0),
@@ -428,10 +428,10 @@ test.serial('saturate 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('saturate 0.0', async t => {
+test('saturate 0.0', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getSaturateFilter(0.0),
@@ -439,10 +439,10 @@ test.serial('saturate 0.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('saturate 1.5', async t => {
+test('saturate 1.5', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getSaturateFilter(1.5),
@@ -450,10 +450,10 @@ test.serial('saturate 1.5', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS, 0.2);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('duotone golden-purple', async t => {
+test('duotone golden-purple', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getDuotoneFilter(
@@ -469,10 +469,10 @@ test.serial('duotone golden-purple', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('duotone strawberry-midnight', async t => {
+test('duotone strawberry-midnight', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getDuotoneFilter(
@@ -488,10 +488,10 @@ test.serial('duotone strawberry-midnight', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('duotone seafoam-lead', async t => {
+test('duotone seafoam-lead', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getDuotoneFilter(
@@ -507,10 +507,10 @@ test.serial('duotone seafoam-lead', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('duotone seafoam-lead | brightness 2.0', async t => {
+test('duotone seafoam-lead | brightness 2.0', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getDuotoneFilter(
@@ -530,10 +530,10 @@ test.serial('duotone seafoam-lead | brightness 2.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('brightness 2.0 | duotone seafoam-lead', async t => {
+test('brightness 2.0 | duotone seafoam-lead', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBrightnessFilter(2.0) + getDuotoneFilter(
@@ -553,10 +553,10 @@ test.serial('brightness 2.0 | duotone seafoam-lead', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('duotone seafoam-lead | contrast 2.0', async t => {
+test('duotone seafoam-lead | contrast 2.0', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getDuotoneFilter(
@@ -576,10 +576,10 @@ test.serial('duotone seafoam-lead | contrast 2.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('contrast 2.0 | duotone seafoam-lead', async t => {
+test('contrast 2.0 | duotone seafoam-lead', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getContrastFilter(2.0) + getDuotoneFilter(
@@ -599,10 +599,10 @@ test.serial('contrast 2.0 | duotone seafoam-lead', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('duotone seafoam-lead | contrast 0.2', async t => {
+test('duotone seafoam-lead | contrast 0.2', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getDuotoneFilter(
@@ -622,10 +622,10 @@ test.serial('duotone seafoam-lead | contrast 0.2', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('contrast 0.2 | duotone seafoam-lead', async t => {
+test('contrast 0.2 | duotone seafoam-lead', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getContrastFilter(0.2) + getDuotoneFilter(
@@ -645,10 +645,10 @@ test.serial('contrast 0.2 | duotone seafoam-lead', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('duotone seafoam-lead | brightness 0.5 | contrast 2.0', async t => {
+test('duotone seafoam-lead | brightness 0.5 | contrast 2.0', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getDuotoneFilter(
@@ -670,10 +670,10 @@ test.serial('duotone seafoam-lead | brightness 0.5 | contrast 2.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('brightness 0.5 | contrast 2.0 | duotone seafoam-lead', async t => {
+test('brightness 0.5 | contrast 2.0 | duotone seafoam-lead', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBrightnessFilter(0.5) + getContrastFilter(2.0) + getDuotoneFilter(
@@ -695,10 +695,10 @@ test.serial('brightness 0.5 | contrast 2.0 | duotone seafoam-lead', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, SIMPLE_VIDEO_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('blend multiply orange 1.0', async t => {
+test('blend multiply orange 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('multiply', [`rgb(${255}, ${128}, ${0})`, '1']),
@@ -706,10 +706,10 @@ test.serial('blend multiply orange 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('blend screen turquoise 1.0', async t => {
+test('blend screen turquoise 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('screen', [`rgb(${64}, ${224}, ${208})`, '1.0']),
@@ -717,10 +717,10 @@ test.serial('blend screen turquoise 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('blend overlay magenta 1.0', async t => {
+test('blend overlay magenta 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('overlay', [`rgb(${255 * 0.8}, ${0}, ${255 * 0.8})`, '1.0']),
@@ -728,10 +728,10 @@ test.serial('blend overlay magenta 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('blend darken magenta 1.0', async t => {
+test('blend darken magenta 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('darken', [`rgb(${255}, ${0}, ${255})`, '1.0']),
@@ -739,10 +739,10 @@ test.serial('blend darken magenta 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('blend lighten yellow 1.0', async t => {
+test('blend lighten yellow 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('lighten', [`rgb(${255}, ${255}, ${0})`, '1.0']),
@@ -750,11 +750,11 @@ test.serial('blend lighten yellow 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
 // TODO: SVG filter not working
-test.serial('blend colorDodge firebrick 1.0', async t => {
+test('blend colorDodge firebrick 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('color-dodge', [`rgb(${178}, ${34}, ${34})`, '1.0']),
@@ -762,10 +762,10 @@ test.serial('blend colorDodge firebrick 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('blend colorBurn darkolivegreen 1.0', async t => {
+test('blend colorBurn darkolivegreen 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('color-burn', [`rgb(${85}, ${107}, ${47})`, '1.0']),
@@ -773,10 +773,10 @@ test.serial('blend colorBurn darkolivegreen 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('blend hardLight yogurtpink 1.0', async t => {
+test('blend hardLight yogurtpink 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('hard-light', [`rgb(${200}, ${150}, ${180})`, '1.0']),
@@ -784,10 +784,10 @@ test.serial('blend hardLight yogurtpink 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('blend softLight yellowgreen 1.0', async t => {
+test('blend softLight yellowgreen 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('soft-light', [`rgb(${154}, ${205}, ${50})`, '1.0']),
@@ -795,10 +795,10 @@ test.serial('blend softLight yellowgreen 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('blend difference yellowgreen 1.0', async t => {
+test('blend difference yellowgreen 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('difference', [`rgb(${154}, ${205}, ${50})`, '1.0']),
@@ -806,10 +806,10 @@ test.serial('blend difference yellowgreen 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('blend exclusion yellowgreen 1.0', async t => {
+test('blend exclusion yellowgreen 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('exclusion', [`rgb(${154}, ${205}, ${50})`, '1.0']),
@@ -817,10 +817,10 @@ test.serial('blend exclusion yellowgreen 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.failing('blend hue indianred 1.0', async t => {
+test.skip('blend hue indianred 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('hue', [`rgb(${205}, ${92}, ${92})`, '1.0']),
@@ -828,10 +828,10 @@ test.failing('blend hue indianred 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('blend saturation indianred 1.0', async t => {
+test('blend saturation indianred 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('saturation', [`rgb(${205}, ${92}, ${92})`, '1.0']),
@@ -839,10 +839,10 @@ test.serial('blend saturation indianred 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('blend color indianred 1.0', async t => {
+test('blend color indianred 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('color', [`rgb(${205}, ${92}, ${92})`, '1.0']),
@@ -850,10 +850,10 @@ test.serial('blend color indianred 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });
 
-test.serial('luminosity color indianred 1.0', async t => {
+test('luminosity color indianred 1.0', async () => {
     await initImage(t, IMAGE_URL, SIMPLE_VIDEO_DIMS);
 
     await drawEffect(t, getBlendColorFilter('luminosity', [`rgb(${205}, ${92}, ${92})`, '1.0']),
@@ -861,5 +861,5 @@ test.serial('luminosity color indianred 1.0', async t => {
 
     const diffPixels = await getDiffPixels(t, SIMPLE_VIDEO_CANVAS_DIMS, IMAGE_CANVAS_POS);
 
-    t.is(diffPixels, 0);
+    expect(diffPixels).toBe(0);
 });

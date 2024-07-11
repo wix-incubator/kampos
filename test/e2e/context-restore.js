@@ -1,4 +1,4 @@
-import test from 'ava';
+import { expect, test } from 'vitest'
 import path from 'path';
 import http from 'http';
 import pify from 'pify';
@@ -74,7 +74,7 @@ async function initVideo (t, src, dims) {
     }, source, src, dims);
 }
 
-test.before(async () => {
+beforeAll(async () => {
     server = await createServer();
     const port = server.port;
     const host = server.host;
@@ -88,23 +88,23 @@ test.before(async () => {
     await createBrowser();
 });
 
-test.beforeEach(async t => {
+beforeEach(async () => {
     await setPage(t);
 
     await t.context.page.goto(pageUrl);
 });
 
-test.afterEach(async t => {
+afterEach(async () => {
     // await t.context.page.evaluate(vgls => vgls && vgls.forEach(vgl => vgl.destroy()), t.context.vgls);
     await t.context.page.close();
 });
 
-test.after(async () => {
+afterAll(async () => {
     await browser.close();
     server.close();
 });
 
-test('playing an instance with lost context should restore context and recover', async t => {
+test('playing an instance with lost context should restore context and recover', async () => {
     await initVideo(t, SIMPLE_VIDEO_URL, SIMPLE_VIDEO_DIMS);
 
     const NUM_CONTEXTS = 17;
@@ -148,7 +148,7 @@ test('playing an instance with lost context should restore context and recover',
     const contextState = await stateHandle.jsonValue();
 
     // make sure we have one instance with a lost context
-    t.is(contextState.canvas1, true);
+    expect(contextState.canvas1).toBe(true);
 
     // attempt to set its source
     const kampos = await page.evaluateHandle((kamposs, video) => {
@@ -164,7 +164,7 @@ test('playing an instance with lost context should restore context and recover',
     const isLostHandle = await t.context.page.evaluateHandle(kampos => kampos.gl.isContextLost(), kampos);
     const isLost = await isLostHandle.jsonValue();
 
-    t.is(isLost, false);
+    expect(isLost).toBe(false);
 
     t.context.kamposs = kamposs;
 });
