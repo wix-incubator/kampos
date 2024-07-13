@@ -11,8 +11,8 @@
     "watch": "rollup -c rollup.build.js -w",
     "demo": "cd demo && rollup -c && cd -",
     "watch:demo": "cd demo && rollup -c -w && cd -",
-    "test:unit": "ava test/unit/core.js && ava test/unit/kampos.js",
-    "test:e2e": "ava test/e2e/*.js",
+    "test:unit": "vitest test/unit/core.js && vitest test/unit/kampos.js",
+    "test:e2e": "vitest test/e2e/*.js",
     "test": "npm run test:unit && npm run test:e2e",
     "docs": "documentation build src/index.js -f html -o docs -c documentation.yml",
     "check": "npm-check -u",
@@ -38,7 +38,6 @@
   "homepage": "https://wix-incubator.github.io/kampos/",
   "devDependencies": {
     "@babel/core": "^7.24.7",
-    "ava": "^6.1.3",
     "documentation": "^14.0.3",
     "finalhandler": "^1.2.0",
     "get-port": "^6.1.2",
@@ -53,6 +52,7 @@
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-filesize": "^10.0.0",
     "rollup-plugin-progress": "^1.1.2",
-    "serve-static": "^1.15.0"
+    "serve-static": "^1.15.0",
+    "vitest": "^2.0.2"
   }
 }
