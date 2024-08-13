@@ -32,7 +32,7 @@ test('core :: #init() :: should return an object with webgl context and scene da
     core.destroy(gl, data);
 });
 
-test.fails('core :: #init() :: should return scene data with complete WebGL program data', () => {
+test('core :: #init() :: should return scene data with complete WebGL program data', () => {
     const canvas = createCanvas(200, 200);
     const {gl, data} = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
 
