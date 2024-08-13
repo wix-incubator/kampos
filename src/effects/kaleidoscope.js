@@ -1,8 +1,8 @@
 /**
  * @function kaleidoscope
  * @param {Object} [params]
- * @param {number[]} [params.segments=6] .
- * @param {number[]} [params.offset=0] .
+ * @param {number} [params.segments=6] .
+ * @param {number} [params.offset=0] .
  * @returns {kaleidoscopeEffect}
  *
  * @example kaleidoscope({segments: 12})

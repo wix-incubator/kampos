@@ -7,7 +7,7 @@
   "module": "index.js",
   "type": "module",
   "scripts": {
-    "build": "rollup -c rollup.build.js",
+    "build": "rollup -c rollup.build.js && rollup -c rollup.umd.js",
     "watch": "rollup -c rollup.build.js -w",
     "demo": "cd demo && rollup -c && cd -",
     "watch:demo": "cd demo && rollup -c -w && cd -",
