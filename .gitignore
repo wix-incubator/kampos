@@ -4,3 +4,4 @@ package-lock.json
 test/src/*.js
 
 .idea/
+test/e2e/screenshots/*.png

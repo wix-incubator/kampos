@@ -77,12 +77,38 @@
             right: 50px;
         }
 
-        #target {
+        .target-canvas {
             position: fixed;
             top: 0;
             left: 0;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        #target2 {
+            left: 50%;
+        }
+
+        #target3 {
+            position: fixed;
+            top: 10vh;
+            left: 5vw;
             z-index: -1;
             pointer-events: none;
+        }
+
+        #target4 {
+            position: fixed;
+            bottom: 10vh;
+            right: 5vw;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        #video, #video2 {
+            position: fixed;
+            top: 0;
+            content-visibility: hidden;
         }
 
         @media (min-width: 641px) {
@@ -137,80 +163,162 @@
         </nav>
     </header>
     <main>
-        <canvas id="target"></canvas>
+        <canvas class="target-canvas" id="target"></canvas>
+        <canvas class="target-canvas" id="target2"></canvas>
+        <canvas id="target3"></canvas>
+        <canvas id="target4"></canvas>
         <h1>kampos</h1>
         <h2>Tiny and fast effects compositor</h2>
+        <video id="video" src="https://video.wixstatic.com/video/11062b_6ceb80744f45401caf9eb666caeb9887/480p/mp4/file.mp4" loop muted preload="auto" crossorigin="anonymous" playsinline autoplay></video>
+        <video id="video2" src="./demo/starry-night.mp4" loop muted preload="auto" crossorigin="anonymous" playsinline autoplay></video>
     </main>
-    <script type="module">
-        import {Kampos, effects, noise} from './index.js';
+</body>
+<script type="module">
+    import {Kampos, effects, noise} from './index.js';
 
-        const target = document.querySelector('#target');
-        const body = document.body;
-        const width = body.clientWidth;
-        const height = body.clientHeight;
+    const target = document.querySelector('#target');
+    const targetCtx = target.getContext('bitmaprenderer');
+    const target2 = document.querySelector('#target2');
+    const target2Ctx = target2.getContext('bitmaprenderer');
+    const target3 = document.querySelector('#target3');
+    const target3Ctx = target3.getContext('bitmaprenderer');
+    const target4 = document.querySelector('#target4');
+    const target4Ctx = target4.getContext('bitmaprenderer');
 
-        target.width = width;
-        target.height = height;
+    const body = document.body;
+    const width = body.clientWidth / 2;
+    const height = body.clientHeight;
 
-        const mousePosition = [0.5, 0.5];
+    target.width = width;
+    target.height = height;
+    target2.width = width;
+    target2.height = height;
 
-        const turbulence = effects.turbulence({noise: noise.simplex, output: '\n'});
-        const render = {
-            fragment: {
-                uniform: {
-                    u_resolution: 'vec2',
-                    u_pointer: 'vec2'
-                },
-                constant: `
+    const offscreen = new OffscreenCanvas(width, height);
+
+    const mousePosition = [0.5, 0.5];
+    const mousePosition2 = [0.5, 0.5];
+
+    const turbulence = effects.turbulence({noise: noise.simplex, output: '\n'});
+    const getRender = (c, d, mouse) => ({
+        fragment: {
+            uniform: {
+                u_resolution: 'vec2',
+                u_pointer: 'vec2'
+            },
+            constant: `
                 vec3 A = vec3(0.5);
                 vec3 B = vec3(0.5);
-                vec3 C = vec3(1.0, 0.7, 0.4);
-                vec3 D = vec3(0.0, 0.15, 0.2);
+                vec3 C = vec3(${c});
+                vec3 D = vec3(${d});
                 vec3 palette(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
                     return a + b * cos(6.28318 * (c * t + d));
                 }`,
-                main: `
+            main: `
                     vec2 st = gl_FragCoord.xy / u_resolution.xy;
                     float dist = distance(u_pointer, st);
                     alpha = smoothstep(turbulenceValue * 0.2, 0.2 + turbulenceValue * 0.2, dist);
                     color = palette(turbulenceValue, A, B, C, D);`
+        },
+        uniforms: [
+            {
+                name: 'u_resolution',
+                type: 'f',
+                data: [width, height]
             },
-            uniforms: [
-                {
-                    name: 'u_resolution',
-                    type: 'f',
-                    data: [width, height]
-                },
-                {
-                    name: 'u_pointer',
-                    type: 'f',
-                    data: mousePosition
-                }
-            ],
-            get mouse() {
-                return this.uniforms[1].data;
-            },
-            set mouse(data) {
-                this.uniforms[1].data[0] = data[0];
-                this.uniforms[1].data[1] = data[1];
+            {
+                name: 'u_pointer',
+                type: 'f',
+                data: mouse
             }
-        };
+        ],
+        get mouse() {
+            return this.uniforms[1].data;
+        },
+        set mouse(data) {
+            this.uniforms[1].data[0] = data[0];
+            this.uniforms[1].data[1] = data[1];
+        }
+    });
 
-        const FREQUENCY = 2 / (width > height ? width : height);
+    const render = getRender([1.0, 0.7, 0.4], [0.0, 0.15, 0.2], mousePosition);
+    const render2 = getRender([0.0, 0.9, 0.6], [0.6, 0.15, 0.5], mousePosition2);
 
-        turbulence.frequency = {x: FREQUENCY, y: FREQUENCY};
-        turbulence.octaves = 6;
+    const FREQUENCY = 2 / (width > height ? width : height);
 
-        const instance = new Kampos({target, effects:[turbulence, render], noSource: true});
-        instance.play((time) => {
-            render.mouse = mousePosition;
-            turbulence.time = time * 2;
+    turbulence.frequency = {x: FREQUENCY, y: FREQUENCY};
+    turbulence.octaves = 6;
+
+    const instance = new Kampos({target: offscreen, effects:[turbulence, render], noSource: true});
+    const instance2 = new Kampos({target: offscreen, effects:[turbulence, render2], noSource: true});
+    const source = {width, height};
+
+    instance.play((time) => {
+        instance.setSource(source, true);
+        render.mouse = mousePosition;
+        turbulence.time = time * 2;
+    }, () => {
+        const bitmap = offscreen.transferToImageBitmap();
+        targetCtx.transferFromImageBitmap(bitmap);
+    });
+
+    instance2.play((time) => {
+        instance.setSource(source, true);
+        render2.mouse = mousePosition2;
+        turbulence.time = time * 3;
+    }, () => {
+        const bitmap = offscreen.transferToImageBitmap();
+        target2Ctx.transferFromImageBitmap(bitmap);
+    });
+
+    document.body.addEventListener('mousemove', (e) => {
+        mousePosition[0] = e.clientX / width;
+        mousePosition2[0] = (e.clientX - width) / width;
+        mousePosition[1] = (height - e.clientY) / height;
+        mousePosition2[1] = (height - e.clientY) / height;
+    });
+
+    const video = document.querySelector('#video');
+    video.addEventListener('timeupdate', () => {
+        const duotone = effects.duotone();
+        const instance3 = new Kampos({target: offscreen, effects:[duotone]});
+
+        const width = video.videoWidth;
+        const height = video.videoHeight;
+        const source = {media: video, width, height};
+        target3.width = width;
+        target3.height = height;
+        instance3.setSource(source);
+
+        instance3.play((time) => {
+            instance3.setSource(source, true);
+        }, () => {
+            const bitmap = offscreen.transferToImageBitmap();
+            target3Ctx.transferFromImageBitmap(bitmap);
         });
+    }, {once: true});
 
-        document.body.addEventListener('mousemove', (e) => {
-            mousePosition[0] = e.clientX / width;
-            mousePosition[1] = (height - e.clientY) / height;
+    const video2 = document.querySelector('#video2');
+    video2.addEventListener('timeupdate', () => {
+        const duotone = effects.duotone({
+            light: [1, 1, 1, 1],
+            dark: [0, 0, 0, 1]
         });
-    </script>
-</body>
+        const instance4 = new Kampos({target: offscreen, effects:[duotone]});
+
+        const width = video2.videoWidth;
+        const height = video2.videoHeight;
+        const source = {media: video2, width, height};
+        target4.width = width;
+        target4.height = height;
+        instance4.setSource(source);
+
+        instance4.play((time) => {
+            instance4.setSource(source, true);
+        }, () => {
+            const bitmap = offscreen.transferToImageBitmap();
+            target4Ctx.transferFromImageBitmap(bitmap);
+        });
+    }, {once: true});
+</script>
 </html>

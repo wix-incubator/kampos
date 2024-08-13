@@ -2,7 +2,7 @@
   <img width="100" src="./kampos.svg?sanitize=true" alt="Kampos logo">
 </p>
 
-# kampos [![Build Status](https://travis-ci.com/wix/kampos.svg?branch=master)](https://travis-ci.com/wix/kampos)
+# kampos
 ### Tiny and fast effects compositor on WebGL
 
 kampos lets you add filter effects and beautiful transitions to video and images (or any other media).
@@ -70,6 +70,12 @@ import displacement from './node_modules/kampos/src/effects/displacement';
 npm install
 npm run build
 ```
+if npm install fails on node-gyp :
+MacOS:
+```
+brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
+```
+[source and other OS](https://github.com/Automattic/node-canvas#compiling)
 
 ## Running tests
 ```bash
