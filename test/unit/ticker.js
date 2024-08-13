@@ -1,9 +1,9 @@
-import test from 'ava';
+import { expect, test } from 'vitest'
 import { Kampos, Ticker } from '../../src/index.js';
 import {createCanvas, Image} from 'node-canvas-webgl';
 
-test.skip('Ticker :: #start :: should start animation loop and call draw', t => {
-    t.plan(1);
+test.skip('Ticker :: #start :: should start animation loop and call draw', () => {
+    expect.assertions(1);
 
     const instance = new Ticker();
     const originalDraw = instance.draw;
@@ -17,7 +17,7 @@ test.skip('Ticker :: #start :: should start animation loop and call draw', t => 
     instance.start();
 
     window.requestAnimationFrame(() => {
-        t.true(calledTimes === 1);
+        expect(calledTimes === 1).toBe(true);
         instance.stop();
     });
 });
