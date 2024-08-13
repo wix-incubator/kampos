@@ -148,11 +148,12 @@ export class Kampos {
      * Set the source config.
      *
      * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap|kamposSource} source
+     * @param {boolean} [skipTextureCreation] defaults to `false`
      * @example
      * const media = document.querySelector('#video');
      * kampos.setSource(media);
      */
-    setSource (source) {
+    setSource (source, skipTextureCreation) {
         if ( ! source ) return;
 
         if ( this.lostContext ) {
@@ -177,7 +178,9 @@ export class Kampos {
         // resize the target canvas if needed
         core.resize(this.gl, this.dimensions);
 
-        this._createTextures();
+        if ( ! skipTextureCreation ) {
+            this._createTextures();
+        }
 
         this.media = media;
     }
@@ -200,6 +203,10 @@ export class Kampos {
             return;
 
         core.draw(this.gl, this.plane, this.media, this.data, this.dimensions);
+
+        if (this.config.afterDraw) {
+            this.config.afterDraw(time);
+        }
     }
 
     /**
@@ -208,9 +215,15 @@ export class Kampos {
      * If a {@link Ticker} is used, this instance will be added to that {@link Ticker}.
      *
      * @param {function} beforeDraw function to run before each draw call
+     * @param {function} afterDraw function to run after each draw call
      */
-    play (beforeDraw) {
-        this.config.beforeDraw = beforeDraw;
+    play (beforeDraw, afterDraw) {
+        if (typeof beforeDraw === 'function') {
+            this.config.beforeDraw = beforeDraw;
+        }
+        if (typeof afterDraw === 'function') {
+            this.config.afterDraw = afterDraw;
+        }
 
         if ( this.ticker ) {
             if ( this.animationFrameId ) {
@@ -345,6 +358,7 @@ export class Kampos {
  * @property {Ticker} [ticker]
  * @property {boolean} [noSource]
  * @property {function} [beforeDraw] function to run before each draw call. If it returns `false` {@link kampos#draw} will not be called.
+ * @property {function} [afterDraw] function to run after each draw call.
  * @property {function} [onContextLost]
  * @property {function} [onContextRestored]
  * @property {function} [onContextCreationError]

@@ -1,3 +1,12 @@
+### 0.9.0 (2024-08-13)
+
+*New:*
+
+ - Added `afterDraw` callback to kampos config. Used to pass a function that will be called after each draw call.
+ - Added optional function argument `afterDraw` to `kampos#play()` method to be dynamically set to `kampos.config.afterDraw`.
+ - Added optional boolean argument `skipTextureCreation` to `kampos#setSource()` method to skip texture creation for the source
+   media. useful for cases where using an OffscreenCanvas as a source for multiple programs and need to switch between them.
+
 ### 0.8.0 (2023-04-01)
 
 *Breaking:*

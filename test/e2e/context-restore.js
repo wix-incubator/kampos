@@ -123,7 +123,7 @@ test('playing an instance with lost context should restore context and recover',
             target.style.width = `${canvasDims.width}px`;
             target.style.height = `${canvasDims.height}px`;
 
-            const {Kampos, effects} = window.kampos;
+            const {Kampos} = window.kampos;
 
             let instance = new Kampos({target, effects: []});
 

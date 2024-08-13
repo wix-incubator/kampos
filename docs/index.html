@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset='utf-8'>
-  <title>kampos 0.8.0 | Documentation</title>
+  <title>kampos 0.9.0 | Documentation</title>
   <meta name='description' content='Tiny and fast effects compositor on WebGL'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' rel='stylesheet'>
@@ -15,7 +15,7 @@
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>kampos</h3>
-          <div class='mb1'><code>0.8.0</code></div>
+          <div class='mb1'><code>0.9.0</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -613,7 +613,7 @@ or after <a href="#kamposdestroy">Kampos#destroy</a>.</p>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>setSource(source)</span>
+            <span class='code strong strong truncate'>setSource(source, skipTextureCreation?)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -623,7 +623,7 @@ or after <a href="#kamposdestroy">Kampos#destroy</a>.</p>
 
   <p>Set the source config.</p>
 
-    <div class='pre p1 fill-light mt0'>setSource(source: (ArrayBufferView | ImageData | <a href="https://developer.mozilla.org/docs/Web/API/HTMLImageElement">HTMLImageElement</a> | <a href="https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement">HTMLCanvasElement</a> | <a href="https://developer.mozilla.org/docs/Web/API/HTMLVideoElement">HTMLVideoElement</a> | ImageBitmap | <a href="#kampossource">kamposSource</a>))</div>
+    <div class='pre p1 fill-light mt0'>setSource(source: (ArrayBufferView | ImageData | <a href="https://developer.mozilla.org/docs/Web/API/HTMLImageElement">HTMLImageElement</a> | <a href="https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement">HTMLCanvasElement</a> | <a href="https://developer.mozilla.org/docs/Web/API/HTMLVideoElement">HTMLVideoElement</a> | ImageBitmap | <a href="#kampossource">kamposSource</a>), skipTextureCreation: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>?)</div>
   
   
 
@@ -642,6 +642,16 @@ or after <a href="#kamposdestroy">Kampos#destroy</a>.</p>
           <div>
             <span class='code bold'>source</span> <code class='quiet'>((ArrayBufferView | ImageData | <a href="https://developer.mozilla.org/docs/Web/API/HTMLImageElement">HTMLImageElement</a> | <a href="https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement">HTMLCanvasElement</a> | <a href="https://developer.mozilla.org/docs/Web/API/HTMLVideoElement">HTMLVideoElement</a> | ImageBitmap | <a href="#kampossource">kamposSource</a>))</code>
 	    
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>skipTextureCreation</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>?)</code>
+	    defaults to 
+<code>false</code>
+
           </div>
           
         </div>
@@ -744,7 +754,7 @@ kampos.<span class="hljs-title function_">setSource</span>(media);</pre>
       <div class="clearfix small pointer toggle-sibling">
         <div class="py1 contain">
             <a class='icon pin-right py1 dark-link caret-right'>▸</a>
-            <span class='code strong strong truncate'>play(beforeDraw)</span>
+            <span class='code strong strong truncate'>play(beforeDraw, afterDraw)</span>
         </div>
       </div>
       <div class="clearfix display-none toggle-target">
@@ -755,7 +765,7 @@ kampos.<span class="hljs-title function_">setSource</span>(media);</pre>
   <p>Starts the animation loop.</p>
 <p>If a <a href="#ticker">Ticker</a> is used, this instance will be added to that <a href="#ticker">Ticker</a>.</p>
 
-    <div class='pre p1 fill-light mt0'>play(beforeDraw: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function">function</a>)</div>
+    <div class='pre p1 fill-light mt0'>play(beforeDraw: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function">function</a>, afterDraw: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function">function</a>)</div>
   
   
 
@@ -774,6 +784,15 @@ kampos.<span class="hljs-title function_">setSource</span>(media);</pre>
           <div>
             <span class='code bold'>beforeDraw</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function">function</a>)</code>
 	    function to run before each draw call
+
+          </div>
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>afterDraw</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function">function</a>)</code>
+	    function to run after each draw call
 
           </div>
           
@@ -1400,6 +1419,13 @@ This will replace canvas DOM element with a fresh clone.</p>
  
 <a href="kampos#draw">kampos#draw</a>
  will not be called.
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>afterDraw</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function">function</a>?)</code>
+          : function to run after each draw call.
 
           
         </div>
