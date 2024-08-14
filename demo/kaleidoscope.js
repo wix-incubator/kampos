@@ -1,6 +1,6 @@
 const {Kampos, effects, noise, transitions} = window.kampos;
 
-const media = document.querySelector('#video6');
+const media = document.querySelector('#video8');
 const target = document.querySelector('#target');
 
 const kaleidoscope = effects.kaleidoscope();

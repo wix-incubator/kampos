@@ -10,9 +10,9 @@
 <html>
     <head>
         <style>
-            body, html {margin: 0; height: 100%; overflow: hidden;}
-            canvas {width: 100%; height: 100%;}
-            video {display: none;}
+            body, html {margin: 0; height: 100%; overflow: hidden; background: black; display: grid;}
+            canvas {width: auto; height: 100%; place-self: center;}
+            video, img {display: none;}
             .clickable {cursor: pointer;}
         </style>
         <script src="../index.umd.js"></script>
@@ -30,20 +30,11 @@
 
     window.updatePreview = updatePreview;
 
-    const navOffHandler = () => document.body.classList.remove('nav-open');
-
-    document.querySelector('#nav-on')
-        .addEventListener('click', () => {
-            document.body.classList.add('nav-open');
-
-            setTimeout(() => document.body.addEventListener('click', navOffHandler, {once: true}), 0);
-        });
-
     function insertSection (id) {
         const section = document.querySelector(`#${id}`);
         const main = document.querySelector('main');
 
-        main.innerHTML = section.innerHTML;
+        main.querySelector('#section-wrapper').innerHTML = section.innerHTML;
 
         sectionScripts[id]();
     }
@@ -52,6 +43,11 @@
         .addEventListener('click', e => {
             const id = e.target.dataset.sectionId;
             insertSection(id);
+        });
+
+    document.querySelector('#open-code')
+        .addEventListener('click', () => {
+            document.querySelector('#section-wrapper').classList.toggle('open');
         });
 
     function startDemo (script, ids) {
@@ -82,7 +78,7 @@
         section1 () {
             startDemo('./turbulence.js', {
                 code: 'code1',
-                preview: 'preview1',
+                preview: 'preview',
                 video: 'videos1',
                 refresh: 'refresh1'
             });
@@ -91,7 +87,7 @@
         section2 () {
             startDemo('./hue-fade.js', {
                 code: 'code2',
-                preview: 'preview2',
+                preview: 'preview',
                 video: 'videos2',
                 refresh: 'refresh2'
             });
@@ -100,7 +96,7 @@
         section3 () {
             startDemo('./disp.js', {
                 code: 'code3',
-                preview: 'preview3',
+                preview: 'preview',
                 video: 'videos3',
                 refresh: 'refresh3'
             });
@@ -109,7 +105,7 @@
         section4 () {
             startDemo('./duotone.js', {
                 code: 'code4',
-                preview: 'preview4',
+                preview: 'preview',
                 video: 'videos4',
                 refresh: 'refresh4'
             });
@@ -118,7 +114,7 @@
         section5 () {
             startDemo('./cellular-noise.js', {
                 code: 'code5',
-                preview: 'preview5',
+                preview: 'preview',
                 refresh: 'refresh5'
             });
         },
@@ -126,7 +122,7 @@
         section6() {
             startDemo('./dissolve-transition.js', {
                 code: 'code6',
-                preview: 'preview6',
+                preview: 'preview',
                 video: 'videos2',
                 refresh: 'refresh6'
             });
@@ -135,7 +131,7 @@
         section7() {
             startDemo('./dissolve-gallery.js', {
                 code: 'code7',
-                preview: 'preview7',
+                preview: 'preview',
                 video: 'none',
                 refresh: 'refresh7'
             });
@@ -144,8 +140,8 @@
         section8() {
             startDemo('./kaleidoscope.js', {
                 code: 'code8',
-                preview: 'preview8',
-                video: 'videos4',
+                preview: 'preview',
+                video: 'videos5',
                 refresh: 'refresh8'
             });
         }
