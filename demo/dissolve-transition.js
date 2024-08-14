@@ -62,7 +62,7 @@ dissolve.map = mapTarget;
 /* init kampos */
 const instance = new Kampos({target, effects:[dissolve]});
 
-/* make sure videos are loaded and playing*/
+/* make sure videos are loaded and playing */
 prepareVideos([media1, media2])
     .then(() => {
         const width = media1.videoWidth;

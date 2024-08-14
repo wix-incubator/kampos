@@ -17,6 +17,7 @@ toc:
       - duotone
       - displacement
       - turbulence
+      - kaleidoscope
   - brightnessContrastEffect
   - hueSaturationEffect
   - blendEffect
@@ -24,6 +25,7 @@ toc:
   - duotoneEffect
   - displacementEffect
   - turbulenceEffect
+  - kaleidoscopeEffect
   - name: transitions
     children:
       - fadeTransition

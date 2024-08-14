@@ -28,8 +28,8 @@ class Transition {
         // make sure videos are loaded and playing
         prepareVideos([this.vid1, this.vid2])
             .then(() => {
-                const width = this.vid1.videoWidth;
-                const height = this.vid1.videoHeight;
+                const height = window.document.documentElement.clientHeight;
+                const width = height * this.vid1.videoWidth / this.vid1.videoHeight;
 
                 dispReady.then(img => {
                     /*
@@ -116,10 +116,10 @@ const trans = new Transition({
     vid2: video2,
     target,
     // switch between the different displacement-map images and refresh to see different effects
-    //disp: 'disp-cloud.png',
+    disp: 'disp-cloud.png',
     //disp: 'disp-liquid.jpg',
     //disp: 'disp-tri.jpg',
-    disp: 'disp-snow.jpg',
+    // disp: 'disp-snow.jpg',
     // change this value and refresh to see how it affects the transition
     dispScale: 1.0
 });

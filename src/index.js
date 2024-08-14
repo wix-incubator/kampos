@@ -4,6 +4,7 @@ import brightnessContrast from './effects/brightness-contrast.js';
 import hueSaturation from './effects/hue-saturation.js';
 import duotone from './effects/duotone.js';
 import displacement from './effects/displacement.js';
+import kaleidoscope from './effects/kaleidoscope.js';
 import perlinNoise from './noise/perlin-noise-3d.js';
 import cellular from './noise/cellular-noise-3d.js';
 import simplex from './noise/simplex-3d.js';
@@ -23,7 +24,8 @@ export const effects = {
     hueSaturation,
     duotone,
     displacement,
-    turbulence
+    turbulence,
+    kaleidoscope
 };
 
 export const transitions = {

@@ -1,13 +1,13 @@
 {
   "name": "kampos",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Tiny and fast effects compositor on WebGL",
   "registry": "https://registry.npmjs.org/",
   "main": "index.js",
   "module": "index.js",
   "type": "module",
   "scripts": {
-    "build": "rollup -c rollup.build.js",
+    "build": "rollup -c rollup.build.js && rollup -c rollup.umd.js",
     "watch": "rollup -c rollup.build.js -w",
     "demo": "cd demo && rollup -c && cd -",
     "watch:demo": "cd demo && rollup -c -w && cd -",

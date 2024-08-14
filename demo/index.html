@@ -11,10 +11,34 @@
     <style>
         body {
             margin: 0;
-            background-image: linear-gradient(-45deg, peachpuff, palegreen, plum, peachpuff, palegreen, plum),
-            linear-gradient(45deg, purple, darkblue, rebeccapurple, purple, darkblue, rebeccapurple);
-            background-blend-mode: screen;
             font-family: "Nova round", cursive, fantasy;
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: 1fr 980px;
+            min-height: 100vh;
+            width: 100%;
+            overflow: clip;
+        }
+
+        #preview {
+            grid-area: 1 / 1 / 2 / 3;
+            width: 100%;
+            height: 100vh;
+            border: none;
+            outline: none;
+        }
+
+        #section-wrapper {
+            position: relative;
+            grid-area: 1 / 2 / 2 / 3;
+            transition: transform 0.5s;
+            transform: translateX(100%);
+        }
+
+        #section-wrapper.open {
+            transform: translateX(0);
         }
 
         header {
@@ -27,35 +51,6 @@
             min-height: 100vh;
             z-index: 20;
             top: 0;
-            background-color: #DDA0DDee;
-            transform: translateX(-100%);
-            transition: transform .5s ease;
-        }
-
-        .nav-open nav {
-            transform: translateX(0);
-        }
-
-        main {
-            min-height: 100vh;
-            width: 100vw;
-        }
-
-        iframe {
-            display: block;
-            vertical-align: top;
-        }
-
-        iframe {
-            width: 100vw;
-            height: calc(480 / 854 * 100vw);
-            border: none;
-            outline: none;
-        }
-
-        section {
-            position: relative;
-            margin: 0 auto 10vh;
         }
 
         nav {
@@ -70,10 +65,11 @@
 
         nav li {
             padding: 1rem;
+            background: #ffffff80;
         }
 
-        p {
-            padding: 1rem;
+        nav li a {
+            color: black;
         }
 
         button {
@@ -88,114 +84,47 @@
         .refresh-button {
             position: absolute;
             top: 1px;
-            right: 1px;
+            right: 1em;
             z-index: 10;
             padding: 1em 2em;
             font-size: 16px;
             font-weight: bold;
         }
 
+        #open-code {
+            position: fixed;
+            top: auto;
+            bottom: 1em;
+            z-index: 10;
+        }
+
+        #open-code::before {
+            content: "Code { }";
+        }
+
+        #section-wrapper.open + #open-code::before {
+            content: "X";
+        }
+
         header button {
             cursor: pointer;
         }
 
-        #nav-off {
-            display: none;
+        .CodeMirror {
+            height: 100vh;
+            opacity: 0.4;
+            transition: opacity 0.5s;
         }
 
-        .nav-open #nav-off {
-            display: inline;
-        }
-
-        .nav-open #nav-on {
-            display: none;
-        }
-
-        @media (min-width: 1110px) {
-            html, body {
-                margin: 0;
-            }
-
-            body {
-                display: grid;
-                grid-template: "nav main" 1fr / 256px calc(100vw - 256px);
-            }
-
-            header {
-                display: none;
-            }
-
-            nav {
-                grid-area: nav;
-                position: fixed;
-                min-height: 100vh;
-                background-color: transparent;
-                transform: none;
-            }
-
-            main {
-                grid-area: main;
-                width: auto;
-            }
-
-            h1 {
-                font-size: 128px;
-            }
-
-            h2 {
-                font-size: 32px;
-            }
-
-            section {
-                display: flex;
-                flex-direction: column;
-                width: 854px;
-            }
-
-            iframe {
-                flex: auto;
-                width: 854px;
-                height: 480px;
-            }
-
-            .CodeMirror {
-                flex: auto;
-            }
-
-            #code1 + .CodeMirror {
-                height: 54rem;
-            }
-
-            #code2 + .CodeMirror {
-                height: 66rem;
-            }
-
-            #code3 + .CodeMirror {
-                height: 125rem;
-            }
-
-            #code4 + .CodeMirror {
-                height: 30rem;
-            }
-
-            #code5 + .CodeMirror {
-                height: 42rem;
-            }
-
-            #code6 + .CodeMirror {
-                height: 86rem;
-            }
-
-            #code7 + .CodeMirror {
-                height: 152rem;
-            }
+        .CodeMirror:hover, .CodeMirror:focus-within {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
     <template id="videos1">
         <video id="video5"
-               src="./man-on-beach.mp4"
+               src="https://video.wixstatic.com/video/cec2b6_ace14702693f4226a1825ab97da69494/1080p/mp4/file.mp4"
                autoplay
                loop
                muted
@@ -206,7 +135,7 @@
 
     <template id="videos2">
         <video id="video3"
-               src="./wheat-field.mp4"
+               src="https://video.wixstatic.com/video/cec2b6_7aeaef443e224cff8a71e5cd6802fb14/1080p/mp4/file.mp4"
                autoplay
                loop
                muted
@@ -215,7 +144,7 @@
                playsinline></video>
 
         <video id="video4"
-               src="./shell-beach.mp4"
+               src="https://video.wixstatic.com/video/cec2b6_eb804073f64d4ef8bde1e9e789961654/1080p/mp4/file.mp4"
                autoplay
                loop
                muted
@@ -226,7 +155,7 @@
 
     <template id="videos3">
         <video id="video1"
-               src="./cloudy-night.mp4"
+               src="https://video.wixstatic.com/video/cec2b6_eb804073f64d4ef8bde1e9e789961654/1080p/mp4/file.mp4"
                autoplay
                loop
                muted
@@ -235,7 +164,7 @@
                playsinline></video>
 
         <video id="video2"
-               src="./starry-night.mp4"
+               src="https://video.wixstatic.com/video/cec2b6_a2b6e651a65447f1a78ff8784b876745/1080p/mp4/file.mp4"
                autoplay
                loop
                muted
@@ -245,8 +174,20 @@
     </template>
 
     <template id="videos4">
-        <video id="video6"
+        <!--video id="video6"
                src="./drop-water.mp4"
+               autoplay
+               loop
+               muted
+               preload="auto"
+               crossorigin="anonymous"
+               playsinline></video-->
+        <img src="https://static.wixstatic.com/media/cec2b6_36e46176b7e54b678e4c6d39d36452e5~mv2.jpg">
+    </template>
+
+    <template id="videos5">
+        <video id="video8"
+               src="https://video.wixstatic.com/video/cec2b6_a2b6e651a65447f1a78ff8784b876745/1080p/mp4/file.mp4"
                autoplay
                loop
                muted
@@ -257,11 +198,6 @@
 
     <template id="section4">
         <section id="duotone">
-            <p>
-                Apply duotone effect on video.<br/>
-                Hover the video to turn off the effect and see the original.
-            </p>
-            <iframe id="preview4" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
             <div class="code-container">
                 <button class="refresh-button" id="refresh4">Refresh</button>
                 <textarea id="code4"></textarea>
@@ -271,10 +207,6 @@
 
     <template id="section1">
         <section id="turbulence">
-            <p>
-                Paint turbulence noise, animate it, and use it as a displacement map for the video.
-            </p>
-            <iframe id="preview1" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
             <div class="code-container">
                 <button class="refresh-button" id="refresh1">Refresh</button>
                 <textarea id="code1"></textarea>
@@ -284,11 +216,6 @@
 
     <template id="section2">
         <section id="fade-hue">
-            <p>
-                Transition between 2 videos with a cross-fade effect & apply a hue-rotate filter.<br/>
-                Move the mouse (tap on mobile) around over the video to see it in action.
-            </p>
-            <iframe id="preview2" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
             <div class="code-container">
                 <button class="refresh-button" id="refresh2">Refresh</button>
                 <textarea id="code2"></textarea>
@@ -298,12 +225,6 @@
 
     <template id="section3">
         <section id="displacement-transition">
-            <p>
-                Transition between 2 videos with a displacement effect.<br/>
-                Hover the video to see it in action.<br/>
-                * On mobile tap inside/outside the video.
-            </p>
-            <iframe id="preview3" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
             <div class="code-container">
                 <button class="refresh-button" id="refresh3">Refresh</button>
                 <textarea id="code3"></textarea>
@@ -313,10 +234,6 @@
 
     <template id="section5">
         <section id="cellular-noise">
-            <p>
-                Cellular noise
-            </p>
-            <iframe id="preview5" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
             <div class="code-container">
                 <button class="refresh-button" id="refresh5">Refresh</button>
                 <textarea id="code5"></textarea>
@@ -326,10 +243,6 @@
 
     <template id="section6">
         <section id="dissolve-transition">
-            <p>
-                Dissolve transition
-            </p>
-            <iframe id="preview6" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
             <div class="code-container">
                 <button class="refresh-button" id="refresh6">Refresh</button>
                 <textarea id="code6"></textarea>
@@ -339,10 +252,6 @@
 
     <template id="section7">
         <section id="dissolve-gallery">
-            <p>
-                Dissolve gallery - click the image for transition: next on right half / previous on left half
-            </p>
-            <iframe id="preview7" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
             <div class="code-container">
                 <button class="refresh-button" id="refresh7">Refresh</button>
                 <textarea id="code7"></textarea>
@@ -350,28 +259,25 @@
         </section>
     </template>
 
+    <template id="section8">
+        <section id="kaleidoscope">
+            <div class="code-container">
+                <button class="refresh-button" id="refresh8">Refresh</button>
+                <textarea id="code8"></textarea>
+            </div>
+        </section>
+    </template>
+
     <nav>
         <ul>
             <li>
-                <a href="https://github.com/wix-incubator/kampos">Source</a>
-            </li>
-            <li>
-                <a href="https://wix-incubator.github.io/kampos/docs/">API Reference</a>
-            </li>
-            <li>
-                <a href="https://wix-incubator.github.io/kampos">Home</a>
-            </li>
-        </ul>
-        <h2>Demos:</h2>
-        <ul>
-            <li>
-                <a href="#section4" data-section-id="section4">Duotone effect</a>
+                <a href="#section4" data-section-id="section4">Duotone effect with hue-rotation</a>
             </li>
             <li>
                 <a href="#section1" data-section-id="section1">Fractal noise displacement</a>
             </li>
             <li>
-                <a href="#section2" data-section-id="section2">Cross-fade with hue-rotation</a>
+                <a href="#section2" data-section-id="section2">Cross-fade</a>
             </li>
             <li>
                 <a href="#section3" data-section-id="section3">Displacement transition</a>
@@ -385,18 +291,15 @@
             <li>
                 <a href="#section7" data-section-id="section7">Dissolve Gallery</a>
             </li>
+            <li>
+                <a href="#section8" data-section-id="section8">Kaleidoscope</a>
+            </li>
         </ul>
     </nav>
-    <header>
-        <button id="nav-on">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-        </button>
-        <button id="nav-off">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round" stroke-linejoin="arcs"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-        </button>
-    </header>
     <main>
-
+        <iframe id="preview" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
+        <div id="section-wrapper"></div>
+        <button class="refresh-button" id="open-code"></button>
     </main>
 
     <script src="./lib/codemirror/codemirror.js"></script>
