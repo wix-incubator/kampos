@@ -54,7 +54,7 @@ declare type TextureConfig = {
 declare type AttributeType = 'BYTE' | 'SHORT' | 'UNSIGNED_BYTE' | 'UNSIGNED_SHORT' | 'FLOAT';
 
 declare type Attribute = {
-    extends: string;
+    extends?: string;
     name: string;
     size: number;
     type: AttributeType;

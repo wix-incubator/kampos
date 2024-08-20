@@ -1,4 +1,4 @@
-const { Kampos, effects, noise } = window.kampos;
+import { Kampos, effects, noise } from '../index.js';
 
 const target = document.querySelector('canvas');
 target.width = 854;

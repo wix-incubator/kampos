@@ -1,4 +1,4 @@
-const {Kampos, effects, noise, transitions} = window.kampos;
+import { Kampos, effects, noise, transitions } from '../index.js';
 
 const target = document.querySelector('#target');
 

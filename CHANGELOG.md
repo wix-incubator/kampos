@@ -1,3 +1,18 @@
+### 0.10.0 (2024-08-20)
+
+*New:*
+
+- Added a `dist/index.cjs` distribution.
+- Replaced `index.js` with `src/index.js`.
+
+*Fixed:*
+
+- Fixed `extends` property of type `Attribute`.
+
+*Breaking:*
+
+- `main` field in `package.json` now points to `dist/index.cjs`.
+
 ### 0.9.2 (2024-08-20)
 
 *New:*
