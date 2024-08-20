@@ -1,4 +1,4 @@
-const {Kampos, transitions} = window.kampos;
+import { Kampos, transitions } from '../index.js';
 const transitionDisplacement = transitions.displacement;
 
 /*

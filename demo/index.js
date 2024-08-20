@@ -15,13 +15,13 @@
             video, img {display: none;}
             .clickable {cursor: pointer;}
         </style>
-        <script src="../index.umd.js"></script>
+        <script type="module" src="../index.js"></script>
         <script src="./utils.js"></script>
     </head>
     <body>
         ${videos}
         <canvas id="target"></canvas>
-        <script>
+        <script type="module">
             ${example}
         </script>
     </body>

@@ -1,8 +1,8 @@
 import progress from 'rollup-plugin-progress';
 import filesize from 'rollup-plugin-filesize';
 
-const config = {
-    input: './src/index.js',
+export default {
+    input: './index.js',
     output: {
         name: 'kampos',
         file: 'index.umd.js',
@@ -16,5 +16,3 @@ const config = {
         filesize()
     ]
 };
-
-export default config;

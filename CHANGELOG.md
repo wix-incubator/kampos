@@ -1,3 +1,15 @@
+### 0.10.0 (2024-08-20)
+
+*New:*
+
+- Added a `dist/index.cjs` distribution.
+- Replaced `index.js` with `src/index.js`.
+- Added a `types.d.ts` module for types support.
+
+*Breaking:*
+
+- `main` field in `package.json` now points to `dist/index.cjs`.
+
 ### 0.9.2 (2024-08-20)
 
 *New:*

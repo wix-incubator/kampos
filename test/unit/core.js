@@ -4,7 +4,7 @@ import { WebGLProgram } from 'gl/src/javascript/webgl-program.js';
 import { WebGLShader } from 'gl/src/javascript/webgl-shader.js';
 import { WebGLTexture } from 'gl/src/javascript/webgl-texture.js';
 import * as core from '../../src/core.js';
-import { effects } from '../../src/index.js';
+import { effects } from '../../index.js';
 
 const brightnessContrast = effects.brightnessContrast();
 

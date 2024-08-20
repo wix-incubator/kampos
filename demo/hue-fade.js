@@ -1,4 +1,4 @@
-const {Kampos, effects, transitions} = window.kampos;
+import { Kampos, transitions } from '../index.js';
 
 const media1 = document.querySelector('#video3');
 const media2 = document.querySelector('#video4');

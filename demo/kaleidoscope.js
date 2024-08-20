@@ -1,4 +1,4 @@
-const {Kampos, effects, noise, transitions} = window.kampos;
+import { Kampos, effects } from '../index.js';
 
 const media = document.querySelector('#video8');
 const target = document.querySelector('#target');

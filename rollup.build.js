@@ -1,11 +1,11 @@
 import progress from 'rollup-plugin-progress';
 import filesize from 'rollup-plugin-filesize';
 
-const config = {
-    input: 'src/index.js',
+export default {
+    input: 'index.js',
     output: {
-        file: 'index.js',
-        format: 'esm'
+        file: 'dist/index.cjs',
+        format: 'cjs'
     },
     plugins: [
         progress({
@@ -14,5 +14,3 @@ const config = {
         filesize()
     ]
 };
-
-export default config;

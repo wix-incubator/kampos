@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { Kampos, Ticker, effects } from '../../src/index.js';
+import { Kampos, Ticker, effects } from '../../index.js';
 import { WebGLRenderingContext } from 'gl/src/javascript/webgl-rendering-context.js';
 import { createCanvas, Image } from 'node-canvas-webgl';
 
