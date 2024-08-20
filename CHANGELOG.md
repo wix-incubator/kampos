@@ -4,7 +4,10 @@
 
 - Added a `dist/index.cjs` distribution.
 - Replaced `index.js` with `src/index.js`.
-- Added a `types.d.ts` module for types support.
+
+*Fixed:*
+
+- Fixed `extends` property of type `Attribute`.
 
 *Breaking:*
 
