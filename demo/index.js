@@ -68,7 +68,7 @@
                     updatePreview(
                         preview,
                         doc.getValue(),
-                        video ? video.innerHTML : '',
+                        video ? video.innerHTML : ''
                     );
 
                 refresh.addEventListener('click', update);
@@ -160,5 +160,15 @@
     };
 
     insertSection('section7');
+
+    // on load get active section from url hash and set
+    const hash = window.location.hash.substring(1);
+
+    if (hash) {
+        const section = document.querySelector(`#${hash}`);
+        if (section) {
+            insertSection(hash);
+        }
+    }
 
 })();
