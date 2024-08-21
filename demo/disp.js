@@ -6,7 +6,7 @@ const transitionDisplacement = transitions.displacement;
  * This is a simple vanilla implementation
  */
 class Transition {
-    constructor ({vid1, vid2, target, disp, dispScale}) {
+    constructor({ vid1, vid2, target, disp, dispScale }) {
         /*
          * prepare here everything we need
          */
@@ -20,41 +20,41 @@ class Transition {
         this.startTime = 0;
 
         // init kampos
-        this.kampos = new Kampos({target, effects: [this.transition]});
+        this.kampos = new Kampos({ target, effects: [this.transition] });
 
         // load the displacement map image
         const dispReady = loadImage(disp);
 
         // make sure videos are loaded and playing
-        prepareVideos([this.vid1, this.vid2])
-            .then(() => {
-                const height = window.document.documentElement.clientHeight;
-                const width = height * this.vid1.videoWidth / this.vid1.videoHeight;
+        prepareVideos([this.vid1, this.vid2]).then(() => {
+            const height = window.document.documentElement.clientHeight;
+            const width =
+                (height * this.vid1.videoWidth) / this.vid1.videoHeight;
 
-                dispReady.then(img => {
-                    /*
-                     * set transition values
-                     */
-                    this.transition.map = img;
-                    this.transition.to = this.vid2;
+            dispReady.then((img) => {
+                /*
+                 * set transition values
+                 */
+                this.transition.map = img;
+                this.transition.to = this.vid2;
 
-                    // try playing with the x/y and +/- for different transition effects
-                    this.transition.sourceScale = {x: this.dispScale};
-                    this.transition.toScale = {x: -this.dispScale};
+                // try playing with the x/y and +/- for different transition effects
+                this.transition.sourceScale = { x: this.dispScale };
+                this.transition.toScale = { x: -this.dispScale };
 
-                    // set media source
-                    this.kampos.setSource({media: this.vid1, width, height});
+                // set media source
+                this.kampos.setSource({ media: this.vid1, width, height });
 
-                    // start kampos
-                    this.kampos.play();
-                });
+                // start kampos
+                this.kampos.play();
             });
+        });
     }
 
     /*
      * start animation playback forward
      */
-    forward () {
+    forward() {
         this.direction = 1;
         this.startTime = Date.now();
         this.loop();
@@ -63,7 +63,7 @@ class Transition {
     /*
      * start animation playback backwards
      */
-    backward () {
+    backward() {
         this.direction = 0;
         this.startTime = Date.now();
         this.loop();
@@ -72,14 +72,14 @@ class Transition {
     /*
      * This will probably be a callback you'll provide to your animation library
      */
-    tick (p) {
+    tick(p) {
         this.transition.progress = p;
     }
 
     /*
      * This will usually be implemented by an animation library you may already have in your project
      */
-    loop () {
+    loop() {
         const now = Date.now() - this.startTime;
         // dividing by 500 is just enough to slow down the effect
         // you can change the sin() function with a different one for a different easing
@@ -98,8 +98,7 @@ class Transition {
             if (p * 100 >= 99) {
                 nextTick = () => this.tick(1);
             }
-        }
-        else if (p * 100 <= 1) {
+        } else if (p * 100 <= 1) {
             nextTick = () => this.tick(0);
         }
 
@@ -121,7 +120,7 @@ const trans = new Transition({
     //disp: 'disp-tri.jpg',
     // disp: 'disp-snow.jpg',
     // change this value and refresh to see how it affects the transition
-    dispScale: 1.0
+    dispScale: 1.0,
 });
 
 /*

@@ -13,15 +13,15 @@
  *
  * @example turbulence({noise: kampos.noise.simplex, output: turbulence.COLOR, octaves: 4, isFractal: true})
  */
-function turbulence ({
+function turbulence({
     noise,
-    output= OUTPUT_TYPES.COLOR,
+    output = OUTPUT_TYPES.COLOR,
     frequency,
     octaves = 1,
-    isFractal= false,
-    time = 0.0
+    isFractal = false,
+    time = 0.0,
 }) {
-    const { x: fx, y: fy } = (frequency || { x: 0.0, y: 0.0 });
+    const { x: fx, y: fy } = frequency || { x: 0.0, y: 0.0 };
 
     /**
      * @typedef {Object} turbulenceEffect
@@ -44,7 +44,7 @@ function turbulence ({
                 u_turbulenceFrequency: 'vec2',
                 u_turbulenceOctaves: 'int',
                 u_isFractal: 'bool',
-                u_time: 'float'
+                u_time: 'float',
             },
             constant: `
 ${noise}
@@ -84,65 +84,63 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
             main: `
     vec3 turbulenceSeed = vec3(gl_FragCoord.xy, u_time * 0.0001);
     float turbulenceValue = turbulence(turbulenceSeed, u_turbulenceFrequency, u_turbulenceOctaves, u_isFractal);
-    ${output || ''}`
+    ${output || ''}`,
         },
-        get frequency () {
+        get frequency() {
             const [x, y] = this.uniforms[0].data;
-            return {x, y};
+            return { x, y };
         },
-        set frequency ({x, y}) {
-            if ( typeof x !== 'undefined' )
-                this.uniforms[0].data[0] = x;
-            if ( typeof y !== 'undefined' )
-                this.uniforms[0].data[1] = y;
+        set frequency({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[0].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[0].data[1] = y;
         },
-        get octaves () {
+        get octaves() {
             return this.uniforms[1].data[0];
         },
-        set octaves (value) {
+        set octaves(value) {
             this.uniforms[1].data[0] = Math.max(0, parseInt(value));
         },
-        get isFractal () {
+        get isFractal() {
             return !!this.uniforms[2].data[0];
         },
-        set isFractal (toggle) {
+        set isFractal(toggle) {
             this.uniforms[2].data[0] = +toggle;
         },
-        get time () {
+        get time() {
             return this.uniforms[3].data[0];
         },
-        set time (value) {
+        set time(value) {
             this.uniforms[3].data[0] = Math.max(0, parseFloat(value));
         },
         uniforms: [
             {
                 name: 'u_turbulenceFrequency',
                 type: 'f',
-                data: [fx, fy]
+                data: [fx, fy],
             },
             {
                 name: 'u_turbulenceOctaves',
                 type: 'i',
-                data: [octaves]
+                data: [octaves],
             },
             {
                 name: 'u_isFractal',
                 type: 'i',
-                data: [+!!isFractal]
+                data: [+!!isFractal],
             },
             {
                 name: 'u_time',
                 type: 'f',
-                data: [time]
-            }
-        ]
+                data: [time],
+            },
+        ],
     };
 }
 
 const OUTPUT_TYPES = {
     COLOR: 'color = vec3(turbulenceValue);',
-    ALPHA: 'alpha = turbulenceValue;'
-}
+    ALPHA: 'alpha = turbulenceValue;',
+};
 
 turbulence.COLOR = OUTPUT_TYPES.COLOR;
 turbulence.ALPHA = OUTPUT_TYPES.ALPHA;

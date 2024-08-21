@@ -6,7 +6,7 @@
  *
  * @example alphaMask()
  */
-export default function ({isLuminance = false} = {}) {
+export default function ({ isLuminance = false } = {}) {
     /**
      * @typedef {Object} alphaMaskEffect
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} mask
@@ -24,16 +24,16 @@ export default function ({isLuminance = false} = {}) {
     return {
         vertex: {
             attribute: {
-                a_alphaMaskTexCoord: 'vec2'
+                a_alphaMaskTexCoord: 'vec2',
             },
             main: `
-    v_alphaMaskTexCoord = a_alphaMaskTexCoord;`
+    v_alphaMaskTexCoord = a_alphaMaskTexCoord;`,
         },
         fragment: {
             uniform: {
                 u_alphaMaskEnabled: 'bool',
                 u_alphaMaskIsLuminance: 'bool',
-                u_mask: 'sampler2D'
+                u_mask: 'sampler2D',
             },
             main: `
     if (u_alphaMaskEnabled) {
@@ -45,57 +45,57 @@ export default function ({isLuminance = false} = {}) {
         else {
             alpha *= alphaMaskPixel.a;
         }
-    }`
+    }`,
         },
-        get disabled () {
+        get disabled() {
             return !this.uniforms[0].data[0];
         },
-        set disabled (b) {
+        set disabled(b) {
             this.uniforms[0].data[0] = +!b;
         },
-        get mask () {
+        get mask() {
             return this.textures[0].data;
         },
-        set mask (img) {
+        set mask(img) {
             this.textures[0].data = img;
         },
-        get isLuminance () {
+        get isLuminance() {
             return !!this.uniforms[2].data[0];
         },
-        set isLuminance (toggle) {
+        set isLuminance(toggle) {
             this.uniforms[2].data[0] = +toggle;
             this.textures[0].format = toggle ? 'RGBA' : 'ALPHA';
         },
         varying: {
-            v_alphaMaskTexCoord: 'vec2'
+            v_alphaMaskTexCoord: 'vec2',
         },
         uniforms: [
             {
                 name: 'u_alphaMaskEnabled',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_mask',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_alphaMaskIsLuminance',
                 type: 'i',
-                data: [+!!isLuminance]
-            }
+                data: [+!!isLuminance],
+            },
         ],
         attributes: [
             {
                 name: 'a_alphaMaskTexCoord',
-                extends: 'a_texCoord'
-            }
+                extends: 'a_texCoord',
+            },
         ],
         textures: [
             {
-                format: isLuminance ? 'RGBA' : 'ALPHA'
-            }
-        ]
+                format: isLuminance ? 'RGBA' : 'ALPHA',
+            },
+        ],
     };
-};
+}

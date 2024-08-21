@@ -1,180 +1,194 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="cache-control" content="no-cache" />
-    <title>kampos Demos</title>
-    <link href="https://fonts.googleapis.com/css?family=Nova+Round&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./lib/codemirror/codemirror.css">
-    <link rel="stylesheet" href="lib/codemirror/dracula.css">
-    <style>
-        body {
-            margin: 0;
-            font-family: "Nova round", cursive, fantasy;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta http-equiv="cache-control" content="no-cache" />
+        <title>kampos Demos</title>
+        <link
+            href="https://fonts.googleapis.com/css?family=Nova+Round&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="./lib/codemirror/codemirror.css" />
+        <link rel="stylesheet" href="lib/codemirror/dracula.css" />
+        <style>
+            body {
+                margin: 0;
+                font-family: 'Nova round', cursive, fantasy;
+            }
 
-        main {
-            display: grid;
-            grid-template-columns: 1fr 980px;
-            min-height: 100vh;
-            width: 100%;
-            overflow: clip;
-        }
+            main {
+                display: grid;
+                grid-template-columns: 1fr 980px;
+                min-height: 100vh;
+                width: 100%;
+                overflow: clip;
+            }
 
-        #preview {
-            grid-area: 1 / 1 / 2 / 3;
-            width: 100%;
-            height: 100vh;
-            border: none;
-            outline: none;
-        }
+            #preview {
+                grid-area: 1 / 1 / 2 / 3;
+                width: 100%;
+                height: 100vh;
+                border: none;
+                outline: none;
+            }
 
-        #section-wrapper {
-            position: relative;
-            grid-area: 1 / 2 / 2 / 3;
-            transition: transform 0.5s;
-            transform: translateX(100%);
-        }
+            #section-wrapper {
+                position: relative;
+                grid-area: 1 / 2 / 2 / 3;
+                transition: transform 0.5s;
+                transform: translateX(100%);
+            }
 
-        #section-wrapper.open {
-            transform: translateX(0);
-        }
+            #section-wrapper.open {
+                transform: translateX(0);
+            }
 
-        header {
-            text-align: right;
-        }
+            header {
+                text-align: right;
+            }
 
-        nav {
-            position: fixed;
-            width: 256px;
-            min-height: 100vh;
-            z-index: 20;
-            top: 0;
-        }
+            nav {
+                position: fixed;
+                width: 256px;
+                min-height: 100vh;
+                z-index: 20;
+                top: 0;
+            }
 
-        nav {
-            padding-left: 1em;
-        }
+            nav {
+                padding-left: 1em;
+            }
 
-        nav ul {
-            margin: 1rem 0;
-            padding: 0;
-            list-style: none;
-        }
+            nav ul {
+                margin: 1rem 0;
+                padding: 0;
+                list-style: none;
+            }
 
-        nav li {
-            padding: 1rem;
-            background: #ffffff80;
-        }
+            nav li {
+                padding: 1rem;
+                background: #ffffff80;
+            }
 
-        nav li a {
-            color: black;
-        }
+            nav li a {
+                color: black;
+            }
 
-        button {
-            cursor: pointer;
-            background: linear-gradient(45deg, beige, plum);
-        }
+            button {
+                cursor: pointer;
+                background: linear-gradient(45deg, beige, plum);
+            }
 
-        .code-container {
-            position: relative;
-        }
+            .code-container {
+                position: relative;
+            }
 
-        .refresh-button {
-            position: absolute;
-            top: 1px;
-            right: 1em;
-            z-index: 10;
-            padding: 1em 2em;
-            font-size: 16px;
-            font-weight: bold;
-        }
+            .refresh-button {
+                position: absolute;
+                top: 1px;
+                right: 1em;
+                z-index: 10;
+                padding: 1em 2em;
+                font-size: 16px;
+                font-weight: bold;
+            }
 
-        #open-code {
-            position: fixed;
-            top: auto;
-            bottom: 1em;
-            z-index: 10;
-        }
+            #open-code {
+                position: fixed;
+                top: auto;
+                bottom: 1em;
+                z-index: 10;
+            }
 
-        #open-code::before {
-            content: "Code { }";
-        }
+            #open-code::before {
+                content: 'Code { }';
+            }
 
-        #section-wrapper.open + #open-code::before {
-            content: "X";
-        }
+            #section-wrapper.open + #open-code::before {
+                content: 'X';
+            }
 
-        header button {
-            cursor: pointer;
-        }
+            header button {
+                cursor: pointer;
+            }
 
-        .CodeMirror {
-            height: 100vh;
-            opacity: 0.4;
-            transition: opacity 0.5s;
-        }
+            .CodeMirror {
+                height: 100vh;
+                opacity: 0.4;
+                transition: opacity 0.5s;
+            }
 
-        .CodeMirror:hover, .CodeMirror:focus-within {
-            opacity: 1;
-        }
-    </style>
-</head>
-<body>
-    <template id="videos1">
-        <video id="video5"
-               src="https://video.wixstatic.com/video/cec2b6_ace14702693f4226a1825ab97da69494/1080p/mp4/file.mp4"
-               autoplay
-               loop
-               muted
-               preload="auto"
-               crossorigin="anonymous"
-               playsinline></video>
-    </template>
+            .CodeMirror:hover,
+            .CodeMirror:focus-within {
+                opacity: 1;
+            }
+        </style>
+    </head>
+    <body>
+        <template id="videos1">
+            <video
+                id="video5"
+                src="https://video.wixstatic.com/video/cec2b6_ace14702693f4226a1825ab97da69494/1080p/mp4/file.mp4"
+                autoplay
+                loop
+                muted
+                preload="auto"
+                crossorigin="anonymous"
+                playsinline
+            ></video>
+        </template>
 
-    <template id="videos2">
-        <video id="video3"
-               src="https://video.wixstatic.com/video/cec2b6_7aeaef443e224cff8a71e5cd6802fb14/1080p/mp4/file.mp4"
-               autoplay
-               loop
-               muted
-               preload="auto"
-               crossorigin="anonymous"
-               playsinline></video>
+        <template id="videos2">
+            <video
+                id="video3"
+                src="https://video.wixstatic.com/video/cec2b6_7aeaef443e224cff8a71e5cd6802fb14/1080p/mp4/file.mp4"
+                autoplay
+                loop
+                muted
+                preload="auto"
+                crossorigin="anonymous"
+                playsinline
+            ></video>
 
-        <video id="video4"
-               src="https://video.wixstatic.com/video/cec2b6_eb804073f64d4ef8bde1e9e789961654/1080p/mp4/file.mp4"
-               autoplay
-               loop
-               muted
-               preload="auto"
-               crossorigin="anonymous"
-               playsinline></video>
-    </template>
+            <video
+                id="video4"
+                src="https://video.wixstatic.com/video/cec2b6_eb804073f64d4ef8bde1e9e789961654/1080p/mp4/file.mp4"
+                autoplay
+                loop
+                muted
+                preload="auto"
+                crossorigin="anonymous"
+                playsinline
+            ></video>
+        </template>
 
-    <template id="videos3">
-        <video id="video1"
-               src="https://video.wixstatic.com/video/cec2b6_eb804073f64d4ef8bde1e9e789961654/1080p/mp4/file.mp4"
-               autoplay
-               loop
-               muted
-               preload="auto"
-               crossorigin="anonymous"
-               playsinline></video>
+        <template id="videos3">
+            <video
+                id="video1"
+                src="https://video.wixstatic.com/video/cec2b6_eb804073f64d4ef8bde1e9e789961654/1080p/mp4/file.mp4"
+                autoplay
+                loop
+                muted
+                preload="auto"
+                crossorigin="anonymous"
+                playsinline
+            ></video>
 
-        <video id="video2"
-               src="https://video.wixstatic.com/video/cec2b6_a2b6e651a65447f1a78ff8784b876745/1080p/mp4/file.mp4"
-               autoplay
-               loop
-               muted
-               preload="auto"
-               crossorigin="anonymous"
-               playsinline></video>
-    </template>
+            <video
+                id="video2"
+                src="https://video.wixstatic.com/video/cec2b6_a2b6e651a65447f1a78ff8784b876745/1080p/mp4/file.mp4"
+                autoplay
+                loop
+                muted
+                preload="auto"
+                crossorigin="anonymous"
+                playsinline
+            ></video>
+        </template>
 
-    <template id="videos4">
-        <!--video id="video6"
+        <template id="videos4">
+            <!--video id="video6"
                src="./drop-water.mp4"
                autoplay
                loop
@@ -182,140 +196,184 @@
                preload="auto"
                crossorigin="anonymous"
                playsinline></video-->
-        <img src="https://static.wixstatic.com/media/cec2b6_36e46176b7e54b678e4c6d39d36452e5~mv2.jpg">
-    </template>
+            <img
+                src="https://static.wixstatic.com/media/cec2b6_36e46176b7e54b678e4c6d39d36452e5~mv2.jpg"
+            />
+        </template>
 
-    <template id="videos5">
-        <video id="video8"
-               src="https://video.wixstatic.com/video/cec2b6_a2b6e651a65447f1a78ff8784b876745/1080p/mp4/file.mp4"
-               autoplay
-               loop
-               muted
-               preload="auto"
-               crossorigin="anonymous"
-               playsinline></video>
-    </template>
+        <template id="videos5">
+            <video
+                id="video8"
+                src="https://video.wixstatic.com/video/cec2b6_a2b6e651a65447f1a78ff8784b876745/1080p/mp4/file.mp4"
+                autoplay
+                loop
+                muted
+                preload="auto"
+                crossorigin="anonymous"
+                playsinline
+            ></video>
+        </template>
 
-    <template id="section4">
-        <section id="duotone">
-            <div class="code-container">
-                <button class="refresh-button" id="refresh4">Refresh</button>
-                <textarea id="code4"></textarea>
-            </div>
-        </section>
-    </template>
+        <template id="section4">
+            <section id="duotone">
+                <div class="code-container">
+                    <button class="refresh-button" id="refresh4">
+                        Refresh
+                    </button>
+                    <textarea id="code4"></textarea>
+                </div>
+            </section>
+        </template>
 
-    <template id="section1">
-        <section id="turbulence">
-            <div class="code-container">
-                <button class="refresh-button" id="refresh1">Refresh</button>
-                <textarea id="code1"></textarea>
-            </div>
-        </section>
-    </template>
+        <template id="section1">
+            <section id="turbulence">
+                <div class="code-container">
+                    <button class="refresh-button" id="refresh1">
+                        Refresh
+                    </button>
+                    <textarea id="code1"></textarea>
+                </div>
+            </section>
+        </template>
 
-    <template id="section2">
-        <section id="fade-hue">
-            <div class="code-container">
-                <button class="refresh-button" id="refresh2">Refresh</button>
-                <textarea id="code2"></textarea>
-            </div>
-        </section>
-    </template>
+        <template id="section2">
+            <section id="fade-hue">
+                <div class="code-container">
+                    <button class="refresh-button" id="refresh2">
+                        Refresh
+                    </button>
+                    <textarea id="code2"></textarea>
+                </div>
+            </section>
+        </template>
 
-    <template id="section3">
-        <section id="displacement-transition">
-            <div class="code-container">
-                <button class="refresh-button" id="refresh3">Refresh</button>
-                <textarea id="code3"></textarea>
-            </div>
-        </section>
-    </template>
+        <template id="section3">
+            <section id="displacement-transition">
+                <div class="code-container">
+                    <button class="refresh-button" id="refresh3">
+                        Refresh
+                    </button>
+                    <textarea id="code3"></textarea>
+                </div>
+            </section>
+        </template>
 
-    <template id="section5">
-        <section id="cellular-noise">
-            <div class="code-container">
-                <button class="refresh-button" id="refresh5">Refresh</button>
-                <textarea id="code5"></textarea>
-            </div>
-        </section>
-    </template>
+        <template id="section5">
+            <section id="cellular-noise">
+                <div class="code-container">
+                    <button class="refresh-button" id="refresh5">
+                        Refresh
+                    </button>
+                    <textarea id="code5"></textarea>
+                </div>
+            </section>
+        </template>
 
-    <template id="section6">
-        <section id="dissolve-transition">
-            <div class="code-container">
-                <button class="refresh-button" id="refresh6">Refresh</button>
-                <textarea id="code6"></textarea>
-            </div>
-        </section>
-    </template>
+        <template id="section6">
+            <section id="dissolve-transition">
+                <div class="code-container">
+                    <button class="refresh-button" id="refresh6">
+                        Refresh
+                    </button>
+                    <textarea id="code6"></textarea>
+                </div>
+            </section>
+        </template>
 
-    <template id="section7">
-        <section id="dissolve-gallery">
-            <div class="code-container">
-                <button class="refresh-button" id="refresh7">Refresh</button>
-                <textarea id="code7"></textarea>
-            </div>
-        </section>
-    </template>
+        <template id="section7">
+            <section id="dissolve-gallery">
+                <div class="code-container">
+                    <button class="refresh-button" id="refresh7">
+                        Refresh
+                    </button>
+                    <textarea id="code7"></textarea>
+                </div>
+            </section>
+        </template>
 
-    <template id="section8">
-        <section id="kaleidoscope">
-            <div class="code-container">
-                <button class="refresh-button" id="refresh8">Refresh</button>
-                <textarea id="code8"></textarea>
-            </div>
-        </section>
-    </template>
+        <template id="section8">
+            <section id="kaleidoscope">
+                <div class="code-container">
+                    <button class="refresh-button" id="refresh8">
+                        Refresh
+                    </button>
+                    <textarea id="code8"></textarea>
+                </div>
+            </section>
+        </template>
 
-    <template id="section9">
-        <section id="alpha-mask">
-            <div class="code-container">
-                <button class="refresh-button" id="refresh9">Refresh</button>
-                <textarea id="code9"></textarea>
-            </div>
-        </section>
-    </template>
+        <template id="section9">
+            <section id="alpha-mask">
+                <div class="code-container">
+                    <button class="refresh-button" id="refresh9">
+                        Refresh
+                    </button>
+                    <textarea id="code9"></textarea>
+                </div>
+            </section>
+        </template>
 
-    <nav>
-        <ul>
-            <li>
-                <a href="#section4" data-section-id="section4">Duotone effect with hue-rotation</a>
-            </li>
-            <li>
-                <a href="#section1" data-section-id="section1">Fractal noise displacement</a>
-            </li>
-            <li>
-                <a href="#section2" data-section-id="section2">Cross-fade</a>
-            </li>
-            <li>
-                <a href="#section3" data-section-id="section3">Displacement transition</a>
-            </li>
-            <li>
-                <a href="#section5" data-section-id="section5">Cellular noise</a>
-            </li>
-            <li>
-                <a href="#section6" data-section-id="section6">Dissolve transition</a>
-            </li>
-            <li>
-                <a href="#section7" data-section-id="section7">Dissolve Gallery</a>
-            </li>
-            <li>
-                <a href="#section8" data-section-id="section8">Kaleidoscope</a>
-            </li>
-            <li>
-                <a href="#section9" data-section-id="section9">Luminance Mask</a>
-            </li>
-        </ul>
-    </nav>
-    <main>
-        <iframe id="preview" srcdoc="" sandbox="allow-scripts allow-same-origin"></iframe>
-        <div id="section-wrapper"></div>
-        <button class="refresh-button" id="open-code"></button>
-    </main>
+        <nav>
+            <ul>
+                <li>
+                    <a href="#section4" data-section-id="section4"
+                        >Duotone effect with hue-rotation</a
+                    >
+                </li>
+                <li>
+                    <a href="#section1" data-section-id="section1"
+                        >Fractal noise displacement</a
+                    >
+                </li>
+                <li>
+                    <a href="#section2" data-section-id="section2"
+                        >Cross-fade</a
+                    >
+                </li>
+                <li>
+                    <a href="#section3" data-section-id="section3"
+                        >Displacement transition</a
+                    >
+                </li>
+                <li>
+                    <a href="#section5" data-section-id="section5"
+                        >Cellular noise</a
+                    >
+                </li>
+                <li>
+                    <a href="#section6" data-section-id="section6"
+                        >Dissolve transition</a
+                    >
+                </li>
+                <li>
+                    <a href="#section7" data-section-id="section7"
+                        >Dissolve Gallery</a
+                    >
+                </li>
+                <li>
+                    <a href="#section8" data-section-id="section8"
+                        >Kaleidoscope</a
+                    >
+                </li>
+                <li>
+                    <a href="#section9" data-section-id="section9"
+                        >Luminance Mask</a
+                    >
+                </li>
+            </ul>
+        </nav>
+        <main>
+            <iframe
+                id="preview"
+                srcdoc=""
+                sandbox="allow-scripts allow-same-origin"
+            ></iframe>
+            <div id="section-wrapper"></div>
+            <button class="refresh-button" id="open-code"></button>
+        </main>
 
-    <script src="./lib/codemirror/codemirror.js"></script>
-    <script src="./lib/codemirror/javascript.js"></script>
-    <script type="module" src="index.js"></script>
-</body>
+        <script src="./lib/codemirror/codemirror.js"></script>
+        <script src="./lib/codemirror/javascript.js"></script>
+        <script type="module" src="index.js"></script>
+    </body>
 </html>

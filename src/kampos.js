@@ -16,46 +16,52 @@ export class Kampos {
     /**
      * @constructor
      */
-    constructor (config) {
-        if ( ! config || ! config.target ) {
+    constructor(config) {
+        if (!config || !config.target) {
             throw new Error('A target canvas was not provided');
         }
 
-        if ( Kampos.preventContextCreation )
+        if (Kampos.preventContextCreation)
             throw new Error('Context creation is prevented');
 
         this._contextCreationError = function () {
             Kampos.preventContextCreation = true;
 
-            if ( config && config.onContextCreationError ) {
+            if (config && config.onContextCreationError) {
                 config.onContextCreationError.call(this, config);
             }
         };
 
-        config.target.addEventListener('webglcontextcreationerror', this._contextCreationError, false);
+        config.target.addEventListener(
+            'webglcontextcreationerror',
+            this._contextCreationError,
+            false,
+        );
 
         const success = this.init(config);
 
-        if ( ! success )
-            throw new Error('Could not create context');
+        if (!success) throw new Error('Could not create context');
 
         this._restoreContext = (e) => {
             e && e.preventDefault();
 
-            this.config.target.removeEventListener('webglcontextrestored', this._restoreContext, true);
+            this.config.target.removeEventListener(
+                'webglcontextrestored',
+                this._restoreContext,
+                true,
+            );
 
             const success = this.init();
 
-            if ( ! success )
-                return false;
+            if (!success) return false;
 
-            if ( this._source ) {
+            if (this._source) {
                 this.setSource(this._source);
             }
 
             delete this._source;
 
-            if ( config && config.onContextRestored ) {
+            if (config && config.onContextRestored) {
                 config.onContextRestored.call(this, config);
             }
 
@@ -65,21 +71,28 @@ export class Kampos {
         this._loseContext = (e) => {
             e.preventDefault();
 
-            if ( this.gl && this.gl.isContextLost() ) {
-
+            if (this.gl && this.gl.isContextLost()) {
                 this.lostContext = true;
 
-                this.config.target.addEventListener('webglcontextrestored', this._restoreContext, true);
+                this.config.target.addEventListener(
+                    'webglcontextrestored',
+                    this._restoreContext,
+                    true,
+                );
 
                 this.destroy(true);
 
-                if ( config && config.onContextLost ) {
+                if (config && config.onContextLost) {
                     config.onContextLost.call(this, config);
                 }
             }
         };
 
-        this.config.target.addEventListener('webglcontextlost', this._loseContext, true);
+        this.config.target.addEventListener(
+            'webglcontextlost',
+            this._loseContext,
+            true,
+        );
     }
 
     /**
@@ -91,44 +104,47 @@ export class Kampos {
      * @param {kamposConfig} [config] defaults to `this.config`
      * @return {boolean} success whether initializing of the context and program were successful
      */
-    init (config) {
+    init(config) {
         config = config || this.config;
-        let {target, plane, effects, ticker, noSource} = config;
+        let { target, plane, effects, ticker, noSource } = config;
 
-        if ( Kampos.preventContextCreation )
-            return false;
+        if (Kampos.preventContextCreation) return false;
 
         this.lostContext = false;
 
         let gl = core.getWebGLContext(target);
 
-        if ( ! gl )
-            return false;
+        if (!gl) return false;
 
-        if ( gl.isContextLost() ) {
+        if (gl.isContextLost()) {
             const success = this.restoreContext();
 
-            if ( ! success )
-                return false;
+            if (!success) return false;
 
             // get new context from the fresh clone
             gl = core.getWebGLContext(this.config.target);
 
-            if ( ! gl )
-                return false;
+            if (!gl) return false;
         }
 
-        const {x: xSegments = 1, y: ySegments = 1} = plane && plane.segments
-            ? typeof plane.segments === 'object'
-                ? plane.segments
-                : {x: plane.segments, y: plane.segments}
-            : {};
+        const { x: xSegments = 1, y: ySegments = 1 } =
+            plane && plane.segments
+                ? typeof plane.segments === 'object'
+                    ? plane.segments
+                    : { x: plane.segments, y: plane.segments }
+                : {};
         this.plane = {
             xSegments,
-            ySegments
+            ySegments,
         };
 
-        const {data} = core.init({gl, plane: this.plane, effects, dimensions: this.dimensions, noSource});
+        const { data } = core.init({
+            gl,
+            plane: this.plane,
+            effects,
+            dimensions: this.dimensions,
+            noSource,
+        });
 
         this.gl = gl;
         this.data = data;
@@ -136,7 +152,7 @@ export class Kampos {
         // cache for restoring context
         this.config = config;
 
-        if ( ticker ) {
+        if (ticker) {
             this.ticker = ticker;
             ticker.add(this);
         }
@@ -153,32 +169,31 @@ export class Kampos {
      * const media = document.querySelector('#video');
      * kampos.setSource(media);
      */
-    setSource (source, skipTextureCreation) {
-        if ( ! source ) return;
+    setSource(source, skipTextureCreation) {
+        if (!source) return;
 
-        if ( this.lostContext ) {
+        if (this.lostContext) {
             const success = this.restoreContext();
 
-            if ( ! success ) return;
+            if (!success) return;
         }
 
         let media, width, height;
 
-        if ( Object.prototype.toString.call(source) === '[object Object]' ) {
-            ({media, width, height} = source);
-        }
-        else {
+        if (Object.prototype.toString.call(source) === '[object Object]') {
+            ({ media, width, height } = source);
+        } else {
             media = source;
         }
 
-        if ( width && height ) {
+        if (width && height) {
             this.dimensions = { width, height };
         }
 
         // resize the target canvas if needed
         core.resize(this.gl, this.dimensions);
 
-        if ( ! skipTextureCreation ) {
+        if (!skipTextureCreation) {
             this._createTextures();
         }
 
@@ -190,17 +205,16 @@ export class Kampos {
      *
      * @param {number} time
      */
-    draw (time) {
-        if ( this.lostContext ) {
+    draw(time) {
+        if (this.lostContext) {
             const success = this.restoreContext();
 
-            if ( ! success ) return;
+            if (!success) return;
         }
 
         const cb = this.config.beforeDraw;
 
-        if ( cb && cb(time) === false )
-            return;
+        if (cb && cb(time) === false) return;
 
         core.draw(this.gl, this.plane, this.media, this.data, this.dimensions);
 
@@ -217,7 +231,7 @@ export class Kampos {
      * @param {function} beforeDraw function to run before each draw call
      * @param {function} afterDraw function to run after each draw call
      */
-    play (beforeDraw, afterDraw) {
+    play(beforeDraw, afterDraw) {
         if (typeof beforeDraw === 'function') {
             this.config.beforeDraw = beforeDraw;
         }
@@ -225,17 +239,16 @@ export class Kampos {
             this.config.afterDraw = afterDraw;
         }
 
-        if ( this.ticker ) {
-            if ( this.animationFrameId ) {
+        if (this.ticker) {
+            if (this.animationFrameId) {
                 this.stop();
             }
 
-            if ( ! this.playing ) {
+            if (!this.playing) {
                 this.playing = true;
                 this.ticker.add(this);
             }
-        }
-        else if ( ! this.animationFrameId ) {
+        } else if (!this.animationFrameId) {
             const loop = (time) => {
                 this.animationFrameId = window.requestAnimationFrame(loop);
                 this.draw(time);
@@ -243,7 +256,6 @@ export class Kampos {
 
             this.animationFrameId = window.requestAnimationFrame(loop);
         }
-
     }
 
     /**
@@ -251,13 +263,13 @@ export class Kampos {
      *
      * If a {@link Ticker} is used, this instance will be removed from that {@link Ticker}.
      */
-    stop () {
-        if ( this.animationFrameId ) {
+    stop() {
+        if (this.animationFrameId) {
             window.cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
         }
 
-        if ( this.playing ) {
+        if (this.playing) {
             this.playing = false;
             this.ticker.remove(this);
         }
@@ -268,26 +280,33 @@ export class Kampos {
      *
      * @param {boolean} keepState for internal use.
      */
-    destroy (keepState) {
+    destroy(keepState) {
         this.stop();
 
-        if ( this.gl && this.data ) {
+        if (this.gl && this.data) {
             core.destroy(this.gl, this.data);
         }
 
-        if ( keepState ) {
+        if (keepState) {
             const dims = this.dimensions || {};
 
             this._source = this._source || {
                 media: this.media,
                 width: dims.width,
-                height: dims.height
+                height: dims.height,
             };
-        }
-        else {
+        } else {
             if (this.config) {
-                this.config.target.removeEventListener('webglcontextlost', this._loseContext, true);
-                this.config.target.removeEventListener('webglcontextcreationerror', this._contextCreationError, false);
+                this.config.target.removeEventListener(
+                    'webglcontextlost',
+                    this._loseContext,
+                    true,
+                );
+                this.config.target.removeEventListener(
+                    'webglcontextcreationerror',
+                    this._contextCreationError,
+                    false,
+                );
             }
 
             this.config = null;
@@ -305,48 +324,60 @@ export class Kampos {
      *
      * @return {boolean} success whether forcing a context restore was successful
      */
-    restoreContext () {
-        if ( Kampos.preventContextCreation )
-            return false;
+    restoreContext() {
+        if (Kampos.preventContextCreation) return false;
 
         const canvas = this.config.target;
         const clone = this.config.target.cloneNode(true);
         const parent = canvas.parentNode;
 
-        if ( parent ) {
+        if (parent) {
             parent.replaceChild(clone, canvas);
         }
 
         this.config.target = clone;
 
         canvas.removeEventListener('webglcontextlost', this._loseContext, true);
-        canvas.removeEventListener('webglcontextrestored', this._restoreContext, true);
-        canvas.removeEventListener('webglcontextcreationerror', this._contextCreationError, false);
+        canvas.removeEventListener(
+            'webglcontextrestored',
+            this._restoreContext,
+            true,
+        );
+        canvas.removeEventListener(
+            'webglcontextcreationerror',
+            this._contextCreationError,
+            false,
+        );
         clone.addEventListener('webglcontextlost', this._loseContext, true);
-        clone.addEventListener('webglcontextcreationerror', this._contextCreationError, false);
+        clone.addEventListener(
+            'webglcontextcreationerror',
+            this._contextCreationError,
+            false,
+        );
 
-        if ( this.lostContext ) {
+        if (this.lostContext) {
             return this._restoreContext();
         }
 
         return true;
     }
 
-    _createTextures () {
-        this.data && this.data.textures.forEach((texture, i) => {
-            const data = this.data.textures[i];
+    _createTextures() {
+        this.data &&
+            this.data.textures.forEach((texture, i) => {
+                const data = this.data.textures[i];
 
-            data.texture = core.createTexture(this.gl, {
-                width: this.dimensions.width,
-                height: this.dimensions.height,
-                format: texture.format,
-                data: texture.data,
-                wrap: texture.wrap
-            }).texture;
+                data.texture = core.createTexture(this.gl, {
+                    width: this.dimensions.width,
+                    height: this.dimensions.height,
+                    format: texture.format,
+                    data: texture.data,
+                    wrap: texture.wrap,
+                }).texture;
 
-            data.format = texture.format;
-            data.update = texture.update;
-        });
+                data.format = texture.format;
+                data.update = texture.update;
+            });
     }
 }
 

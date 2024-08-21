@@ -12,12 +12,25 @@ declare type KamposConfig = {
 };
 
 declare type KamposSource = {
-    media: ArrayBufferView | ImageData | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap;
+    media:
+        | ArrayBufferView
+        | ImageData
+        | HTMLImageElement
+        | HTMLCanvasElement
+        | HTMLVideoElement
+        | ImageBitmap;
     width: number;
     height: number;
 };
 
-declare type VaryingType = 'float' | 'vec2' | 'vec3' | 'vec4' | 'mat2' | 'mat3' | 'mat4';
+declare type VaryingType =
+    | 'float'
+    | 'vec2'
+    | 'vec3'
+    | 'vec4'
+    | 'mat2'
+    | 'mat3'
+    | 'mat4';
 
 declare type EffectConfig = {
     vertex: ShaderConfig;
@@ -29,10 +42,21 @@ declare type EffectConfig = {
 };
 
 declare type planeConfig = {
-    segments: number | { x: number, y: number };
+    segments: number | { x: number; y: number };
 };
 
-declare type UniformType = 'bool' | 'int' | 'float' | 'vec2' | 'vec3' | 'vec4' | 'mat2' | 'mat3' | 'mat4' | 'sampler2D' | 'samplerCube';
+declare type UniformType =
+    | 'bool'
+    | 'int'
+    | 'float'
+    | 'vec2'
+    | 'vec3'
+    | 'vec4'
+    | 'mat2'
+    | 'mat3'
+    | 'mat4'
+    | 'sampler2D'
+    | 'samplerCube';
 
 declare type ShaderAttributeType = 'float' | 'vec2' | 'vec3' | 'vec4';
 
@@ -46,12 +70,23 @@ declare type ShaderConfig = {
 
 declare type TextureConfig = {
     format: 'RGBA' | 'RGB' | 'ALPHA' | 'LUMINANCE' | 'LUMINANCE_ALPHA';
-    data?: ArrayBufferView | ImageData | HTMLImageElement | HTMLCanvasElement | HTMLVideoElement | ImageBitmap;
+    data?:
+        | ArrayBufferView
+        | ImageData
+        | HTMLImageElement
+        | HTMLCanvasElement
+        | HTMLVideoElement
+        | ImageBitmap;
     update?: boolean;
-    wrap?: 'stretch' | 'repeat' | 'mirror' | { x: string, y: string };
+    wrap?: 'stretch' | 'repeat' | 'mirror' | { x: string; y: string };
 };
 
-declare type AttributeType = 'BYTE' | 'SHORT' | 'UNSIGNED_BYTE' | 'UNSIGNED_SHORT' | 'FLOAT';
+declare type AttributeType =
+    | 'BYTE'
+    | 'SHORT'
+    | 'UNSIGNED_BYTE'
+    | 'UNSIGNED_SHORT'
+    | 'FLOAT';
 
 declare type Attribute = {
     extends?: string;
@@ -80,4 +115,4 @@ declare type Ticker = {
     remove: (instance: Drawable) => void;
 };
 
-declare module "kampos";
+declare module 'kampos';

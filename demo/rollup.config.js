@@ -6,14 +6,14 @@ const config = {
     output: {
         file: 'index.js',
         format: 'iife',
-        sourcemap: false
+        sourcemap: false,
     },
     plugins: [
         progress({
-            clearLine: false
+            clearLine: false,
         }),
-        filesize()
-    ]
+        filesize(),
+    ],
 };
 
 export default config;

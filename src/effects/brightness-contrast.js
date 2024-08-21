@@ -9,7 +9,7 @@
  *
  * @example brightnessContrast({brightness: 1.5, contrast: 0.8})
  */
-export default function ({brightness = 1.0, contrast = 1.0} = {}) {
+export default function ({ brightness = 1.0, contrast = 1.0 } = {}) {
     /**
      * @typedef {Object} brightnessContrastEffect
      * @property {number} brightness
@@ -28,7 +28,7 @@ export default function ({brightness = 1.0, contrast = 1.0} = {}) {
                 u_brEnabled: 'bool',
                 u_ctEnabled: 'bool',
                 u_contrast: 'float',
-                u_brightness: 'float'
+                u_brightness: 'float',
             },
             constant: 'const vec3 half3 = vec3(0.5);',
             main: `
@@ -40,53 +40,53 @@ export default function ({brightness = 1.0, contrast = 1.0} = {}) {
         color = (color - half3) * u_contrast + half3;
     }
 
-    color = clamp(color, 0.0, 1.0);`
+    color = clamp(color, 0.0, 1.0);`,
         },
-        get brightness () {
+        get brightness() {
             return this.uniforms[2].data[0];
         },
-        set brightness (value) {
+        set brightness(value) {
             this.uniforms[2].data[0] = parseFloat(Math.max(0, value));
         },
-        get contrast () {
+        get contrast() {
             return this.uniforms[3].data[0];
         },
-        set contrast (value) {
+        set contrast(value) {
             this.uniforms[3].data[0] = parseFloat(Math.max(0, value));
         },
-        get brightnessDisabled () {
+        get brightnessDisabled() {
             return !this.uniforms[0].data[0];
         },
-        set brightnessDisabled (toggle) {
+        set brightnessDisabled(toggle) {
             this.uniforms[0].data[0] = +!toggle;
         },
-        get contrastDisabled () {
+        get contrastDisabled() {
             return !this.uniforms[1].data[0];
         },
-        set contrastDisabled (toggle) {
+        set contrastDisabled(toggle) {
             this.uniforms[1].data[0] = +!toggle;
         },
         uniforms: [
             {
                 name: 'u_brEnabled',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_ctEnabled',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_brightness',
                 type: 'f',
-                data: [brightness]
+                data: [brightness],
             },
             {
                 name: 'u_contrast',
                 type: 'f',
-                data: [contrast]
-            }
-        ]
+                data: [contrast],
+            },
+        ],
     };
-};
+}

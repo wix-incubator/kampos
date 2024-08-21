@@ -1,57 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>E2E Testing</title>
-    <style>
-        body,
-        section {
-            margin: 0;
-            padding: 0;
-            background-color: black;
-        }
+    <head>
+        <meta charset="UTF-8" />
+        <title>E2E Testing</title>
+        <style>
+            body,
+            section {
+                margin: 0;
+                padding: 0;
+                background-color: black;
+            }
 
-        svg {
-            display: none;
-        }
+            svg {
+                display: none;
+            }
 
-        canvas,
-        video {
-            margin: 0;
-        }
+            canvas,
+            video {
+                margin: 0;
+            }
 
-        #image-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
+            #image-container {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
 
-        .image-test #image-container {
-            position: static;
-        }
+            .image-test #image-container {
+                position: static;
+            }
 
-        .image-test video {
-            display: none;
-        }
+            .image-test video {
+                display: none;
+            }
 
-        .image-test svg {
-            display: block;
-        }
-    </style>
-</head>
-<body>
-    <video id="video" src="" muted preload="auto" crossorigin="anonymous" playsinline></video>
-    <svg id="image-container">
-        <image id="image" href=""></image>
-    </svg>
-    <svg xmlns="http://www.w3.org/2000/svg" style="position: absolute; top: 0; left: 0;">
-        <defs>
-            <filter id="filter" >
-
-            </filter>
-        </defs>
-    </svg>
-    <canvas id="canvas"></canvas>
-    <script src="/index.umd.js"></script>
-</body>
+            .image-test svg {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <video
+            id="video"
+            src=""
+            muted
+            preload="auto"
+            crossorigin="anonymous"
+            playsinline
+        ></video>
+        <svg id="image-container">
+            <image id="image" href=""></image>
+        </svg>
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            style="position: absolute; top: 0; left: 0"
+        >
+            <defs>
+                <filter id="filter"></filter>
+            </defs>
+        </svg>
+        <canvas id="canvas"></canvas>
+        <script src="/index.umd.js"></script>
+    </body>
 </html>

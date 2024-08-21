@@ -4,15 +4,15 @@
  * @class Ticker
  */
 export class Ticker {
-    constructor () {
+    constructor() {
         this.pool = [];
     }
 
     /**
      * Starts the animation loop.
      */
-    start () {
-        if ( ! this.animationFrameId ) {
+    start() {
+        if (!this.animationFrameId) {
             const loop = (time) => {
                 this.animationFrameId = window.requestAnimationFrame(loop);
                 this.draw(time);
@@ -25,7 +25,7 @@ export class Ticker {
     /**
      * Stops the animation loop.
      */
-    stop () {
+    stop() {
         window.cancelAnimationFrame(this.animationFrameId);
         this.animationFrameId = null;
     }
@@ -35,8 +35,8 @@ export class Ticker {
      *
      * @param {number} time
      */
-    draw (time) {
-        this.pool.forEach(instance => instance.draw(time));
+    draw(time) {
+        this.pool.forEach((instance) => instance.draw(time));
     }
 
     /**
@@ -44,10 +44,10 @@ export class Ticker {
      *
      * @param {Kampos} instance
      */
-    add (instance) {
+    add(instance) {
         const index = this.pool.indexOf(instance);
 
-        if ( ! ~ index ) {
+        if (!~index) {
             this.pool.push(instance);
             instance.playing = true;
         }
@@ -58,10 +58,10 @@ export class Ticker {
      *
      * @param {Kampos} instance
      */
-    remove (instance) {
+    remove(instance) {
         const index = this.pool.indexOf(instance);
 
-        if ( ~ index ) {
+        if (~index) {
             this.pool.splice(index, 1);
             instance.playing = false;
         }

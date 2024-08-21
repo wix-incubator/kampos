@@ -10,11 +10,8 @@
  *
  * @example displacement({wrap: displacement.DISCARD, scale: {x: 0.5, y: -0.5}})
  */
-function displacement ({
-   wrap = WRAP_METHODS.CLAMP,
-    scale
-} = {}) {
-    const { x: sx, y: sy } = (scale || { x: 0.0, y: 0.0 });
+function displacement({ wrap = WRAP_METHODS.CLAMP, scale } = {}) {
+    const { x: sx, y: sy } = scale || { x: 0.0, y: 0.0 };
 
     /**
      * @typedef {Object} displacementEffect
@@ -31,16 +28,16 @@ function displacement ({
     return {
         vertex: {
             attribute: {
-                a_displacementMapTexCoord: 'vec2'
+                a_displacementMapTexCoord: 'vec2',
             },
             main: `
-    v_displacementMapTexCoord = a_displacementMapTexCoord;`
+    v_displacementMapTexCoord = a_displacementMapTexCoord;`,
         },
         fragment: {
             uniform: {
                 u_displacementEnabled: 'bool',
                 u_dispMap: 'sampler2D',
-                u_dispScale: 'vec2'
+                u_dispScale: 'vec2',
             },
             source: `
     if (u_displacementEnabled) {
@@ -48,68 +45,66 @@ function displacement ({
         vec2 dispVec = vec2(sourceCoord.x + u_dispScale.x * dispMap.r, sourceCoord.y + u_dispScale.y * dispMap.g);
         ${wrap}
         sourceCoord = dispVec;
-    }`
+    }`,
         },
-        get disabled () {
+        get disabled() {
             return !this.uniforms[0].data[0];
         },
-        set disabled (b) {
+        set disabled(b) {
             this.uniforms[0].data[0] = +!b;
         },
-        get scale () {
+        get scale() {
             const [x, y] = this.uniforms[2].data;
-            return {x, y};
+            return { x, y };
         },
-        set scale ({x, y}) {
-            if ( typeof x !== 'undefined' )
-                this.uniforms[2].data[0] = x;
-            if ( typeof y !== 'undefined' )
-                this.uniforms[2].data[1] = y;
+        set scale({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[2].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[2].data[1] = y;
         },
-        get map () {
+        get map() {
             return this.textures[0].data;
         },
-        set map (img) {
+        set map(img) {
             this.textures[0].data = img;
         },
         varying: {
-            v_displacementMapTexCoord: 'vec2'
+            v_displacementMapTexCoord: 'vec2',
         },
         uniforms: [
             {
                 name: 'u_displacementEnabled',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_dispMap',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_dispScale',
                 type: 'f',
-                data: [sx, sy]
-            }
+                data: [sx, sy],
+            },
         ],
         attributes: [
             {
                 name: 'a_displacementMapTexCoord',
-                extends: 'a_texCoord'
-            }
+                extends: 'a_texCoord',
+            },
         ],
         textures: [
             {
-                format: 'RGB'
-            }
-        ]
+                format: 'RGB',
+            },
+        ],
     };
 }
 
-const WRAP_METHODS =  {
+const WRAP_METHODS = {
     CLAMP: `dispVec = clamp(dispVec, 0.0, 1.0);`,
     DISCARD: `if (dispVec.x < 0.0 || dispVec.x > 1.0 || dispVec.y > 1.0 || dispVec.y < 0.0) { discard; }`,
-    WRAP: `dispVec = mod(dispVec, 1.0);`
+    WRAP: `dispVec = mod(dispVec, 1.0);`,
 };
 
 displacement.CLAMP = WRAP_METHODS.CLAMP;

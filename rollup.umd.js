@@ -7,12 +7,12 @@ export default {
         name: 'kampos',
         file: 'index.umd.js',
         format: 'umd',
-        sourcemap: false
+        sourcemap: false,
     },
     plugins: [
         progress({
-            clearLine: false
+            clearLine: false,
         }),
-        filesize()
-    ]
+        filesize(),
+    ],
 };
