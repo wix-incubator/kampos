@@ -144,6 +144,15 @@
                 video: 'videos5',
                 refresh: 'refresh8'
             });
+        },
+
+        section9() {
+            startDemo('./alpha-mask.js', {
+                code: 'code9',
+                preview: 'preview',
+                video: 'videos2',
+                refresh: 'refresh9'
+            });
         }
     };
 
