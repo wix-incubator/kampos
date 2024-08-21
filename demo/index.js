@@ -1,11 +1,11 @@
 (function () {
     'use strict';
 
-    function updatePreview (iframe, example, videos) {
-        iframe.setAttribute('srcdoc', getIFrameHTML({example, videos}));
+    function updatePreview(iframe, example, videos) {
+        iframe.setAttribute('srcdoc', getIFrameHTML({ example, videos }));
     }
 
-    function getIFrameHTML ({example, videos}) {
+    function getIFrameHTML({ example, videos }) {
         return `<!DOCTYPE html>
 <html>
     <head>
@@ -30,7 +30,7 @@
 
     window.updatePreview = updatePreview;
 
-    function insertSection (id) {
+    function insertSection(id) {
         const section = document.querySelector(`#${id}`);
         const main = document.querySelector('main');
 
@@ -39,34 +39,37 @@
         sectionScripts[id]();
     }
 
-    document.querySelector('nav')
-        .addEventListener('click', e => {
-            const id = e.target.dataset.sectionId;
-            insertSection(id);
-        });
+    document.querySelector('nav').addEventListener('click', (e) => {
+        const id = e.target.dataset.sectionId;
+        insertSection(id);
+    });
 
-    document.querySelector('#open-code')
-        .addEventListener('click', () => {
-            document.querySelector('#section-wrapper').classList.toggle('open');
-        });
+    document.querySelector('#open-code').addEventListener('click', () => {
+        document.querySelector('#section-wrapper').classList.toggle('open');
+    });
 
-    function startDemo (script, ids) {
+    function startDemo(script, ids) {
         const code = document.querySelector(`#${ids.code}`);
         const preview = document.querySelector(`#${ids.preview}`);
         const video = document.querySelector(`#${ids.video}`);
         const refresh = document.querySelector(`#${ids.refresh}`);
 
         fetch(script)
-            .then(resp => resp.text())
-            .then(text => {
+            .then((resp) => resp.text())
+            .then((text) => {
                 code.value = text;
                 const doc = CodeMirror.fromTextArea(code, {
                     value: text,
                     lineNumbers: true,
-                    theme: 'dracula'
+                    theme: 'dracula',
                 });
 
-                const update = () => updatePreview(preview, doc.getValue(), video ? video.innerHTML : '');
+                const update = () =>
+                    updatePreview(
+                        preview,
+                        doc.getValue(),
+                        video ? video.innerHTML : ''
+                    );
 
                 refresh.addEventListener('click', update);
 
@@ -75,47 +78,47 @@
     }
 
     const sectionScripts = {
-        section1 () {
+        section1() {
             startDemo('./turbulence.js', {
                 code: 'code1',
                 preview: 'preview',
                 video: 'videos1',
-                refresh: 'refresh1'
+                refresh: 'refresh1',
             });
         },
 
-        section2 () {
+        section2() {
             startDemo('./hue-fade.js', {
                 code: 'code2',
                 preview: 'preview',
                 video: 'videos2',
-                refresh: 'refresh2'
+                refresh: 'refresh2',
             });
         },
 
-        section3 () {
+        section3() {
             startDemo('./disp.js', {
                 code: 'code3',
                 preview: 'preview',
                 video: 'videos3',
-                refresh: 'refresh3'
+                refresh: 'refresh3',
             });
         },
 
-        section4 () {
+        section4() {
             startDemo('./duotone.js', {
                 code: 'code4',
                 preview: 'preview',
                 video: 'videos4',
-                refresh: 'refresh4'
+                refresh: 'refresh4',
             });
         },
 
-        section5 () {
+        section5() {
             startDemo('./cellular-noise.js', {
                 code: 'code5',
                 preview: 'preview',
-                refresh: 'refresh5'
+                refresh: 'refresh5',
             });
         },
 
@@ -124,7 +127,7 @@
                 code: 'code6',
                 preview: 'preview',
                 video: 'videos2',
-                refresh: 'refresh6'
+                refresh: 'refresh6',
             });
         },
 
@@ -133,7 +136,7 @@
                 code: 'code7',
                 preview: 'preview',
                 video: 'none',
-                refresh: 'refresh7'
+                refresh: 'refresh7',
             });
         },
 
@@ -142,7 +145,7 @@
                 code: 'code8',
                 preview: 'preview',
                 video: 'videos5',
-                refresh: 'refresh8'
+                refresh: 'refresh8',
             });
         },
 
@@ -151,9 +154,17 @@
                 code: 'code9',
                 preview: 'preview',
                 video: 'videos2',
-                refresh: 'refresh9'
+                refresh: 'refresh9',
             });
-        }
+        },
+        section10() {
+            startDemo('./blend.js', {
+                code: 'code10',
+                preview: 'preview',
+                video: 'videos2',
+                refresh: 'refresh10',
+            });
+        },
     };
 
     insertSection('section7');
