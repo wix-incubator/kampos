@@ -65,7 +65,7 @@ function startDemo(script, ids) {
                 updatePreview(
                     preview,
                     doc.getValue(),
-                    video ? video.innerHTML : '',
+                    video ? video.innerHTML : ''
                 );
 
             refresh.addEventListener('click', update);
@@ -152,6 +152,14 @@ const sectionScripts = {
             preview: 'preview',
             video: 'videos2',
             refresh: 'refresh9',
+        });
+    },
+    section10() {
+        startDemo('./blend.js', {
+            code: 'code10',
+            preview: 'preview',
+            video: 'videos2',
+            refresh: 'refresh10',
         });
     },
 };
