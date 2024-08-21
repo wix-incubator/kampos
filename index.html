@@ -1,212 +1,261 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="cache-control" content="no-cache" />
-    <title>kampos | Tiny and fast effects compositor on WebGL</title>
-    <link href="https://fonts.googleapis.com/css?family=Nova+Round&display=swap" rel="stylesheet">
-    <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <style>
-        body {
-            min-height: 100vh;
-            margin: 0;
-            background-image: linear-gradient(-45deg, peachpuff, palegreen, plum, peachpuff, palegreen, plum),
-                              linear-gradient(45deg, purple, darkblue, rebeccapurple, purple, darkblue, rebeccapurple),
-                              url('./kampos.svg');
-            background-blend-mode: screen;
-            background-repeat: no-repeat;
-            background-position: center;
-            font-family: "Nova round", cursive, fantasy;
-            font-size: 16px;
-            color: darkslateblue;
-        }
-
-        nav > ul {
-            display: flex;
-            width: 100vw;
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-
-        nav li {
-            flex: 1 auto;
-            padding: 1rem .5rem;
-        }
-
-        nav li.nav-items {
-            font-size: 16px;
-            font-weight: bold;
-        }
-
-        nav a,
-        nav a:visited {
-            color: darkslateblue;
-        }
-
-        nav a:hover {
-            color: darkslateblue;
-        }
-
-        main {
-            margin:  30vh auto 0;
-            text-align: center;
-        }
-
-        h1,
-        h2 {
-            color: #bada;
-        }
-
-        h1 {
-            font-size: 96px;
-            margin: 0;
-            text-shadow: 0 6px 10px darkslateblue;
-        }
-
-        h2 {
-            font-size: 28px;
-            margin: 0;
-            text-shadow: 0 4px 4px darkslateblue;
-        }
-
-        header > span {
-            position: absolute;
-            top: 50px;
-            right: 50px;
-        }
-
-        .target-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: -2;
-            pointer-events: none;
-        }
-
-        #target2 {
-            left: 50%;
-        }
-
-        #target3 {
-            position: fixed;
-            top: 10vh;
-            left: 5vw;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        #target4 {
-            position: fixed;
-            bottom: 10vh;
-            right: 5vw;
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        #video, #video2 {
-            position: fixed;
-            top: 0;
-            content-visibility: hidden;
-        }
-
-        @media (min-width: 641px) {
-            html, body {
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta http-equiv="cache-control" content="no-cache" />
+        <title>kampos | Tiny and fast effects compositor on WebGL</title>
+        <link
+            href="https://fonts.googleapis.com/css?family=Nova+Round&display=swap"
+            rel="stylesheet"
+        />
+        <script async defer src="https://buttons.github.io/buttons.js"></script>
+        <style>
+            body {
+                min-height: 100vh;
                 margin: 0;
-            }
-
-            main {
-                width: -moz-fit-content;
-                width: fit-content;
-            }
-
-            h1 {
-                font-size: 128px;
-            }
-
-            h2 {
-                font-size: 32px;
+                background-image: linear-gradient(
+                        -45deg,
+                        peachpuff,
+                        palegreen,
+                        plum,
+                        peachpuff,
+                        palegreen,
+                        plum
+                    ),
+                    linear-gradient(
+                        45deg,
+                        purple,
+                        darkblue,
+                        rebeccapurple,
+                        purple,
+                        darkblue,
+                        rebeccapurple
+                    ),
+                    url('./kampos.svg');
+                background-blend-mode: screen;
+                background-repeat: no-repeat;
+                background-position: center;
+                font-family: 'Nova round', cursive, fantasy;
+                font-size: 16px;
+                color: darkslateblue;
             }
 
             nav > ul {
-                width: -moz-fit-content;
-                width: fit-content;
-                margin: 0 auto;
+                display: flex;
+                width: 100vw;
+                margin: 0;
+                padding: 0;
+                list-style: none;
             }
 
+            nav li {
+                flex: 1 auto;
+                padding: 1rem 0.5rem;
+            }
 
             nav li.nav-items {
-                font-size: 20px;
-                padding: 1rem 2rem;
+                font-size: 16px;
+                font-weight: bold;
             }
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li class="nav-items">
-                    <a href="./docs/">API Reference</a>
-                </li>
-                <li class="nav-items">
-                    <a href="./demo/">Demos</a>
-                </li>
-                <li class="nav-items">
-                    <a href="https://github.com/wix-incubator/kampos">Source</a>
-                </li>
-                <li>
-                    <a class="github-button" href="https://github.com/wix-incubator/kampos" data-size="large" aria-label="Star wix/kampos on GitHub">Star</a>
-                </li>
-            </ul>
-        </nav>
-    </header>
-    <main>
-        <canvas class="target-canvas" id="target"></canvas>
-        <canvas class="target-canvas" id="target2"></canvas>
-        <canvas id="target3"></canvas>
-        <canvas id="target4"></canvas>
-        <h1>kampos</h1>
-        <h2>Tiny and fast effects compositor</h2>
-        <video id="video" src="https://video.wixstatic.com/video/11062b_6ceb80744f45401caf9eb666caeb9887/480p/mp4/file.mp4" loop muted preload="auto" crossorigin="anonymous" playsinline autoplay></video>
-        <video id="video2" src="./demo/starry-night.mp4" loop muted preload="auto" crossorigin="anonymous" playsinline autoplay></video>
-    </main>
-</body>
-<script type="module">
-    import {Kampos, effects, noise} from './index.js';
 
-    const target = document.querySelector('#target');
-    const targetCtx = target.getContext('bitmaprenderer');
-    const target2 = document.querySelector('#target2');
-    const target2Ctx = target2.getContext('bitmaprenderer');
-    const target3 = document.querySelector('#target3');
-    const target3Ctx = target3.getContext('bitmaprenderer');
-    const target4 = document.querySelector('#target4');
-    const target4Ctx = target4.getContext('bitmaprenderer');
+            nav a,
+            nav a:visited {
+                color: darkslateblue;
+            }
 
-    const body = document.body;
-    const width = body.clientWidth / 2;
-    const height = body.clientHeight;
+            nav a:hover {
+                color: darkslateblue;
+            }
 
-    target.width = width;
-    target.height = height;
-    target2.width = width;
-    target2.height = height;
+            main {
+                margin: 30vh auto 0;
+                text-align: center;
+            }
 
-    const offscreen = new OffscreenCanvas(width, height);
+            h1,
+            h2 {
+                color: #bada;
+            }
 
-    const mousePosition = [0.5, 0.5];
-    const mousePosition2 = [0.5, 0.5];
+            h1 {
+                font-size: 96px;
+                margin: 0;
+                text-shadow: 0 6px 10px darkslateblue;
+            }
 
-    const turbulence = effects.turbulence({noise: noise.simplex, output: '\n'});
-    const getRender = (c, d, mouse) => ({
-        fragment: {
-            uniform: {
-                u_resolution: 'vec2',
-                u_pointer: 'vec2'
-            },
-            constant: `
+            h2 {
+                font-size: 28px;
+                margin: 0;
+                text-shadow: 0 4px 4px darkslateblue;
+            }
+
+            header > span {
+                position: absolute;
+                top: 50px;
+                right: 50px;
+            }
+
+            .target-canvas {
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: -2;
+                pointer-events: none;
+            }
+
+            #target2 {
+                left: 50%;
+            }
+
+            #target3 {
+                position: fixed;
+                top: 10vh;
+                left: 5vw;
+                z-index: -1;
+                pointer-events: none;
+            }
+
+            #target4 {
+                position: fixed;
+                bottom: 10vh;
+                right: 5vw;
+                z-index: -1;
+                pointer-events: none;
+            }
+
+            #video,
+            #video2 {
+                position: fixed;
+                top: 0;
+                content-visibility: hidden;
+            }
+
+            @media (min-width: 641px) {
+                html,
+                body {
+                    margin: 0;
+                }
+
+                main {
+                    width: -moz-fit-content;
+                    width: fit-content;
+                }
+
+                h1 {
+                    font-size: 128px;
+                }
+
+                h2 {
+                    font-size: 32px;
+                }
+
+                nav > ul {
+                    width: -moz-fit-content;
+                    width: fit-content;
+                    margin: 0 auto;
+                }
+
+                nav li.nav-items {
+                    font-size: 20px;
+                    padding: 1rem 2rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <nav>
+                <ul>
+                    <li class="nav-items">
+                        <a href="./docs/">API Reference</a>
+                    </li>
+                    <li class="nav-items">
+                        <a href="./demo/">Demos</a>
+                    </li>
+                    <li class="nav-items">
+                        <a href="https://github.com/wix-incubator/kampos"
+                            >Source</a
+                        >
+                    </li>
+                    <li>
+                        <a
+                            class="github-button"
+                            href="https://github.com/wix-incubator/kampos"
+                            data-size="large"
+                            aria-label="Star wix/kampos on GitHub"
+                            >Star</a
+                        >
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            <canvas class="target-canvas" id="target"></canvas>
+            <canvas class="target-canvas" id="target2"></canvas>
+            <canvas id="target3"></canvas>
+            <canvas id="target4"></canvas>
+            <h1>kampos</h1>
+            <h2>Tiny and fast effects compositor</h2>
+            <video
+                id="video"
+                src="https://video.wixstatic.com/video/11062b_6ceb80744f45401caf9eb666caeb9887/480p/mp4/file.mp4"
+                loop
+                muted
+                preload="auto"
+                crossorigin="anonymous"
+                playsinline
+                autoplay
+            ></video>
+            <video
+                id="video2"
+                src="./demo/starry-night.mp4"
+                loop
+                muted
+                preload="auto"
+                crossorigin="anonymous"
+                playsinline
+                autoplay
+            ></video>
+        </main>
+    </body>
+    <script type="module">
+        import { Kampos, effects, noise } from './index.js';
+
+        const target = document.querySelector('#target');
+        const targetCtx = target.getContext('bitmaprenderer');
+        const target2 = document.querySelector('#target2');
+        const target2Ctx = target2.getContext('bitmaprenderer');
+        const target3 = document.querySelector('#target3');
+        const target3Ctx = target3.getContext('bitmaprenderer');
+        const target4 = document.querySelector('#target4');
+        const target4Ctx = target4.getContext('bitmaprenderer');
+
+        const body = document.body;
+        const width = body.clientWidth / 2;
+        const height = body.clientHeight;
+
+        target.width = width;
+        target.height = height;
+        target2.width = width;
+        target2.height = height;
+
+        const offscreen = new OffscreenCanvas(width, height);
+
+        const mousePosition = [0.5, 0.5];
+        const mousePosition2 = [0.5, 0.5];
+
+        const turbulence = effects.turbulence({
+            noise: noise.simplex,
+            output: '\n',
+        });
+        const getRender = (c, d, mouse) => ({
+            fragment: {
+                uniform: {
+                    u_resolution: 'vec2',
+                    u_pointer: 'vec2',
+                },
+                constant: `
                 vec3 A = vec3(0.5);
                 vec3 B = vec3(0.5);
                 vec3 C = vec3(${c});
@@ -214,111 +263,153 @@
                 vec3 palette(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
                     return a + b * cos(6.28318 * (c * t + d));
                 }`,
-            main: `
+                main: `
                     vec2 st = gl_FragCoord.xy / u_resolution.xy;
                     float dist = distance(u_pointer, st);
                     alpha = smoothstep(turbulenceValue * 0.2, 0.2 + turbulenceValue * 0.2, dist);
-                    color = palette(turbulenceValue, A, B, C, D);`
-        },
-        uniforms: [
-            {
-                name: 'u_resolution',
-                type: 'f',
-                data: [width, height]
+                    color = palette(turbulenceValue, A, B, C, D);`,
             },
-            {
-                name: 'u_pointer',
-                type: 'f',
-                data: mouse
-            }
-        ],
-        get mouse() {
-            return this.uniforms[1].data;
-        },
-        set mouse(data) {
-            this.uniforms[1].data[0] = data[0];
-            this.uniforms[1].data[1] = data[1];
-        }
-    });
-
-    const render = getRender([1.0, 0.7, 0.4], [0.0, 0.15, 0.2], mousePosition);
-    const render2 = getRender([0.0, 0.9, 0.6], [0.6, 0.15, 0.5], mousePosition2);
-
-    const FREQUENCY = 2 / (width > height ? width : height);
-
-    turbulence.frequency = {x: FREQUENCY, y: FREQUENCY};
-    turbulence.octaves = 6;
-
-    const instance = new Kampos({target: offscreen, effects:[turbulence, render], noSource: true});
-    const instance2 = new Kampos({target: offscreen, effects:[turbulence, render2], noSource: true});
-    const source = {width, height};
-
-    instance.play((time) => {
-        instance.setSource(source, true);
-        render.mouse = mousePosition;
-        turbulence.time = time * 2;
-    }, () => {
-        const bitmap = offscreen.transferToImageBitmap();
-        targetCtx.transferFromImageBitmap(bitmap);
-    });
-
-    instance2.play((time) => {
-        instance.setSource(source, true);
-        render2.mouse = mousePosition2;
-        turbulence.time = time * 3;
-    }, () => {
-        const bitmap = offscreen.transferToImageBitmap();
-        target2Ctx.transferFromImageBitmap(bitmap);
-    });
-
-    document.body.addEventListener('mousemove', (e) => {
-        mousePosition[0] = e.clientX / width;
-        mousePosition2[0] = (e.clientX - width) / width;
-        mousePosition[1] = (height - e.clientY) / height;
-        mousePosition2[1] = (height - e.clientY) / height;
-    });
-
-    const video = document.querySelector('#video');
-    video.addEventListener('timeupdate', () => {
-        const duotone = effects.duotone();
-        const instance3 = new Kampos({target: offscreen, effects:[duotone]});
-
-        const width = video.videoWidth;
-        const height = video.videoHeight;
-        const source = {media: video, width, height};
-        target3.width = width;
-        target3.height = height;
-        instance3.setSource(source);
-
-        instance3.play((time) => {
-            instance3.setSource(source, true);
-        }, () => {
-            const bitmap = offscreen.transferToImageBitmap();
-            target3Ctx.transferFromImageBitmap(bitmap);
+            uniforms: [
+                {
+                    name: 'u_resolution',
+                    type: 'f',
+                    data: [width, height],
+                },
+                {
+                    name: 'u_pointer',
+                    type: 'f',
+                    data: mouse,
+                },
+            ],
+            get mouse() {
+                return this.uniforms[1].data;
+            },
+            set mouse(data) {
+                this.uniforms[1].data[0] = data[0];
+                this.uniforms[1].data[1] = data[1];
+            },
         });
-    }, {once: true});
 
-    const video2 = document.querySelector('#video2');
-    video2.addEventListener('timeupdate', () => {
-        const duotone = effects.duotone({
-            light: [1, 1, 1, 1],
-            dark: [0, 0, 0, 1]
+        const render = getRender(
+            [1.0, 0.7, 0.4],
+            [0.0, 0.15, 0.2],
+            mousePosition,
+        );
+        const render2 = getRender(
+            [0.0, 0.9, 0.6],
+            [0.6, 0.15, 0.5],
+            mousePosition2,
+        );
+
+        const FREQUENCY = 2 / (width > height ? width : height);
+
+        turbulence.frequency = { x: FREQUENCY, y: FREQUENCY };
+        turbulence.octaves = 6;
+
+        const instance = new Kampos({
+            target: offscreen,
+            effects: [turbulence, render],
+            noSource: true,
         });
-        const instance4 = new Kampos({target: offscreen, effects:[duotone]});
-
-        const width = video2.videoWidth;
-        const height = video2.videoHeight;
-        const source = {media: video2, width, height};
-        target4.width = width;
-        target4.height = height;
-        instance4.setSource(source);
-
-        instance4.play((time) => {
-            instance4.setSource(source, true);
-        }, () => {
-            const bitmap = offscreen.transferToImageBitmap();
-            target4Ctx.transferFromImageBitmap(bitmap);
+        const instance2 = new Kampos({
+            target: offscreen,
+            effects: [turbulence, render2],
+            noSource: true,
         });
-    }, {once: true});
-</script>
+        const source = { width, height };
+
+        instance.play(
+            (time) => {
+                instance.setSource(source, true);
+                render.mouse = mousePosition;
+                turbulence.time = time * 2;
+            },
+            () => {
+                const bitmap = offscreen.transferToImageBitmap();
+                targetCtx.transferFromImageBitmap(bitmap);
+            },
+        );
+
+        instance2.play(
+            (time) => {
+                instance.setSource(source, true);
+                render2.mouse = mousePosition2;
+                turbulence.time = time * 3;
+            },
+            () => {
+                const bitmap = offscreen.transferToImageBitmap();
+                target2Ctx.transferFromImageBitmap(bitmap);
+            },
+        );
+
+        document.body.addEventListener('mousemove', (e) => {
+            mousePosition[0] = e.clientX / width;
+            mousePosition2[0] = (e.clientX - width) / width;
+            mousePosition[1] = (height - e.clientY) / height;
+            mousePosition2[1] = (height - e.clientY) / height;
+        });
+
+        const video = document.querySelector('#video');
+        video.addEventListener(
+            'timeupdate',
+            () => {
+                const duotone = effects.duotone();
+                const instance3 = new Kampos({
+                    target: offscreen,
+                    effects: [duotone],
+                });
+
+                const width = video.videoWidth;
+                const height = video.videoHeight;
+                const source = { media: video, width, height };
+                target3.width = width;
+                target3.height = height;
+                instance3.setSource(source);
+
+                instance3.play(
+                    (time) => {
+                        instance3.setSource(source, true);
+                    },
+                    () => {
+                        const bitmap = offscreen.transferToImageBitmap();
+                        target3Ctx.transferFromImageBitmap(bitmap);
+                    },
+                );
+            },
+            { once: true },
+        );
+
+        const video2 = document.querySelector('#video2');
+        video2.addEventListener(
+            'timeupdate',
+            () => {
+                const duotone = effects.duotone({
+                    light: [1, 1, 1, 1],
+                    dark: [0, 0, 0, 1],
+                });
+                const instance4 = new Kampos({
+                    target: offscreen,
+                    effects: [duotone],
+                });
+
+                const width = video2.videoWidth;
+                const height = video2.videoHeight;
+                const source = { media: video2, width, height };
+                target4.width = width;
+                target4.height = height;
+                instance4.setSource(source);
+
+                instance4.play(
+                    (time) => {
+                        instance4.setSource(source, true);
+                    },
+                    () => {
+                        const bitmap = offscreen.transferToImageBitmap();
+                        target4Ctx.transferFromImageBitmap(bitmap);
+                    },
+                );
+            },
+            { once: true },
+        );
+    </script>
 </html>

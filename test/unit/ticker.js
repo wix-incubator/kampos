@@ -1,6 +1,6 @@
-import { expect, test } from 'vitest'
+import { expect, test } from 'vitest';
 import { Kampos, Ticker } from '../../index.js';
-import {createCanvas, Image} from 'node-canvas-webgl';
+import { createCanvas, Image } from 'node-canvas-webgl';
 
 test.skip('Ticker :: #start :: should start animation loop and call draw', () => {
     expect.assertions(1);

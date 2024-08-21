@@ -7,10 +7,7 @@
  *
  * @example kaleidoscope({segments: 12})
  */
-export default function ({
-    segments = 6,
-    offset = 0
-} = {}) {
+export default function ({ segments = 6, offset = 0 } = {}) {
     /**
      * @typedef {Object} kaleidoscopeEffect
      * @property {number} segments
@@ -26,7 +23,7 @@ export default function ({
             uniform: {
                 u_kaleidoscopeEnabled: 'bool',
                 u_segments: 'float',
-                u_offset: 'float'
+                u_offset: 'float',
             },
             constant: `const float PI = ${Math.PI};`,
             source: `
@@ -38,42 +35,42 @@ export default function ({
         theta = abs(theta - PI / u_segments) - PI / u_segments;
         vec2 newCoords = r * vec2(cos(theta), sin(theta)) + 0.5;
         sourceCoord = mod(newCoords - u_offset, 1.0);
-    }`
+    }`,
         },
-        get segments () {
+        get segments() {
             return this.uniforms[1].data[0];
         },
-        set segments (n) {
+        set segments(n) {
             this.uniforms[1].data[0] = +n;
         },
-        get offset () {
+        get offset() {
             return this.uniforms[2].data[0];
         },
-        set offset (o) {
+        set offset(o) {
             this.uniforms[2].data[0] = +o;
         },
-        get disabled () {
+        get disabled() {
             return !this.uniforms[0].data[0];
         },
-        set disabled (b) {
+        set disabled(b) {
             this.uniforms[0].data[0] = +!b;
         },
         uniforms: [
             {
                 name: 'u_kaleidoscopeEnabled',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_segments',
                 type: 'f',
-                data: [segments]
+                data: [segments],
             },
             {
                 name: 'u_offset',
                 type: 'f',
-                data: [offset]
-            }
-        ]
+                data: [offset],
+            },
+        ],
     };
-};
+}

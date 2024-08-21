@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { expect, test } from 'vitest';
 import { createCanvas, Image } from 'node-canvas-webgl';
 import { WebGLProgram } from 'gl/src/javascript/webgl-program.js';
 import { WebGLShader } from 'gl/src/javascript/webgl-shader.js';
@@ -24,7 +24,10 @@ test('core :: #getWebGLContext() :: should return a webgl context', () => {
 
 test('core :: #init() :: should return an object with webgl context and scene data', () => {
     const canvas = createCanvas(200, 200);
-    const {gl, data} = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
+    const { gl, data } = core.init({
+        gl: core.getWebGLContext(canvas),
+        effects: [brightnessContrast],
+    });
 
     expect(gl).toBeTruthy();
     expect(data).toBeTruthy();
@@ -34,7 +37,10 @@ test('core :: #init() :: should return an object with webgl context and scene da
 
 test('core :: #init() :: should return scene data with complete WebGL program data', () => {
     const canvas = createCanvas(200, 200);
-    const {gl, data} = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
+    const { gl, data } = core.init({
+        gl: core.getWebGLContext(canvas),
+        effects: [brightnessContrast],
+    });
 
     expect(gl).toBeTruthy();
     expect(data).toBeTruthy();
@@ -45,7 +51,7 @@ test('core :: #init() :: should return scene data with complete WebGL program da
         fragmentShader,
         source,
         attributes,
-        uniforms
+        uniforms,
     } = data;
 
     expect(program instanceof WebGLProgram).toBe(true);
@@ -62,7 +68,10 @@ test('core :: #init() :: should return scene data with complete WebGL program da
 test('core :: #draw :: should draw blank image to the target canvas', () => {
     const image = new Image();
     const canvas = createCanvas(200, 200);
-    const initData = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
+    const initData = core.init({
+        gl: core.getWebGLContext(canvas),
+        effects: [brightnessContrast],
+    });
     const gl = initData.gl;
     const scene = initData.data;
 
@@ -72,48 +81,51 @@ test('core :: #draw :: should draw blank image to the target canvas', () => {
 });
 
 // This test tests DOM-specific behavior - should be run as an E2E test
-test.skip(
-    'core :: #resize() :: should resize target canvas when its display dimensions change',
-    () => {
-        const canvas = createCanvas(300, 150);
-        const initData = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
-        const gl = initData.gl;
-        const scene = initData.data;
+test.skip('core :: #resize() :: should resize target canvas when its display dimensions change', () => {
+    const canvas = createCanvas(300, 150);
+    const initData = core.init({
+        gl: core.getWebGLContext(canvas),
+        effects: [brightnessContrast],
+    });
+    const gl = initData.gl;
+    const scene = initData.data;
 
-        expect(canvas.width).toBe(300);
-        expect(canvas.height).toBe(150);
+    expect(canvas.width).toBe(300);
+    expect(canvas.height).toBe(150);
 
-        core.resize(gl);
+    core.resize(gl);
 
-        // default size of init texture is 1x1
-        expect(gl.drawingBufferWidth).toBe(1);
-        expect(gl.drawingBufferHeight).toBe(1);
+    // default size of init texture is 1x1
+    expect(gl.drawingBufferWidth).toBe(1);
+    expect(gl.drawingBufferHeight).toBe(1);
 
-        // detached from document
-        expect(canvas.width).toBe(0);
-        expect(canvas.height).toBe(0);
+    // detached from document
+    expect(canvas.width).toBe(0);
+    expect(canvas.height).toBe(0);
 
-        canvas.style.width = '250px';
-        canvas.style.height = '250px';
+    canvas.style.width = '250px';
+    canvas.style.height = '250px';
 
-        core.resize(gl);
+    core.resize(gl);
 
-        expect(canvas.width).toBe(250);
-        expect(canvas.height).toBe(250);
+    expect(canvas.width).toBe(250);
+    expect(canvas.height).toBe(250);
 
-        core.destroy(gl, scene);
-    }
-);
+    core.destroy(gl, scene);
+});
 
 test('core :: #resize() :: should resize target to supplied dimensions and ignore canvas CSS dimensions', () => {
     const canvas = createCanvas(300, 150);
-    const initData = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
+    const initData = core.init({
+        gl: core.getWebGLContext(canvas),
+        effects: [brightnessContrast],
+    });
     const gl = initData.gl;
     const scene = initData.data;
 
     expect(canvas.height).toBe(150);
 
-    core.resize(gl, {width: 850, height: 480});
+    core.resize(gl, { width: 850, height: 480 });
 
     expect(gl.drawingBufferWidth).toBe(850);
     expect(gl.drawingBufferHeight).toBe(480);
@@ -123,13 +135,16 @@ test('core :: #resize() :: should resize target to supplied dimensions and ignor
 
 test('should resize target to supplied dimensions and ignore canvas CSS dimensions', () => {
     const canvas = createCanvas(300, 150);
-    const initData = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
+    const initData = core.init({
+        gl: core.getWebGLContext(canvas),
+        effects: [brightnessContrast],
+    });
     const gl = initData.gl;
     const scene = initData.data;
 
     expect(canvas.height).toBe(150);
 
-    core.resize(gl, {width: 850, height: 480}, scene);
+    core.resize(gl, { width: 850, height: 480 }, scene);
 
     expect(gl.drawingBufferWidth).toBe(850);
     expect(gl.drawingBufferHeight).toBe(480);
@@ -139,18 +154,15 @@ test('should resize target to supplied dimensions and ignore canvas CSS dimensio
     core.destroy(gl, scene);
 });
 
-test('core :: #destroy() :: dispose of all target canvas\' resources', () => {
+test("core :: #destroy() :: dispose of all target canvas' resources", () => {
     const canvas = createCanvas(300, 150);
-    const initData = core.init({gl: core.getWebGLContext(canvas), effects: [brightnessContrast]});
+    const initData = core.init({
+        gl: core.getWebGLContext(canvas),
+        effects: [brightnessContrast],
+    });
     const gl = initData.gl;
     const scene = initData.data;
-    const {
-        program,
-        vertexShader,
-        fragmentShader,
-        source,
-        attributes,
-    } = scene;
+    const { program, vertexShader, fragmentShader, source, attributes } = scene;
 
     expect(gl.isTexture(source.texture)).toBe(true);
     expect(gl.isBuffer(attributes[0].buffer)).toBe(true);

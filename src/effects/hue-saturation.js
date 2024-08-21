@@ -8,7 +8,7 @@
  * @returns {hueSaturationEffect}
  * @example hueSaturation({hue: 45, saturation: 1.3})
  */
-export default function ({hue = 0.0, saturation = 1.0} = {}) {
+export default function ({ hue = 0.0, saturation = 1.0 } = {}) {
     /**
      * @typedef {Object} hueSaturationEffect
      * @property {number} hue
@@ -24,7 +24,7 @@ export default function ({hue = 0.0, saturation = 1.0} = {}) {
         vertex: {
             uniform: {
                 u_hue: 'float',
-                u_saturation: 'float'
+                u_saturation: 'float',
             },
             // for implementation see: https://www.w3.org/TR/SVG11/filters.html#feColorMatrixElement
             constant: `
@@ -51,14 +51,14 @@ const mat3 satmat = mat3(
             main: `
     float angle = (u_hue / 180.0) * 3.14159265358979323846264;
     v_hueRotation = lummat + cos(angle) * cosmat + sin(angle) * sinmat;
-    v_saturation = lummat + satmat * u_saturation;`
+    v_saturation = lummat + satmat * u_saturation;`,
         },
         fragment: {
             uniform: {
                 u_hueEnabled: 'bool',
                 u_satEnabled: 'bool',
                 u_hue: 'float',
-                u_saturation: 'float'
+                u_saturation: 'float',
             },
             main: `
     if (u_hueEnabled) {
@@ -77,58 +77,58 @@ const mat3 satmat = mat3(
         );
     }
 
-    color = clamp(color, 0.0, 1.0);`
+    color = clamp(color, 0.0, 1.0);`,
         },
         varying: {
             v_hueRotation: 'mat3',
-            v_saturation: 'mat3'
+            v_saturation: 'mat3',
         },
 
-        get hue () {
+        get hue() {
             return this.uniforms[2].data[0];
         },
-        set hue (h) {
+        set hue(h) {
             this.uniforms[2].data[0] = parseFloat(h);
         },
-        get saturation () {
+        get saturation() {
             return this.uniforms[3].data[0];
         },
-        set saturation (s) {
+        set saturation(s) {
             this.uniforms[3].data[0] = parseFloat(Math.max(0, s));
         },
-        get hueDisabled () {
+        get hueDisabled() {
             return !this.uniforms[0].data[0];
         },
-        set hueDisabled (b) {
+        set hueDisabled(b) {
             this.uniforms[0].data[0] = +!b;
         },
-        get saturationDisabled () {
+        get saturationDisabled() {
             return !this.uniforms[1].data[0];
         },
-        set saturationDisabled (b) {
+        set saturationDisabled(b) {
             this.uniforms[1].data[0] = +!b;
         },
         uniforms: [
             {
                 name: 'u_hueEnabled',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_satEnabled',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_hue',
                 type: 'f',
-                data: [hue]
+                data: [hue],
             },
             {
                 name: 'u_saturation',
                 type: 'f',
-                data: [saturation]
-            }
-        ]
+                data: [saturation],
+            },
+        ],
     };
-};
+}

@@ -6,9 +6,9 @@
  * @returns {displacementTransitionEffect}
  * @example displacementTransition()
  */
-export default function ({sourceScale, toScale} = {}) {
-    const { x: sSx, y: sSy } = (sourceScale || { x: 0.0, y: 0.0 });
-    const { x: tSx, y: tSy } = (toScale || { x: 0.0, y: 0.0 });
+export default function ({ sourceScale, toScale } = {}) {
+    const { x: sSx, y: sSy } = sourceScale || { x: 0.0, y: 0.0 };
+    const { x: tSx, y: tSy } = toScale || { x: 0.0, y: 0.0 };
 
     /**
      * @typedef {Object} displacementTransitionEffect
@@ -31,11 +31,11 @@ export default function ({sourceScale, toScale} = {}) {
         vertex: {
             attribute: {
                 a_transitionToTexCoord: 'vec2',
-                a_transitionDispMapTexCoord: 'vec2'
+                a_transitionDispMapTexCoord: 'vec2',
             },
             main: `
     v_transitionToTexCoord = a_transitionToTexCoord;
-    v_transitionDispMapTexCoord = a_transitionDispMapTexCoord;`
+    v_transitionDispMapTexCoord = a_transitionDispMapTexCoord;`,
         },
         fragment: {
             uniform: {
@@ -44,7 +44,7 @@ export default function ({sourceScale, toScale} = {}) {
                 u_transitionDispMap: 'sampler2D',
                 u_transitionProgress: 'float',
                 u_sourceDispScale: 'vec2',
-                u_toDispScale: 'vec2'
+                u_toDispScale: 'vec2',
             },
             source: `
     vec3 transDispMap = vec3(1.0);
@@ -70,106 +70,102 @@ export default function ({sourceScale, toScale} = {}) {
         // mix the results of source and target
         color = mix(color, targetPixel.rgb, u_transitionProgress);
         alpha = mix(alpha, targetPixel.a, u_transitionProgress);
-    }`
+    }`,
         },
-        get disabled () {
+        get disabled() {
             return !this.uniforms[0].data[0];
         },
-        set disabled (b) {
+        set disabled(b) {
             this.uniforms[0].data[0] = +!b;
         },
-        get progress () {
+        get progress() {
             return this.uniforms[3].data[0];
         },
-        set progress (p) {
+        set progress(p) {
             this.uniforms[3].data[0] = p;
         },
-        get sourceScale () {
+        get sourceScale() {
             const [x, y] = this.uniforms[4].data;
-            return {x, y};
+            return { x, y };
         },
-        set sourceScale ({x, y}) {
-            if ( typeof x !== 'undefined' )
-                this.uniforms[4].data[0] = x;
-            if ( typeof y !== 'undefined' )
-                this.uniforms[4].data[1] = y;
+        set sourceScale({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[4].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[4].data[1] = y;
         },
-        get toScale () {
+        get toScale() {
             const [x, y] = this.uniforms[5].data;
-            return {x, y};
+            return { x, y };
         },
-        set toScale ({x, y}) {
-            if ( typeof x !== 'undefined' )
-                this.uniforms[5].data[0] = x;
-            if ( typeof y !== 'undefined' )
-                this.uniforms[5].data[1] = y;
+        set toScale({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[5].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[5].data[1] = y;
         },
-        get to () {
+        get to() {
             return this.textures[0].data;
         },
-        set to (media) {
+        set to(media) {
             this.textures[0].data = media;
         },
-        get map () {
+        get map() {
             return this.textures[1].data;
         },
-        set map (img) {
+        set map(img) {
             this.textures[1].data = img;
         },
         varying: {
             v_transitionToTexCoord: 'vec2',
-            v_transitionDispMapTexCoord: 'vec2'
+            v_transitionDispMapTexCoord: 'vec2',
         },
         uniforms: [
             {
                 name: 'u_transitionEnabled',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_transitionTo',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_transitionDispMap',
                 type: 'i',
-                data: [2]
+                data: [2],
             },
             {
                 name: 'u_transitionProgress',
                 type: 'f',
-                data: [0]
+                data: [0],
             },
             {
                 name: 'u_sourceDispScale',
                 type: 'f',
-                data: [sSx, sSy]
+                data: [sSx, sSy],
             },
             {
                 name: 'u_toDispScale',
                 type: 'f',
-                data: [tSx, tSy]
-            }
+                data: [tSx, tSy],
+            },
         ],
         attributes: [
             {
                 name: 'a_transitionToTexCoord',
-                extends: 'a_texCoord'
+                extends: 'a_texCoord',
             },
             {
                 name: 'a_transitionDispMapTexCoord',
-                extends: 'a_texCoord'
-            }
+                extends: 'a_texCoord',
+            },
         ],
         textures: [
             {
                 format: 'RGBA',
-                update: true
+                update: true,
             },
             {
-                format: 'RGB'
-            }
-        ]
+                format: 'RGB',
+            },
+        ],
     };
-};
+}

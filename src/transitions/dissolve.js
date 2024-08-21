@@ -12,7 +12,7 @@ export default function ({
     low = 0.0,
     high = 0.01,
     color = [0.0, 0.0, 0.0, 0.0],
-    textureEnabled = true
+    textureEnabled = true,
 } = {}) {
     /**
      * @typedef {Object} dissolveTransitionEffect
@@ -36,11 +36,11 @@ export default function ({
         vertex: {
             attribute: {
                 a_transitionToTexCoord: 'vec2',
-                a_transitionDissolveMapTexCoord: 'vec2'
+                a_transitionDissolveMapTexCoord: 'vec2',
             },
             main: `
     v_transitionToTexCoord = a_transitionToTexCoord;
-    v_transitionDissolveMapTexCoord = a_transitionDissolveMapTexCoord;`
+    v_transitionDissolveMapTexCoord = a_transitionDissolveMapTexCoord;`,
         },
         fragment: {
             uniform: {
@@ -51,7 +51,7 @@ export default function ({
                 u_dissolveHighEdge: 'float',
                 u_transitionColorTo: 'vec4',
                 u_transitionTo: 'sampler2D',
-                u_transitionDissolveMap: 'sampler2D'
+                u_transitionDissolveMap: 'sampler2D',
             },
             main: `
     if (u_transitionEnabled) {
@@ -72,125 +72,125 @@ export default function ({
         // color = dissolveVector.rgb; // debug
         color = mix(color, targetPixel.rgb, dissolveVector.rgb);
         alpha = mix(alpha, targetPixel.a, dissolveVector.a);
-    }`
+    }`,
         },
-        get disabled () {
+        get disabled() {
             return !this.uniforms[0].data[0];
         },
-        set disabled (b) {
+        set disabled(b) {
             this.uniforms[0].data[0] = +!b;
         },
-        get textureEnabled () {
+        get textureEnabled() {
             return !this.uniforms[7].data[0];
         },
-        set textureEnabled (b) {
+        set textureEnabled(b) {
             this.uniforms[7].data[0] = +!!b;
         },
-        get progress () {
+        get progress() {
             return this.uniforms[3].data[0];
         },
-        set progress (p) {
+        set progress(p) {
             this.uniforms[3].data[0] = Math.min(Math.max(p, 0.0), 1.0);
         },
-        get color () {
+        get color() {
             return this.uniforms[6].data.slice();
         },
-        set color (colorTo) {
+        set color(colorTo) {
             colorTo.forEach((c, i) => {
-                if ( ! Number.isNaN(c) ) {
+                if (!Number.isNaN(c)) {
                     this.uniforms[6].data[i] = c;
                 }
             });
         },
-        get to () {
+        get to() {
             return this.textures[0].data;
         },
-        set to (media) {
+        set to(media) {
             this.textures[0].data = media;
         },
-        get map () {
+        get map() {
             return this.textures[1].data;
         },
-        set map (img) {
+        set map(img) {
             this.textures[1].data = img;
         },
-        get low () {
+        get low() {
             return this.uniforms[4].data[0];
         },
-        set low (low) {
+        set low(low) {
             this.uniforms[4].data[0] = Math.min(Math.max(low, 0.0), this.high);
         },
-        get high () {
+        get high() {
             return this.uniforms[5].data[0];
         },
-        set high (high) {
+        set high(high) {
             this.uniforms[5].data[0] = Math.min(Math.max(high, this.low), 1.0);
         },
         varying: {
             v_transitionToTexCoord: 'vec2',
-            v_transitionDissolveMapTexCoord: 'vec2'
+            v_transitionDissolveMapTexCoord: 'vec2',
         },
         uniforms: [
             {
                 name: 'u_transitionEnabled',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_transitionTo',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_transitionDissolveMap',
                 type: 'i',
-                data: [2]
+                data: [2],
             },
             {
                 name: 'u_transitionProgress',
                 type: 'f',
-                data: [0]
+                data: [0],
             },
             {
                 name: 'u_dissolveLowEdge',
                 type: 'f',
-                data: [low]
+                data: [low],
             },
             {
                 name: 'u_dissolveHighEdge',
                 type: 'f',
-                data: [high]
+                data: [high],
             },
             {
                 name: 'u_transitionColorTo',
                 type: 'f',
-                data: color
+                data: color,
             },
             {
                 name: 'u_dissolveToTextureEnabled',
                 type: 'i',
-                data: [+!!textureEnabled]
-            }
+                data: [+!!textureEnabled],
+            },
         ],
         attributes: [
             {
                 name: 'a_transitionToTexCoord',
-                extends: 'a_texCoord'
+                extends: 'a_texCoord',
             },
             {
                 name: 'a_transitionDissolveMapTexCoord',
-                extends: 'a_texCoord'
-            }
+                extends: 'a_texCoord',
+            },
         ],
         textures: [
             {
                 format: 'RGBA',
-                update: true
+                update: true,
             },
             {
                 format: 'RGB',
-                update: false
-            }
-        ]
+                update: false,
+            },
+        ],
     };
-};
+}

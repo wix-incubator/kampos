@@ -16,21 +16,21 @@ const ANIMATIONS = {
     SMOKE: {
         octaves: 8,
         edge: 0.4,
-        cellFactor: 4
+        cellFactor: 4,
     },
     LIQUID: {
         octaves: 1,
         edge: 0.03,
-        cellFactor: 2
-    }
-}
+        cellFactor: 2,
+    },
+};
 
 mapTarget.width = MAP_WIDTH;
 mapTarget.height = MAP_HEIGHT;
 
 /* this factor controls the size of the blobs in the noise - increase for smaller blobs */
 const AMPLITUDE = ANIMATIONS[TYPE].cellFactor / MAP_WIDTH;
-const frequency = {x: AMPLITUDE, y: AMPLITUDE};
+const frequency = { x: AMPLITUDE, y: AMPLITUDE };
 
 /* increase number on range (1, 8) to go from water-like effect into clouds-like one */
 const octaves = ANIMATIONS[TYPE].octaves;
@@ -42,10 +42,14 @@ const isFractal = true;
 const turbulence = effects.turbulence({
     noise: noise.simplex,
     frequency,
-    isFractal
+    isFractal,
 });
 
-const dissolveMap = new Kampos({ target: mapTarget, effects: [turbulence], noSource: true });
+const dissolveMap = new Kampos({
+    target: mapTarget,
+    effects: [turbulence],
+    noSource: true,
+});
 
 /* create the dissolve map by generating a single noise frame */
 dissolveMap.draw();
@@ -58,103 +62,102 @@ const dissolve = transitions.dissolve({ high });
 dissolve.map = mapTarget;
 
 /* init kampos */
-const instance = new Kampos({target, effects:[dissolve]});
+const instance = new Kampos({ target, effects: [dissolve] });
 
 /* make sure videos are loaded and playing*/
 Promise.all([
     loadImage(`https://picsum.photos/${MAP_WIDTH}/${MAP_HEIGHT}?random=1`),
     loadImage(`https://picsum.photos/${MAP_WIDTH}/${MAP_HEIGHT}?random=2`),
     loadImage(`https://picsum.photos/${MAP_WIDTH}/${MAP_HEIGHT}?random=3`),
-    loadImage(`https://picsum.photos/${MAP_WIDTH}/${MAP_HEIGHT}?random=4`)
-])
-    .then((images) => {
-        const width = MAP_WIDTH;
-        const height = MAP_HEIGHT;
-        let index = 0;
+    loadImage(`https://picsum.photos/${MAP_WIDTH}/${MAP_HEIGHT}?random=4`),
+]).then((images) => {
+    const width = MAP_WIDTH;
+    const height = MAP_HEIGHT;
+    let index = 0;
 
-        if (DYNAMIC) {
-            dissolve.textures[1].update = true;
-        }
+    if (DYNAMIC) {
+        dissolve.textures[1].update = true;
+    }
 
-        /* paint initial scene */
-        instance.setSource({media: images[0], width, height});
-        dissolve.to = images[1];
-        instance.draw();
+    /* paint initial scene */
+    instance.setSource({ media: images[0], width, height });
+    dissolve.to = images[1];
+    instance.draw();
 
-        function easeOutCubic(x) {
-            return 1 - Math.pow(1 - x, 3);
-        }
+    function easeOutCubic(x) {
+        return 1 - Math.pow(1 - x, 3);
+    }
 
-        function changeImage(prevImage, nextImage) {
-            /* set media source */
-            instance.setSource({media: prevImage, width, height});
+    function changeImage(prevImage, nextImage) {
+        /* set media source */
+        instance.setSource({ media: prevImage, width, height });
 
-            /* set media to transition into */
-            dissolve.to = nextImage;
+        /* set media to transition into */
+        dissolve.to = nextImage;
 
-            const start = performance.now();
+        const start = performance.now();
 
-            /* start kampos */
-            instance.play(function draw () {
-                const time = performance.now() - start;
+        /* start kampos */
+        instance.play(function draw() {
+            const time = performance.now() - start;
 
-                /* this is invoked once in every animation frame */
-                if (DYNAMIC) {
-                    turbulence.time = time * 2;
-                    dissolveMap.draw();
-                }
-
-                /* you can reduce time factor for slower transition, or increase for faster */
-                const progress = easeOutCubic(time * (DYNAMIC ? 2e-4 : 4e-4));
-                dissolve.progress = progress;
-
-                if (progress * 100 >= 99.9) {
-                    instance.stop();
-
-                    // bind the event again
-                    bindClick();
-                }
-            });
-        }
-
-        function next() {
-            const from = images[index];
-
-            // next...
-            index = (index + 1) % images.length;
-
-            const to = images[index];
-
-            changeImage(from, to);
-        }
-
-        function prev() {
-            const from = images[index];
-
-            // prev...
-            index = (index - 1 + images.length) % images.length;
-
-            const to = images[index];
-
-            changeImage(from, to);
-        }
-
-        function click(event) {
-            const {offsetX} = event;
-
-            target.classList.remove('clickable');
-
-            if (offsetX > width / 2) {
-                next();
-            } else {
-                prev();
+            /* this is invoked once in every animation frame */
+            if (DYNAMIC) {
+                turbulence.time = time * 2;
+                dissolveMap.draw();
             }
-        }
 
-        function bindClick() {
-            target.classList.add('clickable');
-            target.addEventListener('click', click, {once: true});
-        }
+            /* you can reduce time factor for slower transition, or increase for faster */
+            const progress = easeOutCubic(time * (DYNAMIC ? 2e-4 : 4e-4));
+            dissolve.progress = progress;
 
-        bindClick();
-    });
+            if (progress * 100 >= 99.9) {
+                instance.stop();
+
+                // bind the event again
+                bindClick();
+            }
+        });
+    }
+
+    function next() {
+        const from = images[index];
+
+        // next...
+        index = (index + 1) % images.length;
+
+        const to = images[index];
+
+        changeImage(from, to);
+    }
+
+    function prev() {
+        const from = images[index];
+
+        // prev...
+        index = (index - 1 + images.length) % images.length;
+
+        const to = images[index];
+
+        changeImage(from, to);
+    }
+
+    function click(event) {
+        const { offsetX } = event;
+
+        target.classList.remove('clickable');
+
+        if (offsetX > width / 2) {
+            next();
+        } else {
+            prev();
+        }
+    }
+
+    function bindClick() {
+        target.classList.add('clickable');
+        target.addEventListener('click', click, { once: true });
+    }
+
+    bindClick();
+});

@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest'
+import { expect, test } from 'vitest';
 import { Kampos, Ticker, effects } from '../../index.js';
 import { WebGLRenderingContext } from 'gl/src/javascript/webgl-rendering-context.js';
 import { createCanvas, Image } from 'node-canvas-webgl';
@@ -7,7 +7,10 @@ const brightnessContrast = effects.brightnessContrast();
 
 test('kampos :: new Kampos() :: should instantiate a Kampos instance with a target canvas', () => {
     const canvas = createCanvas(300, 150);
-    const instance = new Kampos({target: canvas, effects: [brightnessContrast]});
+    const instance = new Kampos({
+        target: canvas,
+        effects: [brightnessContrast],
+    });
 
     expect(instance).toBeTruthy();
     expect(instance.gl instanceof WebGLRenderingContext).toBe(true);
@@ -16,51 +19,54 @@ test('kampos :: new Kampos() :: should instantiate a Kampos instance with a targ
     instance.destroy();
 });
 
-test.skip(
-    'kampos :: Kampos webglcontextlost :: should destroy the instance on webglcontextlost event',
-    () => {
-        expect.assertions(2);
-        const canvas = createCanvas(300, 150);
-        const instance = new Kampos({target: canvas, effects: [brightnessContrast]});
-        let calledTimes = 0;
+test.skip('kampos :: Kampos webglcontextlost :: should destroy the instance on webglcontextlost event', () => {
+    expect.assertions(2);
+    const canvas = createCanvas(300, 150);
+    const instance = new Kampos({
+        target: canvas,
+        effects: [brightnessContrast],
+    });
+    let calledTimes = 0;
 
+    expect(instance).toBeTruthy();
+
+    const _des = instance.destroy.bind(instance);
+
+    instance.destroy = function () {
+        calledTimes += 1;
+        _des();
+        expect(calledTimes).toBe(1);
+    };
+
+    instance.gl.getExtension('WEBGL_lose_context').loseContext();
+});
+
+test.skip('kampos :: Kampos webglcontextlost :: should restore the context and resources after webglcontextlost event and call to setSource', () => {
+    expect.assertions(2);
+    const canvas = createCanvas(300, 150);
+    const instance = new Kampos({
+        target: canvas,
+        effects: [brightnessContrast],
+    });
+
+    expect(instance).toBeTruthy();
+
+    instance.gl.getExtension('WEBGL_lose_context').loseContext();
+
+    setTimeout(() => {
+        instance.setSource({ type: 'video' });
         expect(instance).toBeTruthy();
+    }, 0);
+});
 
-        const _des = instance.destroy.bind(instance);
-
-        instance.destroy = function () {
-            calledTimes += 1;
-            _des();
-            expect(calledTimes).toBe(1);
-        };
-
-        instance.gl.getExtension('WEBGL_lose_context').loseContext();
-    }
-);
-
-test.skip(
-    'kampos :: Kampos webglcontextlost :: should restore the context and resources after webglcontextlost event and call to setSource',
-    () => {
-        expect.assertions(2);
-        const canvas = createCanvas(300, 150);
-        const instance = new Kampos({target: canvas, effects: [brightnessContrast]});
-
-        expect(instance).toBeTruthy();
-
-        instance.gl.getExtension('WEBGL_lose_context').loseContext();
-
-        setTimeout(() => {
-            instance.setSource({type: 'video'});
-            expect(instance).toBeTruthy();
-        }, 0);
-    }
-);
-
-test.skip('should NOT trigger webglcontextlost event if destroy()\'ed', () => {
+test.skip("should NOT trigger webglcontextlost event if destroy()'ed", () => {
     expect.assertions(3);
 
     const canvas = createCanvas(300, 150);
-    const instance = new Kampos({target: canvas, effects: [brightnessContrast]});
+    const instance = new Kampos({
+        target: canvas,
+        effects: [brightnessContrast],
+    });
     let calledTimes = 0;
 
     expect(instance).toBeTruthy();
@@ -85,52 +91,55 @@ test.skip('should NOT trigger webglcontextlost event if destroy()\'ed', () => {
     }, 10);
 });
 
-test.skip(
-    'kampos :: Kampos webglcontextrestored ::  should restore a destroyed instance on webglcontextrestored event',
-    () => {
-        const canvas = createCanvas(300, 150);
-        const instance = new Kampos({target: canvas, effects: [brightnessContrast]});
-        let calledTimes = 0;
+test.skip('kampos :: Kampos webglcontextrestored ::  should restore a destroyed instance on webglcontextrestored event', () => {
+    const canvas = createCanvas(300, 150);
+    const instance = new Kampos({
+        target: canvas,
+        effects: [brightnessContrast],
+    });
+    let calledTimes = 0;
 
+    expect(instance).toBeTruthy();
+
+    const _des = instance.destroy.bind(instance);
+    const _ini = instance.init.bind(instance);
+    const gl = instance.gl;
+    const ext = gl.getExtension('WEBGL_lose_context');
+
+    instance.destroy = function (arg) {
+        calledTimes += 1;
+        _des(arg);
+        expect(calledTimes).toBe(1);
+    };
+
+    instance.init = function (arg) {
+        calledTimes += 1;
+        _ini(arg);
+        expect(calledTimes).toBe(2);
+
+        // check we restored instance' state
         expect(instance).toBeTruthy();
+        expect(instance.gl instanceof WebGLRenderingContext).toBe(true);
+        expect(instance.data).toBeTruthy();
+    };
 
-        const _des = instance.destroy.bind(instance);
-        const _ini = instance.init.bind(instance);
-        const gl = instance.gl;
-        const ext = gl.getExtension('WEBGL_lose_context');
-
-        instance.destroy = function (arg) {
-            calledTimes += 1;
-            _des(arg);
-            expect(calledTimes).toBe(1);
-        };
-
-        instance.init = function (arg) {
-            calledTimes += 1;
-            _ini(arg);
-            expect(calledTimes).toBe(2);
-
-            // check we restored instance' state
-            expect(instance).toBeTruthy();
-            expect(instance.gl instanceof WebGLRenderingContext).toBe(true);
-            expect(instance.data).toBeTruthy();
-        };
-
-        ext.loseContext();
-        setTimeout(() => ext.restoreContext(), 10);
-    }
-);
+    ext.loseContext();
+    setTimeout(() => ext.restoreContext(), 10);
+});
 
 test('kampos :: Kampos#setSource :: should set media to given Image and start animation loop', () => {
     const canvas = createCanvas(300, 150);
     const image = new Image();
-    const instance = new Kampos({target: canvas, effects: [brightnessContrast]});
+    const instance = new Kampos({
+        target: canvas,
+        effects: [brightnessContrast],
+    });
 
     expect(instance).toBeTruthy();
     expect(instance.gl instanceof WebGLRenderingContext).toBe(true);
     expect(instance.data).toBeTruthy();
 
-    instance.setSource({media: image});
+    instance.setSource({ media: image });
     expect(instance.media instanceof Image).toBe(true);
 
     instance.destroy();
@@ -138,20 +147,23 @@ test('kampos :: Kampos#setSource :: should set media to given Image and start an
 
 test('kampos :: Kampos#play :: should start animation loop', () => {
     global.window = {
-        requestAnimationFrame (callback) {
+        requestAnimationFrame(callback) {
             return 1;
-        }
+        },
     };
 
     const canvas = createCanvas(300, 150);
     const image = new Image();
-    const instance = new Kampos({target: canvas, effects: [brightnessContrast]});
+    const instance = new Kampos({
+        target: canvas,
+        effects: [brightnessContrast],
+    });
 
     expect(instance).toBeTruthy();
     expect(instance.gl instanceof WebGLRenderingContext).toBe(true);
     expect(instance.data).toBeTruthy();
 
-    instance.setSource({media: image});
+    instance.setSource({ media: image });
     expect(instance.media instanceof Image).toBe(true);
 
     instance.play();
@@ -161,21 +173,25 @@ test('kampos :: Kampos#play :: should start animation loop', () => {
 
 test('kampos :: Kampos#play :: should start animation loop with a ticker', () => {
     global.window = {
-        requestAnimationFrame (callback) {
+        requestAnimationFrame(callback) {
             return 1;
-        }
+        },
     };
 
     const canvas = createCanvas(300, 150);
     const image = new Image();
     const ticker = new Ticker();
-    const instance = new Kampos({target: canvas, effects: [brightnessContrast], ticker});
+    const instance = new Kampos({
+        target: canvas,
+        effects: [brightnessContrast],
+        ticker,
+    });
 
     expect(instance).toBeTruthy();
     expect(instance.gl instanceof WebGLRenderingContext).toBe(true);
     expect(instance.data).toBeTruthy();
 
-    instance.setSource({media: image});
+    instance.setSource({ media: image });
     expect(instance.media instanceof Image).toBe(true);
 
     instance.play();

@@ -18,21 +18,21 @@ const ANIMATIONS = {
     SMOKE: {
         octaves: 8,
         edge: 0.4,
-        cellFactor: 4
+        cellFactor: 4,
     },
     LIQUID: {
         octaves: 1,
         edge: 0.03,
-        cellFactor: 2
-    }
-}
+        cellFactor: 2,
+    },
+};
 
 mapTarget.width = MAP_WIDTH;
 mapTarget.height = MAP_HEIGHT;
 
 /* this factor controls the size of the blobs in the noise - increase for smaller blobs */
 const AMPLITUDE = ANIMATIONS[TYPE].cellFactor / MAP_WIDTH;
-const frequency = {x: AMPLITUDE, y: AMPLITUDE};
+const frequency = { x: AMPLITUDE, y: AMPLITUDE };
 
 /* increase number on range (1, 8) to go from water-like effect into clouds-like one */
 const octaves = ANIMATIONS[TYPE].octaves;
@@ -44,10 +44,14 @@ const isFractal = true;
 const turbulence = effects.turbulence({
     noise: noise.simplex,
     frequency,
-    isFractal
+    isFractal,
 });
 
-const dissolveMap = new Kampos({ target: mapTarget, effects: [turbulence], noSource: true });
+const dissolveMap = new Kampos({
+    target: mapTarget,
+    effects: [turbulence],
+    noSource: true,
+});
 
 /* create the dissolve map by generating a single noise frame */
 dissolveMap.draw();
@@ -60,31 +64,30 @@ const dissolve = transitions.dissolve({ high });
 dissolve.map = mapTarget;
 
 /* init kampos */
-const instance = new Kampos({target, effects:[dissolve]});
+const instance = new Kampos({ target, effects: [dissolve] });
 
 /* make sure videos are loaded and playing */
-prepareVideos([media1, media2])
-    .then(() => {
-        const width = media1.videoWidth;
-        const height = media1.videoHeight;
+prepareVideos([media1, media2]).then(() => {
+    const width = media1.videoWidth;
+    const height = media1.videoHeight;
 
-        /* set media source */
-        instance.setSource({media: media1, width, height});
+    /* set media source */
+    instance.setSource({ media: media1, width, height });
 
-        /* set media to transition into*/
-        dissolve.to = media2;
+    /* set media to transition into*/
+    dissolve.to = media2;
+    if (DYNAMIC) {
+        dissolve.textures[1].update = true;
+    }
+
+    /* start kampos */
+    instance.play(function draw(time) {
+        /* this is invoked once in every animation frame, while the mouse over the canvas */
         if (DYNAMIC) {
-            dissolve.textures[1].update = true;
+            turbulence.time = time * 2;
+            dissolveMap.draw();
         }
-
-        /* start kampos */
-        instance.play(function draw (time) {
-            /* this is invoked once in every animation frame, while the mouse over the canvas */
-            if (DYNAMIC) {
-                turbulence.time = time * 2;
-                dissolveMap.draw();
-            }
-            /* you can reduce time factor for slower transition, or increase for faster */
-            dissolve.progress = Math.abs(Math.sin(time * (DYNAMIC ? 2e-4 : 4e-4)));
-        });
+        /* you can reduce time factor for slower transition, or increase for faster */
+        dissolve.progress = Math.abs(Math.sin(time * (DYNAMIC ? 2e-4 : 4e-4)));
     });
+});

@@ -2,8 +2,8 @@
  * Most simple image loader
  * You'll probably have something like this already
  */
-function loadImage (src) {
-    return new Promise(resolve => {
+function loadImage(src) {
+    return new Promise((resolve) => {
         const img = new Image();
         img.crossOrigin = 'anonymous';
 
@@ -21,16 +21,16 @@ window.loadImage = loadImage;
  * Minimal, cross-browser logic for playing videos and making sure
  * they are ready to work with
  */
-function prepareVideos (videos) {
-    return new Promise(resolve => {
+function prepareVideos(videos) {
+    return new Promise((resolve) => {
         let playing = 0;
         let timeupdate = 0;
 
-        function canPlay (e) {
+        function canPlay(e) {
             e.target.play();
         }
 
-        const isPlaying = e => {
+        const isPlaying = (e) => {
             playing += 1;
             e.target.removeEventListener('playing', isPlaying, true);
             check();
@@ -43,7 +43,7 @@ function prepareVideos (videos) {
 
         const check = () => {
             if (playing === videos.length && timeupdate === videos.length) {
-                videos.forEach(vid => {
+                videos.forEach((vid) => {
                     vid.removeEventListener('canplay', canPlay, true);
                 });
 
@@ -51,7 +51,7 @@ function prepareVideos (videos) {
             }
         };
 
-        videos.forEach(vid => {
+        videos.forEach((vid) => {
             vid.addEventListener('playing', isPlaying, true);
             vid.addEventListener('timeupdate', isTimeupdate, true);
             vid.addEventListener('canplay', canPlay, true);

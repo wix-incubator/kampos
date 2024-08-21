@@ -97,7 +97,7 @@ vec3 blend_set_saturation (vec3 c, float s) {
     }
 
     return vec3(r, g, b);
-}`
+}`,
 };
 
 const MODES_CONSTANT = {
@@ -176,8 +176,8 @@ ${MODES_AUX.blend_set_luminosity}`,
 ${MODES_AUX.blend_set_luminosity}`,
 };
 
-function generateBlendVector (name) {
-    return `vec3(${name}(backdrop.r, source.r), ${name}(backdrop.g, source.g), ${name}(backdrop.b, source.b))`
+function generateBlendVector(name) {
+    return `vec3(${name}(backdrop.r, source.r), ${name}(backdrop.g, source.g), ${name}(backdrop.b, source.b))`;
 }
 
 const MODES_MAIN = {
@@ -194,9 +194,10 @@ const MODES_MAIN = {
     difference: generateBlendVector('blend_difference'),
     exclusion: generateBlendVector('blend_exclusion'),
     hue: 'blend_set_luminosity(blend_set_saturation(source, blend_saturation(backdrop)), blend_luminosity(backdrop))',
-    saturation: 'blend_set_luminosity(blend_set_saturation(backdrop, blend_saturation(source)), blend_luminosity(backdrop))',
+    saturation:
+        'blend_set_luminosity(blend_set_saturation(backdrop, blend_saturation(source)), blend_luminosity(backdrop))',
     color: 'blend_set_luminosity(source, blend_luminosity(backdrop))',
-    luminosity: 'blend_set_luminosity(backdrop, blend_luminosity(source))'
+    luminosity: 'blend_set_luminosity(backdrop, blend_luminosity(source))',
 };
 
 /**
@@ -209,7 +210,7 @@ const MODES_MAIN = {
  */
 export default function ({
     mode = 'normal',
-    color = [0.0, 0.0, 0.0, 1.0]
+    color = [0.0, 0.0, 0.0, 1.0],
 } = {}) {
     /**
      * @typedef {Object} blendEffect
@@ -226,10 +227,10 @@ export default function ({
     return {
         vertex: {
             attribute: {
-                a_blendImageTexCoord: 'vec2'
+                a_blendImageTexCoord: 'vec2',
             },
             main: `
-    v_blendImageTexCoord = a_blendImageTexCoord;`
+    v_blendImageTexCoord = a_blendImageTexCoord;`,
         },
         fragment: {
             uniform: {
@@ -266,16 +267,15 @@ ${MODES_CONSTANT[mode]}`,
         vec3 source = vec3(color.rgb);
         color = (1.0 - backdropAlpha) * source + backdropAlpha * clamp(${MODES_MAIN[mode]}, 0.0, 1.0);
         alpha = alpha + backdropAlpha * (1.0 - alpha);
-    }`
+    }`,
         },
-        get color () {
+        get color() {
             return this.uniforms[1].data.slice(0);
         },
-        set color (l) {
+        set color(l) {
             if (!l || !l.length) {
                 this.uniforms[2].data[0] = 0;
-            }
-            else {
+            } else {
                 this.uniforms[2].data[0] = 1;
                 l.forEach((c, i) => {
                     if (!Number.isNaN(c)) {
@@ -284,64 +284,63 @@ ${MODES_CONSTANT[mode]}`,
                 });
             }
         },
-        get image () {
+        get image() {
             return this.textures[0].data;
         },
-        set image (img) {
+        set image(img) {
             if (img) {
                 this.uniforms[4].data[0] = 1;
                 this.textures[0].data = img;
-            }
-            else {
+            } else {
                 this.uniforms[4].data[0] = 0;
             }
         },
-        get disabled () {
+        get disabled() {
             return !this.uniforms[0].data[0];
         },
-        set disabled (b) {
+        set disabled(b) {
             this.uniforms[0].data[0] = +!b;
         },
         varying: {
-            v_blendImageTexCoord: 'vec2'
+            v_blendImageTexCoord: 'vec2',
         },
         uniforms: [
             {
                 name: 'u_blendEnabled',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_blendColor',
                 type: 'f',
-                data: color
+                data: color,
             },
             {
                 name: 'u_blendColorEnabled',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_blendImage',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_blendImageEnabled',
                 type: 'i',
-                data: [0]
-            }
+                data: [0],
+            },
         ],
         attributes: [
             {
                 name: 'a_blendImageTexCoord',
-                extends: 'a_texCoord'
-            }
+                extends: 'a_texCoord',
+            },
         ],
         textures: [
             {
-                format: 'RGBA'
-            }
-        ]
+                format: 'RGBA',
+            },
+        ],
     };
-};
+}

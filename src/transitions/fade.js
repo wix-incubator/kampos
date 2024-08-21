@@ -17,73 +17,73 @@ export default function () {
     return {
         vertex: {
             attribute: {
-                a_transitionToTexCoord: 'vec2'
+                a_transitionToTexCoord: 'vec2',
             },
             main: `
-    v_transitionToTexCoord = a_transitionToTexCoord;`
+    v_transitionToTexCoord = a_transitionToTexCoord;`,
         },
         fragment: {
             uniform: {
                 u_transitionEnabled: 'bool',
                 u_transitionProgress: 'float',
-                u_transitionTo: 'sampler2D'
+                u_transitionTo: 'sampler2D',
             },
             main: `
     if (u_transitionEnabled) {
         vec4 targetPixel = texture2D(u_transitionTo, v_transitionToTexCoord);
         color = mix(color, targetPixel.rgb, u_transitionProgress);
         alpha = mix(alpha, targetPixel.a, u_transitionProgress);
-    }`
+    }`,
         },
-        get disabled () {
+        get disabled() {
             return !this.uniforms[0].data[0];
         },
-        set disabled (b) {
+        set disabled(b) {
             this.uniforms[0].data[0] = +!b;
         },
-        get progress () {
+        get progress() {
             return this.uniforms[2].data[0];
         },
-        set progress (p) {
+        set progress(p) {
             this.uniforms[2].data[0] = p;
         },
-        get to () {
+        get to() {
             return this.textures[0].data;
         },
-        set to (media) {
+        set to(media) {
             this.textures[0].data = media;
         },
         varying: {
-            v_transitionToTexCoord: 'vec2'
+            v_transitionToTexCoord: 'vec2',
         },
         uniforms: [
             {
                 name: 'u_transitionEnabled',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_transitionTo',
                 type: 'i',
-                data: [1]
+                data: [1],
             },
             {
                 name: 'u_transitionProgress',
                 type: 'f',
-                data: [0]
-            }
+                data: [0],
+            },
         ],
         attributes: [
             {
                 name: 'a_transitionToTexCoord',
-                extends: 'a_texCoord'
-            }
+                extends: 'a_texCoord',
+            },
         ],
         textures: [
             {
                 format: 'RGBA',
-                update: true
-            }
-        ]
+                update: true,
+            },
+        ],
     };
-};
+}
