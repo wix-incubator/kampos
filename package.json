@@ -18,7 +18,8 @@
         "docs": "documentation build src/index.js -f html -o docs -c documentation.yml",
         "check": "npm-check -u",
         "prettier": "prettier --write .",
-        "start": "npm run build && npm run demo && npx http-server"
+        "start": "npm run build && npm run demo && npx http-server",
+        "dev": "concurrently \"npm run watch\" \"npm run watch:demo\" \"npx http-server\""
     },
     "repository": {
         "type": "git",
@@ -40,6 +41,7 @@
     "homepage": "https://wix-incubator.github.io/kampos/",
     "devDependencies": {
         "@babel/core": "^7.24.7",
+        "concurrently": "^8.2.2",
         "documentation": "^14.0.3",
         "finalhandler": "^1.2.0",
         "get-port": "^7.1.0",
