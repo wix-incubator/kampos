@@ -161,8 +161,7 @@
 
     insertSection('section7');
 
-    // on load get #section10 from url hash and set
-
+    // on load get active section from url hash and set
     const hash = window.location.hash.substring(1);
 
     if (hash) {
