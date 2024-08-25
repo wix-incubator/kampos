@@ -1,8 +1,8 @@
-### 0.10.1 (2024-08-25)
+### 0.10.2 (2024-08-25)
 
 _Fixed:_
 
--   Export `IKampos` type of the `Kampos` class.
+-   Types issue in previous patch.
 
 ### 0.10.0 (2024-08-20)
 
