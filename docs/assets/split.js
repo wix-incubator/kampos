@@ -1,13 +1,10 @@
 /*! Split.js - v1.5.11 */
 
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined'
-        ? (module.exports = factory())
-        : typeof define === 'function' && define.amd
-          ? define(factory)
-          : (global.Split = factory());
-})(this, function () {
-    'use strict';
+    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+    typeof define === 'function' && define.amd ? define(factory) :
+    (global.Split = factory());
+}(this, (function () { 'use strict';
 
     // The programming goals of Split.js are to deliver readable, understandable and
     // maintainable code, while at the same time manually optimizing for tiny minified file size,
@@ -25,9 +22,7 @@
     var aGutterSize = '_b';
     var bGutterSize = '_c';
     var HORIZONTAL = 'horizontal';
-    var NOOP = function () {
-        return false;
-    };
+    var NOOP = function () { return false; };
 
     // Figure out if we're in IE8 or not. IE8 will still render correctly,
     // but will be static instead of draggable.
@@ -38,20 +33,17 @@
     //
     // Tests -webkit, -moz and -o prefixes. Modified from StackOverflow:
     // http://stackoverflow.com/questions/16625140/js-feature-detection-to-detect-the-usage-of-webkit-calc-over-calc/16625167#16625167
-    var calc =
-        ['', '-webkit-', '-moz-', '-o-']
-            .filter(function (prefix) {
-                var el = document.createElement('div');
-                el.style.cssText = 'width:' + prefix + 'calc(9px)';
+    var calc = (['', '-webkit-', '-moz-', '-o-']
+        .filter(function (prefix) {
+            var el = document.createElement('div');
+            el.style.cssText = "width:" + prefix + "calc(9px)";
 
-                return !!el.style.length;
-            })
-            .shift() + 'calc';
+            return !!el.style.length
+        })
+        .shift()) + "calc";
 
     // Helper function checks if its argument is a string-like type
-    var isString = function (v) {
-        return typeof v === 'string' || v instanceof String;
-    };
+    var isString = function (v) { return typeof v === 'string' || v instanceof String; };
 
     // Helper function allows elements and string selectors to be used
     // interchangeably. In either case an element is returned. This allows us to
@@ -60,50 +52,48 @@
         if (isString(el)) {
             var ele = document.querySelector(el);
             if (!ele) {
-                throw new Error(
-                    'Selector ' + el + ' did not match a DOM element',
-                );
+                throw new Error(("Selector " + el + " did not match a DOM element"))
             }
-            return ele;
+            return ele
         }
 
-        return el;
+        return el
     };
 
     // Helper function gets a property from the properties object, with a default fallback
     var getOption = function (options, propName, def) {
         var value = options[propName];
         if (value !== undefined) {
-            return value;
+            return value
         }
-        return def;
+        return def
     };
 
     var getGutterSize = function (gutterSize, isFirst, isLast, gutterAlign) {
         if (isFirst) {
             if (gutterAlign === 'end') {
-                return 0;
+                return 0
             }
             if (gutterAlign === 'center') {
-                return gutterSize / 2;
+                return gutterSize / 2
             }
         } else if (isLast) {
             if (gutterAlign === 'start') {
-                return 0;
+                return 0
             }
             if (gutterAlign === 'center') {
-                return gutterSize / 2;
+                return gutterSize / 2
             }
         }
 
-        return gutterSize;
+        return gutterSize
     };
 
     // Default options
     var defaultGutterFn = function (i, gutterDirection) {
         var gut = document.createElement('div');
-        gut.className = 'gutter gutter-' + gutterDirection;
-        return gut;
+        gut.className = "gutter gutter-" + gutterDirection;
+        return gut
     };
 
     var defaultElementStyleFn = function (dim, size, gutSize) {
@@ -111,21 +101,21 @@
 
         if (!isString(size)) {
             if (!isIE8) {
-                style[dim] = calc + '(' + size + '% - ' + gutSize + 'px)';
+                style[dim] = calc + "(" + size + "% - " + gutSize + "px)";
             } else {
-                style[dim] = size + '%';
+                style[dim] = size + "%";
             }
         } else {
             style[dim] = size;
         }
 
-        return style;
+        return style
     };
 
     var defaultGutterStyleFn = function (dim, gutSize) {
         var obj;
 
-        return (obj = {}), (obj[dim] = gutSize + 'px'), obj;
+        return (( obj = {}, obj[dim] = (gutSize + "px"), obj ));
     };
 
     // The main function to initialize a split. Split.js thinks about each pair
@@ -156,7 +146,7 @@
     //    `pair` object and a gutter.
     // 5. Actually size the pair elements, insert gutters and attach event listeners.
     var Split = function (idsOption, options) {
-        if (options === void 0) options = {};
+        if ( options === void 0 ) options = {};
 
         var ids = idsOption;
         var dimension;
@@ -177,25 +167,15 @@
         var firstElement = elementOrSelector(ids[0]);
         var parent = firstElement.parentNode;
         var parentStyle = getComputedStyle ? getComputedStyle(parent) : null;
-        var parentFlexDirection = parentStyle
-            ? parentStyle.flexDirection
-            : null;
+        var parentFlexDirection = parentStyle ? parentStyle.flexDirection : null;
 
         // Set default options.sizes to equal percentages of the parent element.
-        var sizes =
-            getOption(options, 'sizes') ||
-            ids.map(function () {
-                return 100 / ids.length;
-            });
+        var sizes = getOption(options, 'sizes') || ids.map(function () { return 100 / ids.length; });
 
         // Standardize minSize to an array if it isn't already. This allows minSize
         // to be passed as a number.
         var minSize = getOption(options, 'minSize', 100);
-        var minSizes = Array.isArray(minSize)
-            ? minSize
-            : ids.map(function () {
-                  return minSize;
-              });
+        var minSizes = Array.isArray(minSize) ? minSize : ids.map(function () { return minSize; });
 
         // Get other options
         var expandToMin = getOption(options, 'expandToMin', false);
@@ -207,19 +187,15 @@
         var cursor = getOption(
             options,
             'cursor',
-            direction === HORIZONTAL ? 'col-resize' : 'row-resize',
+            direction === HORIZONTAL ? 'col-resize' : 'row-resize'
         );
         var gutter = getOption(options, 'gutter', defaultGutterFn);
         var elementStyle = getOption(
             options,
             'elementStyle',
-            defaultElementStyleFn,
+            defaultElementStyleFn
         );
-        var gutterStyle = getOption(
-            options,
-            'gutterStyle',
-            defaultGutterStyleFn,
-        );
+        var gutterStyle = getOption(options, 'gutterStyle', defaultGutterStyleFn);
 
         // 2. Initialize a bunch of strings based on the direction we're splitting.
         // A lot of the behavior in the rest of the library is paramatized down to
@@ -272,18 +248,14 @@
         }
 
         function getSizes() {
-            return elements.map(function (element) {
-                return element.size;
-            });
+            return elements.map(function (element) { return element.size; })
         }
 
         // Supports touch events, but not multitouch, so only the first
         // finger `touches[0]` is counted.
         function getMousePosition(e) {
-            if ('touches' in e) {
-                return e.touches[0][clientAxis];
-            }
-            return e[clientAxis];
+            if ('touches' in e) { return e.touches[0][clientAxis] }
+            return e[clientAxis]
         }
 
         // Actually adjust the size of elements `a` and `b` to `offset` while dragging.
@@ -323,9 +295,7 @@
             var a = elements[this.a];
             var b = elements[this.b];
 
-            if (!this.dragging) {
-                return;
-            }
+            if (!this.dragging) { return }
 
             // Get the offset of the event from the first side of the
             // pair `this.start`. Then offset by the initial position of the
@@ -392,21 +362,15 @@
         function innerSize(element) {
             // Return nothing if getComputedStyle is not supported (< IE9)
             // Or if parent element has no layout yet
-            if (!getComputedStyle) {
-                return null;
-            }
+            if (!getComputedStyle) { return null }
 
             var computedStyle = getComputedStyle(element);
 
-            if (!computedStyle) {
-                return null;
-            }
+            if (!computedStyle) { return null }
 
             var size = element[clientSize];
 
-            if (size === 0) {
-                return null;
-            }
+            if (size === 0) { return null }
 
             if (direction === HORIZONTAL) {
                 size -=
@@ -418,7 +382,7 @@
                     parseFloat(computedStyle.paddingBottom);
             }
 
-            return size;
+            return size
         }
 
         // When specifying percentage sizes that are less than the computed
@@ -430,15 +394,11 @@
             // If it's no supported, return original sizes.
             var parentSize = innerSize(parent);
             if (parentSize === null) {
-                return sizesToTrim;
+                return sizesToTrim
             }
 
-            if (
-                minSizes.reduce(function (a, b) {
-                    return a + b;
-                }, 0) > parentSize
-            ) {
-                return sizesToTrim;
+            if (minSizes.reduce(function (a, b) { return a + b; }, 0) > parentSize) {
+                return sizesToTrim
             }
 
             // Keep track of the excess pixels, the amount of pixels over the desired percentage
@@ -453,7 +413,7 @@
                     gutterSize,
                     i === 0,
                     i === sizesToTrim.length - 1,
-                    gutterAlign,
+                    gutterAlign
                 );
                 var elementMinSize = minSizes[i] + elementGutterSize;
 
@@ -462,17 +422,17 @@
                 if (pixelSize < elementMinSize) {
                     excessPixels += elementMinSize - pixelSize;
                     toSpare.push(0);
-                    return elementMinSize;
+                    return elementMinSize
                 }
 
                 // Otherwise, mark the pixels it has to spare and return it's original size
                 toSpare.push(pixelSize - elementMinSize);
-                return pixelSize;
+                return pixelSize
             });
 
             // If nothing was adjusted, return the original sizes
             if (excessPixels === 0) {
-                return sizesToTrim;
+                return sizesToTrim
             }
 
             return pixelSizes.map(function (pixelSize, i) {
@@ -483,7 +443,7 @@
                 if (excessPixels > 0 && toSpare[i] - excessPixels > 0) {
                     var takenPixels = Math.min(
                         excessPixels,
-                        toSpare[i] - excessPixels,
+                        toSpare[i] - excessPixels
                     );
 
                     // Subtract the amount taken for the next iteration
@@ -492,8 +452,8 @@
                 }
 
                 // Return the pixel size adjusted as a percentage
-                return (newPixelSize / parentSize) * 100;
-            });
+                return (newPixelSize / parentSize) * 100
+            })
         }
 
         // stopDragging is very similar to startDragging in reverse.
@@ -545,7 +505,7 @@
         function startDragging(e) {
             // Right-clicking can't start dragging.
             if ('button' in e && e.button !== 0) {
-                return;
+                return
             }
 
             // Alias frequently used variables to save space. 200 bytes.
@@ -653,13 +613,13 @@
                     gutterSize,
                     i - 1 === 0,
                     false,
-                    gutterAlign,
+                    gutterAlign
                 );
                 pair[bGutterSize] = getGutterSize(
                     gutterSize,
                     false,
                     i === ids.length - 1,
-                    gutterAlign,
+                    gutterAlign
                 );
 
                 // if the parent has a reverse flex-direction, switch the pair elements.
@@ -690,11 +650,11 @@
                     // Attach bound event listener
                     gutterElement[addEventListener](
                         'mousedown',
-                        pair[gutterStartDragging],
+                        pair[gutterStartDragging]
                     );
                     gutterElement[addEventListener](
                         'touchstart',
-                        pair[gutterStartDragging],
+                        pair[gutterStartDragging]
                     );
 
                     parent.insertBefore(gutterElement, element.element);
@@ -710,9 +670,9 @@
                     gutterSize,
                     i === 0,
                     i === ids.length - 1,
-                    gutterAlign,
+                    gutterAlign
                 ),
-                i,
+                i
             );
 
             // After the first iteration, and we have a pair object, append it to the
@@ -721,7 +681,7 @@
                 pairs.push(pair);
             }
 
-            return element;
+            return element
         });
 
         function adjustToMin(element) {
@@ -738,8 +698,7 @@
         }
 
         elements.forEach(function (element) {
-            var computedSize =
-                element.element[getBoundingClientRect]()[dimension];
+            var computedSize = element.element[getBoundingClientRect]()[dimension];
 
             if (computedSize < element.minSize) {
                 if (expandToMin) {
@@ -776,11 +735,11 @@
                 } else {
                     pair.gutter[removeEventListener](
                         'mousedown',
-                        pair[gutterStartDragging],
+                        pair[gutterStartDragging]
                     );
                     pair.gutter[removeEventListener](
                         'touchstart',
-                        pair[gutterStartDragging],
+                        pair[gutterStartDragging]
                     );
                 }
 
@@ -788,7 +747,7 @@
                     var style = elementStyle(
                         dimension,
                         pair.a.size,
-                        pair[aGutterSize],
+                        pair[aGutterSize]
                     );
 
                     Object.keys(style).forEach(function (prop) {
@@ -803,7 +762,7 @@
             return {
                 setSizes: setSizes,
                 destroy: destroy,
-            };
+            }
         }
 
         return {
@@ -815,8 +774,9 @@
             destroy: destroy,
             parent: parent,
             pairs: pairs,
-        };
+        }
     };
 
     return Split;
-});
+
+})));

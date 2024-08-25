@@ -1,3 +1,5 @@
+import type { Kampos } from './src/kampos';
+
 declare type KamposConfig = {
     target: HTMLCanvasElement;
     effects: EffectConfig[];
@@ -114,5 +116,7 @@ declare type Ticker = {
     add: (instance: Drawable) => void;
     remove: (instance: Drawable) => void;
 };
+
+declare type IKampos = Kampos
 
 declare module 'kampos';
