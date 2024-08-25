@@ -1,3 +1,9 @@
+### 0.10.1 (2024-08-25)
+
+_Fixed:_
+
+-   Export `IKampos` type of the `Kampos` class.
+
 ### 0.10.0 (2024-08-20)
 
 _New:_
