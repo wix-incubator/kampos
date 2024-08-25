@@ -15,7 +15,7 @@
         "test:unit": "vitest test/unit/core.js && vitest test/unit/kampos.js",
         "test:e2e": "vitest test/e2e/*.js",
         "test": "npm run test:unit && npm run test:e2e",
-        "docs": "documentation build src/index.js -f html -o docs -c documentation.yml",
+        "docs": "documentation build ./index.js -f html -o docs -c documentation.yml",
         "check": "npm-check -u",
         "prettier": "prettier --write .",
         "start": "npm run build && npm run demo && npx http-server",
