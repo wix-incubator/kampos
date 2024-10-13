@@ -141,7 +141,15 @@ const sectionScripts = {
             video: 'videos5',
             refresh: 'refresh8'
         });
-    }
+    },
+    section9() {
+        startDemo('./shape-mask.js', {
+            code: 'code9',
+            preview: 'preview',
+            video: 'videos6',
+            refresh: 'refresh9',
+        });
+    },
 }
 
 insertSection('section7');
