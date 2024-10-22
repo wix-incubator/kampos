@@ -1,4 +1,5 @@
 import alphaMask from './src/effects/alpha-mask.js';
+import shapeMask from './src/effects/shape-mask.js';
 import blend from './src/effects/blend.js';
 import brightnessContrast from './src/effects/brightness-contrast.js';
 import hueSaturation from './src/effects/hue-saturation.js';
@@ -19,6 +20,7 @@ export { Ticker } from './src/ticker.js';
 
 export const effects = {
     alphaMask,
+    shapeMask,
     blend,
     brightnessContrast,
     hueSaturation,

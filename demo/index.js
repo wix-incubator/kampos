@@ -157,6 +157,14 @@
                 refresh: 'refresh9',
             });
         },
+        section10() {
+            startDemo('./shape-mask.js', {
+                code: 'code10',
+                preview: 'preview',
+                video: 'videos6',
+                refresh: 'refresh10',
+            });
+        },
     };
 
     insertSection('section7');
