@@ -142,9 +142,11 @@ loadImage(
     });
 
     // create the main instance that renders the displaced image
-    const displacement = effects.displacement();
+    const displacement = effects.displacement({
+        scale: { x: 0, y: 0 },
+        enableBlueChannel: true,
+    });
     displacement.map = mapTarget;
-    displacement.scale = { x: 0, y: 0 };
     displacement.textures[0].update = true; // to update
 
     if (DEBUG) {
