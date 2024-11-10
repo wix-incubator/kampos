@@ -157,9 +157,18 @@
                 refresh: 'refresh9',
             });
         },
+
+        section10() {
+            startDemo('./multi-pointer.js', {
+                code: 'code10',
+                preview: 'preview',
+                refresh: 'refresh10',
+            });
+        },
     };
 
-    insertSection('section7');
+    insertSection('section10');
+
 
     // on load get active section from url hash and set
     const hash = window.location.hash.substring(1);

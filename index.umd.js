@@ -807,7 +807,7 @@ const mat3 satmat = mat3(
                 source: `
     if (u_displacementEnabled) {
         vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb - 0.5;
-        vec2 dispVec = vec2(sourceCoord.x + u_dispScale.x * dispMap.r, sourceCoord.y + u_dispScale.y * dispMap.g);
+        vec2 dispVec = vec2(sourceCoord.x + (u_dispScale.x + dispMap.b) * dispMap.r, sourceCoord.y + (u_dispScale.y + dispMap.b) * dispMap.g);
         ${wrap}
         sourceCoord = dispVec;
     }`,
@@ -3235,7 +3235,7 @@ void main() {
         duotone,
         displacement,
         turbulence,
-        kaleidoscope
+        kaleidoscope,
     };
 
     const transitions = {

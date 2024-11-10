@@ -25,7 +25,7 @@ export const effects = {
     duotone,
     displacement,
     turbulence,
-    kaleidoscope
+    kaleidoscope,
 };
 
 export const transitions = {
