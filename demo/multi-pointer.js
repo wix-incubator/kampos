@@ -55,7 +55,7 @@ class PointerTexture {
             point.vx = relatveX / (speed + 1e-5);
             point.vy = relatveY / (speed + 1e-5);
 
-            point.speed = Math.min(speedSquared * 1e4, 1);
+            point.speed = Math.min(speedSquared * 1e3, 1);
         }
 
         this.last = point;
@@ -74,10 +74,6 @@ class PointerTexture {
 
             if (point.age > this.maxAge) {
                 this.points.splice(i, 1);
-
-                if (this.points.length === 0) {
-                    this.last = null;
-                }
             } else {
                 this.drawPoint(point);
             }
@@ -97,7 +93,7 @@ class PointerTexture {
         }
         intensity *= point.speed;
 
-        const red = (1 - point.vx) / 2 * 255;
+        const red = (1 + point.vx) / 2 * 255;
         const green = (1 + point.vy) / 2 * 255;
         const blue = intensity * 255;
 
@@ -136,8 +132,8 @@ loadImage(
         height,
         canvas: DEBUG ? target : mapTarget,
         radius: 130,
-        intensity: 0.6,
-        maxAge: 180,
+        intensity: 1.2,
+        maxAge: 130,
         forceDecay: 0.01,
     });
 
