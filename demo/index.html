@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
@@ -200,11 +200,22 @@
                 src="https://static.wixstatic.com/media/cec2b6_36e46176b7e54b678e4c6d39d36452e5~mv2.jpg"
             />
         </template>
-
         <template id="videos5">
             <video
                 id="video8"
                 src="https://video.wixstatic.com/video/cec2b6_a2b6e651a65447f1a78ff8784b876745/1080p/mp4/file.mp4"
+                autoplay
+                loop
+                muted
+                preload="auto"
+                crossorigin="anonymous"
+                playsinline
+            ></video>
+        </template>
+        <template id="videos6">
+            <video
+                id="video9"
+                src="https://video.wixstatic.com/video/cec2b6_7aeaef443e224cff8a71e5cd6802fb14/1080p/mp4/file.mp4"
                 autoplay
                 loop
                 muted
@@ -313,6 +324,38 @@
             </section>
         </template>
 
+        <template id="section10">
+            <section id="deformation">
+                <div class="code-container">
+                    <button class="refresh-button" id="refresh10">
+                        Refresh
+                    </button>
+                    <textarea id="code10"></textarea>
+                </div>
+            </section>
+        </template>
+
+        <template id="section11">
+            <section id="channel-split">
+                <div class="code-container">
+                    <button class="refresh-button" id="refresh11">
+                        Refresh
+                    </button>
+                    <textarea id="code11"></textarea>
+                </div>
+            </section>
+        </template>
+
+        <template id="section12">
+            <section id="multi-pointer">
+                <div class="code-container">
+                    <button class="refresh-button" id="refresh12">
+                        Refresh
+                    </button>
+                    <textarea id="code12"></textarea>
+                </div>
+            </section>
+        </template>
         <nav>
             <ul>
                 <li>
@@ -358,6 +401,21 @@
                 <li>
                     <a href="#section9" data-section-id="section9"
                         >Luminance Mask</a
+                    >
+                </li>
+                <li>
+                    <a href="#section10" data-section-id="section10"
+                        >Deformation</a
+                    >
+                </li>
+                <li>
+                    <a href="#section11" data-section-id="section11"
+                        >Channel Split</a
+                    >
+                </li>
+                <li>
+                    <a href="#section12" data-section-id="section12"
+                        >Water-like Displacement</a
                     >
                 </li>
             </ul>

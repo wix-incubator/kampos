@@ -102,6 +102,150 @@ function alphaMask ({ isLuminance = false } = {}) {
     };
 }
 
+/**
+ * @function deformation
+ * @param {Object} [params]
+ * @param {{radius: number}} [params.radius] initial radius to use for circle of effect boundaries. Defaults to 0 which means no effect.
+ * @param {{aspectRatio: number}} [params.aspectRatio]
+ * @param {string} [params.wrap] wrapping method to use. Defaults to `deformation.CLAMP`.
+ * @param {string} [params.deformation] deformation method to use within the mask. Defaults to `deformation.NONE`.
+ * @returns {deformationEffect}
+ *
+ * @example deformation({radius: 0.1, aspectRatio: 4 / 3, wrap: deformation.CLAMP, deformation: deformation.TUNNEL})
+ */
+function deformation({
+    radius,
+    aspectRatio,
+    wrap = WRAP_METHODS$1.WRAP,
+    deformation = DEFORMATION_METHODS.NONE,
+} = {}) {
+    const dataRadius = radius || 0;
+    const dataAspectRatio = aspectRatio || 1;
+
+    /**
+     * @typedef {Object} deformationEffect
+     * @property {boolean} disabled
+     * @property {{x: number?, y: number?}} position
+     * @property {number} radius
+     * @property {number} aspectRatio
+     *
+     * @example
+     * effect.disabled = true;
+     * effect.position = {x: 0.4, y: 0.2};
+     * effect.radius = 0.253;
+     * effect.aspectRatio = 16 / 9;
+     */
+    return {
+        fragment: {
+            uniform: {
+                u_deformationEnabled: 'bool',
+                u_radius: 'float',
+                u_position: 'vec2',
+                u_aspectRatio: 'float',
+            },
+            constant: `const float PI = ${Math.PI};`,
+            source: `
+        vec2 diff = sourceCoord - u_position;
+        float dist = diff.x * diff.x * u_aspectRatio * u_aspectRatio + diff.y * diff.y;
+        float r = sqrt(dist);
+        bool isInsideDeformation = dist < u_radius * u_radius;
+
+        if (u_deformationEnabled) {
+            if (isInsideDeformation) {
+                vec2 dispVec = diff;
+                float a = atan(diff.y, diff.x);
+                ${deformation}
+                dispVec = dispVec + u_position;
+                ${wrap}
+                sourceCoord = dispVec;
+            }
+        }`,
+        //     main: `
+        // if (isInsideDeformation) {
+        //     color = mix(color, texture2D(u_source, v_texCoord).rgb, vec3(pow(r / u_radius, 4.0)));
+        // }`,
+        },
+        get disabled() {
+            return !this.uniforms[0].data[0];
+        },
+        set disabled(b) {
+            this.uniforms[0].data[0] = +!b;
+        },
+        get radius() {
+            return this.uniforms[1].data[0];
+        },
+        set radius(r) {
+            if (typeof r !== 'undefined') this.uniforms[1].data[0] = x;
+        },
+        get aspectRatio() {
+            return this.uniforms[3].data[0];
+        },
+        set aspectRatio(ar) {
+            if (typeof ar !== 'undefined') this.uniforms[3].data[0] = ar;
+        },
+        get position() {
+            const [x, y] = this.uniforms[2].data;
+            return { x, y };
+        },
+        set position({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[2].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[2].data[1] = y;
+        },
+        uniforms: [
+            {
+                name: 'u_deformationEnabled',
+                type: 'i',
+                data: [1],
+            },
+            {
+                name: 'u_radius',
+                type: 'f',
+                data: [dataRadius],
+            },
+            {
+                name: 'u_position',
+                type: 'f',
+                data: [0, 0],
+            },
+            {
+                name: 'u_aspectRatio',
+                type: 'f',
+                data: [dataAspectRatio],
+            },
+        ],
+    };
+}
+
+const WRAP_METHODS$1 = {
+    CLAMP: `dispVec = clamp(dispVec, 0.0, 1.0);`,
+    DISCARD: `if (dispVec.x < 0.0 || dispVec.x > 1.0 || dispVec.y > 1.0 || dispVec.y < 0.0) { discard; }`,
+    WRAP: `dispVec = mod(dispVec, 1.0);`,
+};
+
+deformation.CLAMP = WRAP_METHODS$1.CLAMP;
+deformation.DISCARD = WRAP_METHODS$1.DISCARD;
+deformation.WRAP = WRAP_METHODS$1.WRAP;
+
+const DEFORMATION_METHODS = {
+    NONE: ``,
+    TUNNEL: `dispVec = vec2(dispVec.x * cos(r + r) - dispVec.y * sin(r + r), dispVec.y * cos(r + r) + dispVec.x * sin(r + r));`,
+    SOMETHING: `dispVec = vec2(0.3 / (10.0 * r + dispVec.x), 0.5 * a / PI);`,
+    SOMETHING2: `dispVec = vec2(0.02 * dispVec.y + 0.03 * cos(a) / r, 0.02 * dispVec.x + 0.03 * sin(a) / r);`,
+    INVERT: `dispVec = dispVec * -1.0;`,
+    SCALE: `dispVec = dispVec * 0.75;`,
+    MAGNIFY: `dispVec = dispVec * (pow(2.0, r / u_radius) - 1.0);`,
+    UNMAGNIFY: `dispVec = dispVec * (pow(2.0, min(u_radius / r, 4.0)));`,
+};
+
+deformation.NONE = DEFORMATION_METHODS.NONE;
+deformation.TUNNEL = DEFORMATION_METHODS.TUNNEL;
+deformation.SOMETHING = DEFORMATION_METHODS.SOMETHING;
+deformation.SOMETHING2 = DEFORMATION_METHODS.SOMETHING2;
+deformation.INVERT = DEFORMATION_METHODS.INVERT;
+deformation.SCALE = DEFORMATION_METHODS.SCALE;
+deformation.MAGNIFY = DEFORMATION_METHODS.MAGNIFY;
+deformation.UNMAGNIFY = DEFORMATION_METHODS.UNMAGNIFY;
+
 const MODES_AUX = {
     blend_luminosity: `float blend_luminosity (vec3 c) {
     return dot(c, blendLum);
@@ -767,11 +911,12 @@ function duotone ({
  * @param {Object} [params]
  * @param {string} [params.wrap] wrapping method to use. Defaults to `displacement.CLAMP`.
  * @param {{x: number, y: number}} [params.scale] initial scale to use for x and y displacement. Defaults to `{x: 0.0, y: 0.0}` which means no displacement.
+ * @param {boolean} [params.enableBlueChannel] enable blue channel for displacement intensity. Defaults to `false`.
  * @returns {displacementEffect}
  *
  * @example displacement({wrap: displacement.DISCARD, scale: {x: 0.5, y: -0.5}})
  */
-function displacement({ wrap = WRAP_METHODS.CLAMP, scale } = {}) {
+function displacement({ wrap = WRAP_METHODS.CLAMP, scale, enableBlueChannel } = {}) {
     const { x: sx, y: sy } = scale || { x: 0.0, y: 0.0 };
 
     /**
@@ -779,6 +924,7 @@ function displacement({ wrap = WRAP_METHODS.CLAMP, scale } = {}) {
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map
      * @property {{x: number?, y: number?}} scale
      * @property {boolean} disabled
+     * @property {boolean} enableBlueChannel
      *
      * @example
      * const img = new Image();
@@ -797,13 +943,15 @@ function displacement({ wrap = WRAP_METHODS.CLAMP, scale } = {}) {
         fragment: {
             uniform: {
                 u_displacementEnabled: 'bool',
+                u_enableBlueChannel: 'bool',
                 u_dispMap: 'sampler2D',
                 u_dispScale: 'vec2',
             },
             source: `
     if (u_displacementEnabled) {
         vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb - 0.5;
-        vec2 dispVec = vec2(sourceCoord.x + u_dispScale.x * dispMap.r, sourceCoord.y + u_dispScale.y * dispMap.g);
+        float dispMapB = u_enableBlueChannel ? dispMap.b : 0.0;
+        vec2 dispVec = vec2(sourceCoord.x + (u_dispScale.x + dispMapB) * dispMap.r, sourceCoord.y + (u_dispScale.y + dispMapB) * dispMap.g);
         ${wrap}
         sourceCoord = dispVec;
     }`,
@@ -828,6 +976,12 @@ function displacement({ wrap = WRAP_METHODS.CLAMP, scale } = {}) {
         set map(img) {
             this.textures[0].data = img;
         },
+        get enableBlueChannel() {
+            return this.uniforms[3].data[0];
+        },
+        set enableBlueChannel(b) {
+            this.uniforms[3].data[0] = +b;
+        },
         varying: {
             v_displacementMapTexCoord: 'vec2',
         },
@@ -846,6 +1000,11 @@ function displacement({ wrap = WRAP_METHODS.CLAMP, scale } = {}) {
                 name: 'u_dispScale',
                 type: 'f',
                 data: [sx, sy],
+            },
+            {
+                name: 'u_enableBlueChannel',
+                type: 'i',
+                data: [+enableBlueChannel],
             },
         ],
         attributes: [
@@ -871,6 +1030,112 @@ const WRAP_METHODS = {
 displacement.CLAMP = WRAP_METHODS.CLAMP;
 displacement.DISCARD = WRAP_METHODS.DISCARD;
 displacement.WRAP = WRAP_METHODS.WRAP;
+
+/**
+ * @function channelSplit
+ * @param {Object} [params]
+ * @param {{x: number?, y: number?}} [params.offsetRed] initial offset to use for red channel offset. Defaults to `{x: 0.0, y: 0.0}` which means no offset.
+ * @param {{x: number?, y: number?}} [params.offsetGreen] initial offset to use for green channel offset. Defaults to `{x: 0.0, y: 0.0}` which means no offset.
+ * @param {{x: number?, y: number?}} [params.offsetBlue] initial offset to use for blue channel offset. Defaults to `{x: 0.0, y: 0.0}` which means no offset.
+ * @param {string} [params.offsetInputR] code to use as input for the red offset. Defaults to `u_channelOffsetR`.
+ * @param {string} [params.offsetInputG] code to use as input for the green offset. Defaults to `u_channelOffsetG`.
+ * @param {string} [params.offsetInputB] code to use as input for the blue offset. Defaults to `u_channelOffsetB`.
+ * @returns {channelSplitEffect}
+ *
+ * @example channelSplit({offsetRed: {x: 0.02, y: 0.0}})
+ */
+function channelSplit({
+    offsetRed = { x: 0.01, y: 0.01 },
+    offsetGreen = { x: -0.01, y: -0.01 },
+    offsetBlue = { x: -0.01, y: -0.01 },
+    offsetInputR = 'u_channelOffsetR',
+    offsetInputG = 'u_channelOffsetG',
+    offsetInputB = 'u_channelOffsetB',
+}) {
+
+    /**
+     * @typedef {Object} channelSplitEffect
+     * @property {boolean} disabled
+     * @property {{x: number?, y: number?}} offsetRed
+     * @property {{x: number?, y: number?}} offsetGreen
+     * @property {{x: number?, y: number?}} offsetBlue
+     *
+     * @example
+     * effect.offsetRed = { x: 0.1, y: 0.0 };
+     */
+    return {
+        fragment: {
+            uniform: {
+                u_channelSplitEnabled: 'bool',
+                u_channelOffsetR: 'vec2',
+                u_channelOffsetG: 'vec2',
+                u_channelOffsetB: 'vec2',
+            },
+            main: `
+    if (u_channelSplitEnabled) {
+        vec2 _splitOffsetR = ${offsetInputR};
+        vec2 _splitOffsetG = ${offsetInputG};
+        vec2 _splitOffsetB = ${offsetInputB};
+        float redSplit = texture2D(u_source, sourceCoord + _splitOffsetR).r;
+        float greenSplit = texture2D(u_source, sourceCoord + _splitOffsetG).g;
+        float blueSplit = texture2D(u_source, sourceCoord + _splitOffsetB).b;
+        color = vec3(redSplit, greenSplit, blueSplit);
+    }`,
+        },
+        get disabled() {
+            return !this.uniforms[0].data[0];
+        },
+        set disabled(b) {
+            this.uniforms[0].data[0] = +!b;
+        },
+        get red() {
+            const [x, y] = this.uniforms[1].data;
+            return { x, y };
+        },
+        set red({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[1].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[1].data[1] = y;
+        },
+        get green() {
+            const [x, y] = this.uniforms[2].data;
+            return { x, y };
+        },
+        set green({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[2].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[2].data[1] = y;
+        },
+        get blue() {
+            const [x, y] = this.uniforms[3].data;
+            return { x, y };
+        },
+        set blue({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[3].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[3].data[1] = y;
+        },
+        uniforms: [
+            {
+                name: 'u_channelSplitEnabled',
+                type: 'i',
+                data: [1],
+            },
+            {
+                name: 'u_channelOffsetR',
+                type: 'f',
+                data: [offsetRed.x, offsetRed.y],
+            },
+            {
+                name: 'u_channelOffsetG',
+                type: 'f',
+                data: [offsetGreen.x, offsetGreen.y],
+            },
+            {
+                name: 'u_channelOffsetB',
+                type: 'f',
+                data: [offsetBlue.x, offsetBlue.y],
+            },
+        ],
+    };
+}
 
 /**
  * @function kaleidoscope
@@ -3227,11 +3492,13 @@ const effects = {
     alphaMask,
     blend,
     brightnessContrast,
-    hueSaturation,
-    duotone,
+    channelSplit,
+    deformation,
     displacement,
+    duotone,
+    hueSaturation,
+    kaleidoscope,
     turbulence,
-    kaleidoscope
 };
 
 const transitions = {

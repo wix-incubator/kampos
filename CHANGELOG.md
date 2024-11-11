@@ -1,3 +1,12 @@
+### 0.x.x (2024-xx-xx)
+
+_New:_
+
+-   Added `deformation` effect.
+-   Added `channelSplit` effect.
+-   Extended `displacement` effect to support blue channel for intensity.
+-   Added `multi-pointer` demo.
+
 ### 0.10.2 (2024-08-25)
 
 _Fixed:_

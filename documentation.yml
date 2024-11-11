@@ -18,6 +18,8 @@ toc:
       - displacement
       - turbulence
       - kaleidoscope
+      - deformation
+      - channelSplit
   - brightnessContrastEffect
   - hueSaturationEffect
   - blendEffect
@@ -26,6 +28,8 @@ toc:
   - displacementEffect
   - turbulenceEffect
   - kaleidoscopeEffect
+  - deformationEffect
+  - channelSplitEffect
   - name: transitions
     children:
       - fadeTransition

@@ -1,9 +1,11 @@
 import alphaMask from './src/effects/alpha-mask.js';
+import deformation from './src/effects/deformation.js';
 import blend from './src/effects/blend.js';
 import brightnessContrast from './src/effects/brightness-contrast.js';
 import hueSaturation from './src/effects/hue-saturation.js';
 import duotone from './src/effects/duotone.js';
 import displacement from './src/effects/displacement.js';
+import channelSplit from './src/effects/channel-split.js';
 import kaleidoscope from './src/effects/kaleidoscope.js';
 import perlinNoise from './src/noise/perlin-noise-3d.js';
 import cellular from './src/noise/cellular-noise-3d.js';
@@ -21,11 +23,13 @@ export const effects = {
     alphaMask,
     blend,
     brightnessContrast,
-    hueSaturation,
-    duotone,
+    channelSplit,
+    deformation,
     displacement,
+    duotone,
+    hueSaturation,
+    kaleidoscope,
     turbulence,
-    kaleidoscope
 };
 
 export const transitions = {
