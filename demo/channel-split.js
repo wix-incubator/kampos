@@ -31,13 +31,13 @@ loadImage(
         isFractal,
     });
 
-    const OFFSET_AMPLITUDE = 0.1;
+    const OFFSET_AMPLITUDE = 0.01;
 
     /*
      * Channel split effect
      * based on mouse velocity
      */
-    const offset = { x: 0.1, y: 0.1 };
+    const offset = { x: OFFSET_AMPLITUDE, y: OFFSET_AMPLITUDE };
     const channelSplit = effects.channelSplit({
         offsetRed: offset,
         offsetGreen: offset,
