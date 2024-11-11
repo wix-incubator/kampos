@@ -169,6 +169,14 @@ const sectionScripts = {
             refresh: 'refresh11',
         });
     },
+
+    section12() {
+        startDemo('./multi-pointer.js', {
+            code: 'code12',
+            preview: 'preview',
+            refresh: 'refresh12',
+        });
+    },
 };
 
 insertSection('section11');
