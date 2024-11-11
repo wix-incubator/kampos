@@ -2,6 +2,8 @@
 
 _New:_
 
+-   Added `deformation` effect.
+-   Added `channelSplit` effect.
 -   Extended `displacement` effect to support blue channel for intensity.
 -   Added `multi-pointer` demo.
 
