@@ -1,14 +1,15 @@
 /**
- * @function shapeMask
- * @param {{radius: number}} [params.radius] initial radius to use for circle mask. Defaults to 0 which means no mask.
+ * @function deformation
+ * @param {Object} [params]
+ * @param {{radius: number}} [params.radius] initial radius to use for circle of effect boundaries. Defaults to 0 which means no effect.
  * @param {{aspectRatio: number}} [params.aspectRatio]
- * @param {string} [params.wrap] wrapping method to use. Defaults to `shapeMask.CLAMP`.
- * @param {string} [params.deformation] deformation method to use within the mask. Defaults to `shapeMask.NONE`.
- * @returns {maskEffect}
+ * @param {string} [params.wrap] wrapping method to use. Defaults to `deformation.CLAMP`.
+ * @param {string} [params.deformation] deformation method to use within the mask. Defaults to `deformation.NONE`.
+ * @returns {deformationEffect}
  *
- * @example shapeMask({radius: 0.1, aspectRatio: 4 / 3, wrap: shapeMask.CLAMP, deformation: shapeMask.TUNNEL})
+ * @example deformation({radius: 0.1, aspectRatio: 4 / 3, wrap: deformation.CLAMP, deformation: deformation.TUNNEL})
  */
-function shapeMask({
+function deformation({
     radius,
     aspectRatio,
     wrap = WRAP_METHODS.WRAP,
@@ -18,7 +19,7 @@ function shapeMask({
     const dataAspectRatio = aspectRatio || 1;
 
     /**
-     * @typedef {Object} maskEffect
+     * @typedef {Object} deformationEffect
      * @property {boolean} disabled
      * @property {{x: number?, y: number?}} position
      * @property {number} radius
@@ -33,32 +34,32 @@ function shapeMask({
     return {
         fragment: {
             uniform: {
-                u_maskEnabled: 'bool',
+                u_deformationEnabled: 'bool',
                 u_radius: 'float',
                 u_position: 'vec2',
                 u_aspectRatio: 'float',
             },
             constant: `const float PI = ${Math.PI};`,
             source: `
-             vec2 diff = sourceCoord - u_position;
-             float dist = diff.x * diff.x * u_aspectRatio * u_aspectRatio + diff.y * diff.y;
-             float r = sqrt(dist);
-             if (u_maskEnabled) {
-         if (dist < u_radius * u_radius) {
-            vec2 dispVec = diff;
-            float a = atan(diff.y, diff.x);
-            ${deformation}
-            dispVec = dispVec + u_position;
-            ${wrap}
-            sourceCoord = dispVec;
-        }
-     }`,
-            //         main: `
-            //  if (u_maskEnabled) {
-            //      if (dist < u_radius * u_radius) {
-            //         color = vec3(color.b, color.r, color.g);
-            //     }
-            //  }`,
+        vec2 diff = sourceCoord - u_position;
+        float dist = diff.x * diff.x * u_aspectRatio * u_aspectRatio + diff.y * diff.y;
+        float r = sqrt(dist);
+        bool isInsideDeformation = dist < u_radius * u_radius;
+
+        if (u_deformationEnabled) {
+            if (isInsideDeformation) {
+                vec2 dispVec = diff;
+                float a = atan(diff.y, diff.x);
+                ${deformation}
+                dispVec = dispVec + u_position;
+                ${wrap}
+                sourceCoord = dispVec;
+            }
+        }`,
+        //     main: `
+        // if (isInsideDeformation) {
+        //     color = mix(color, texture2D(u_source, v_texCoord).rgb, vec3(pow(r / u_radius, 4.0)));
+        // }`,
         },
         get disabled() {
             return !this.uniforms[0].data[0];
@@ -88,7 +89,7 @@ function shapeMask({
         },
         uniforms: [
             {
-                name: 'u_maskEnabled',
+                name: 'u_deformationEnabled',
                 type: 'i',
                 data: [1],
             },
@@ -117,9 +118,9 @@ const WRAP_METHODS = {
     WRAP: `dispVec = mod(dispVec, 1.0);`,
 };
 
-shapeMask.CLAMP = WRAP_METHODS.CLAMP;
-shapeMask.DISCARD = WRAP_METHODS.DISCARD;
-shapeMask.WRAP = WRAP_METHODS.WRAP;
+deformation.CLAMP = WRAP_METHODS.CLAMP;
+deformation.DISCARD = WRAP_METHODS.DISCARD;
+deformation.WRAP = WRAP_METHODS.WRAP;
 
 const DEFORMATION_METHODS = {
     NONE: ``,
@@ -129,14 +130,16 @@ const DEFORMATION_METHODS = {
     INVERT: `dispVec = dispVec * -1.0;`,
     SCALE: `dispVec = dispVec * 0.75;`,
     MAGNIFY: `dispVec = dispVec * (pow(2.0, r / u_radius) - 1.0);`,
+    UNMAGNIFY: `dispVec = dispVec * (pow(2.0, min(u_radius / r, 4.0)));`,
 };
 
-shapeMask.NONE = DEFORMATION_METHODS.NONE;
-shapeMask.TUNNEL = DEFORMATION_METHODS.TUNNEL;
-shapeMask.SOMETHING = DEFORMATION_METHODS.SOMETHING;
-shapeMask.SOMETHING2 = DEFORMATION_METHODS.SOMETHING2;
-shapeMask.INVERT = DEFORMATION_METHODS.INVERT;
-shapeMask.SCALE = DEFORMATION_METHODS.SCALE;
-shapeMask.MAGNIFY = DEFORMATION_METHODS.MAGNIFY;
+deformation.NONE = DEFORMATION_METHODS.NONE;
+deformation.TUNNEL = DEFORMATION_METHODS.TUNNEL;
+deformation.SOMETHING = DEFORMATION_METHODS.SOMETHING;
+deformation.SOMETHING2 = DEFORMATION_METHODS.SOMETHING2;
+deformation.INVERT = DEFORMATION_METHODS.INVERT;
+deformation.SCALE = DEFORMATION_METHODS.SCALE;
+deformation.MAGNIFY = DEFORMATION_METHODS.MAGNIFY;
+deformation.UNMAGNIFY = DEFORMATION_METHODS.UNMAGNIFY;
 
-export default shapeMask;
+export default deformation;

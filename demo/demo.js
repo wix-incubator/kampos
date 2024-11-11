@@ -155,16 +155,23 @@ const sectionScripts = {
         });
     },
     section10() {
-        startDemo('./shape-mask.js', {
+        startDemo('./deformation.js', {
             code: 'code10',
             preview: 'preview',
             video: 'videos6',
             refresh: 'refresh10',
         });
     },
+    section11() {
+        startDemo('./channel-split.js', {
+            code: 'code11',
+            preview: 'preview',
+            refresh: 'refresh11',
+        });
+    },
 };
 
-insertSection('section7');
+insertSection('section11');
 
 // on load get active section from url hash and set
 const hash = window.location.hash.substring(1);
