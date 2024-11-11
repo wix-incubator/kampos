@@ -915,11 +915,12 @@ const mat3 satmat = mat3(
      * @param {Object} [params]
      * @param {string} [params.wrap] wrapping method to use. Defaults to `displacement.CLAMP`.
      * @param {{x: number, y: number}} [params.scale] initial scale to use for x and y displacement. Defaults to `{x: 0.0, y: 0.0}` which means no displacement.
+     * @param {boolean} [params.enableBlueChannel] enable blue channel for displacement intensity. Defaults to `false`.
      * @returns {displacementEffect}
      *
      * @example displacement({wrap: displacement.DISCARD, scale: {x: 0.5, y: -0.5}})
      */
-    function displacement({ wrap = WRAP_METHODS.CLAMP, scale } = {}) {
+    function displacement({ wrap = WRAP_METHODS.CLAMP, scale, enableBlueChannel } = {}) {
         const { x: sx, y: sy } = scale || { x: 0.0, y: 0.0 };
 
         /**
@@ -927,6 +928,7 @@ const mat3 satmat = mat3(
          * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} map
          * @property {{x: number?, y: number?}} scale
          * @property {boolean} disabled
+         * @property {boolean} enableBlueChannel
          *
          * @example
          * const img = new Image();
@@ -945,13 +947,15 @@ const mat3 satmat = mat3(
             fragment: {
                 uniform: {
                     u_displacementEnabled: 'bool',
+                    u_enableBlueChannel: 'bool',
                     u_dispMap: 'sampler2D',
                     u_dispScale: 'vec2',
                 },
                 source: `
     if (u_displacementEnabled) {
         vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb - 0.5;
-        vec2 dispVec = vec2(sourceCoord.x + u_dispScale.x * dispMap.r, sourceCoord.y + u_dispScale.y * dispMap.g);
+        float dispMapB = u_enableBlueChannel ? dispMap.b : 0.0;
+        vec2 dispVec = vec2(sourceCoord.x + (u_dispScale.x + dispMapB) * dispMap.r, sourceCoord.y + (u_dispScale.y + dispMapB) * dispMap.g);
         ${wrap}
         sourceCoord = dispVec;
     }`,
@@ -976,6 +980,12 @@ const mat3 satmat = mat3(
             set map(img) {
                 this.textures[0].data = img;
             },
+            get enableBlueChannel() {
+                return this.uniforms[3].data[0];
+            },
+            set enableBlueChannel(b) {
+                this.uniforms[3].data[0] = +b;
+            },
             varying: {
                 v_displacementMapTexCoord: 'vec2',
             },
@@ -994,6 +1004,11 @@ const mat3 satmat = mat3(
                     name: 'u_dispScale',
                     type: 'f',
                     data: [sx, sy],
+                },
+                {
+                    name: 'u_enableBlueChannel',
+                    type: 'i',
+                    data: [+enableBlueChannel],
                 },
             ],
             attributes: [
