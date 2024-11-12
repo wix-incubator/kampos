@@ -1,4 +1,4 @@
-import { Kampos, effects } from '../index.js';
+import { Kampos, effects, utilities } from '../index.js';
 
 // const media = document.querySelector('#video9');
 const target = document.querySelector('#target');
@@ -20,17 +20,22 @@ loadImage(
     const height = window.document.documentElement.clientHeight;
     const width = (height * img.naturalWidth) / img.naturalHeight;
 
+    const mouse = utilities.mouse();
+    const resolution = utilities.resolution({
+        width,
+        height,
+    });
+
     /*
      * Deformation effect
      * based on mouse position
      */
     const deformation = effects.deformation({
         radius: 0.3,
-        aspectRatio: width / height,
         deformation: effects.deformation.MAGNIFY,
     });
 
-    const instance = new Kampos({ effects: [deformation], target });
+    const instance = new Kampos({ effects: [resolution, mouse, deformation], target });
 
     /* set media source */
     instance.setSource({ media: img, width, height });
@@ -44,7 +49,7 @@ loadImage(
              y: lerp(lastPoint.y, currentPoint.y, 0.1),
          };
 
-        deformation.position = lastPoint;
+        mouse.position = lastPoint;
     });
 
     target.addEventListener('pointermove', (e) => {

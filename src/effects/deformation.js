@@ -1,48 +1,43 @@
 /**
+ * Depends on the `resolution` utility.
+ * Depends on the `mouse` utility.
+ *
  * @function deformation
  * @param {Object} [params]
- * @param {{radius: number}} [params.radius] initial radius to use for circle of effect boundaries. Defaults to 0 which means no effect.
- * @param {{aspectRatio: number}} [params.aspectRatio]
+ * @param {number} [params.radius] initial radius to use for circle of effect boundaries. Defaults to 0 which means no effect.
  * @param {string} [params.wrap] wrapping method to use. Defaults to `deformation.CLAMP`.
- * @param {string} [params.deformation] deformation method to use within the mask. Defaults to `deformation.NONE`.
+ * @param {string} [params.deformation] deformation method to use within the radius. Defaults to `deformation.NONE`.
  * @returns {deformationEffect}
  *
- * @example deformation({radius: 0.1, aspectRatio: 4 / 3, wrap: deformation.CLAMP, deformation: deformation.TUNNEL})
+ * @example deformation({radius: 0.1, wrap: deformation.CLAMP, deformation: deformation.TUNNEL})
  */
 function deformation({
     radius,
-    aspectRatio,
     wrap = WRAP_METHODS.WRAP,
     deformation = DEFORMATION_METHODS.NONE,
 } = {}) {
     const dataRadius = radius || 0;
-    const dataAspectRatio = aspectRatio || 1;
 
     /**
      * @typedef {Object} deformationEffect
      * @property {boolean} disabled
-     * @property {{x: number?, y: number?}} position
      * @property {number} radius
-     * @property {number} aspectRatio
      *
      * @example
      * effect.disabled = true;
-     * effect.position = {x: 0.4, y: 0.2};
      * effect.radius = 0.253;
-     * effect.aspectRatio = 16 / 9;
      */
     return {
         fragment: {
             uniform: {
                 u_deformationEnabled: 'bool',
                 u_radius: 'float',
-                u_position: 'vec2',
-                u_aspectRatio: 'float',
             },
-            constant: `const float PI = ${Math.PI};`,
             source: `
-        vec2 diff = sourceCoord - u_position;
-        float dist = diff.x * diff.x * u_aspectRatio * u_aspectRatio + diff.y * diff.y;
+        float _aspectRatio = u_resolution.x / u_resolution.y;
+        vec2 _position = u_mouse;
+        vec2 diff = sourceCoord - _position;
+        float dist = diff.x * diff.x * _aspectRatio * _aspectRatio + diff.y * diff.y;
         float r = sqrt(dist);
         bool isInsideDeformation = dist < u_radius * u_radius;
 
@@ -51,7 +46,7 @@ function deformation({
                 vec2 dispVec = diff;
                 float a = atan(diff.y, diff.x);
                 ${deformation}
-                dispVec = dispVec + u_position;
+                dispVec = dispVec + _position;
                 ${wrap}
                 sourceCoord = dispVec;
             }
@@ -71,21 +66,7 @@ function deformation({
             return this.uniforms[1].data[0];
         },
         set radius(r) {
-            if (typeof r !== 'undefined') this.uniforms[1].data[0] = x;
-        },
-        get aspectRatio() {
-            return this.uniforms[3].data[0];
-        },
-        set aspectRatio(ar) {
-            if (typeof ar !== 'undefined') this.uniforms[3].data[0] = ar;
-        },
-        get position() {
-            const [x, y] = this.uniforms[2].data;
-            return { x, y };
-        },
-        set position({ x, y }) {
-            if (typeof x !== 'undefined') this.uniforms[2].data[0] = x;
-            if (typeof y !== 'undefined') this.uniforms[2].data[1] = y;
+            if (typeof r !== 'undefined') this.uniforms[1].data[0] = r;
         },
         uniforms: [
             {
@@ -97,16 +78,6 @@ function deformation({
                 name: 'u_radius',
                 type: 'f',
                 data: [dataRadius],
-            },
-            {
-                name: 'u_position',
-                type: 'f',
-                data: [0, 0],
-            },
-            {
-                name: 'u_aspectRatio',
-                type: 'f',
-                data: [dataAspectRatio],
             },
         ],
     };

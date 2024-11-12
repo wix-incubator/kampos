@@ -1,6 +1,96 @@
 'use strict';
 
 /**
+ * Exposes the `u_resolution` uniform for use inside fragment shaders.
+ *
+ * @function resolution
+ * @param {Object} [params]
+ * @param {number} [params.width] initial canvas width. Defaults to `window.innerWidth`.
+ * @param {number} [params.height] initial canvas height. Defaults to `window.innerHeight`.
+ * @returns {resolutionUtility}
+ *
+ * @example resolution({width: 1600, height: 900})
+ */
+function resolution({
+    width = window.innerWidth,
+    height = window.innerHeight,
+} = {}) {
+    /**
+     * @typedef {Object} resolutionUtility
+     * @property {{width: number?, height: number?}} resolution
+     *
+     * @example
+     * mouse.resolution = {width: 854, height: 480};
+     */
+    return {
+        fragment: {
+            uniform: {
+                u_resolution: 'vec2',
+            },
+        },
+        get resolution() {
+            const [x, y] = this.uniforms[0].data;
+            return { x, y };
+        },
+        set resolution({ width: x, height: y }) {
+            if (typeof x !== 'undefined') this.uniforms[0].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[0].data[1] = y;
+        },
+        uniforms: [
+            {
+                name: 'u_resolution',
+                type: 'f',
+                data: [width || window.innerWidth, height || window.innerHeight],
+            },
+        ],
+    };
+}
+
+/**
+ * Exposes the `u_mouse` uniform for use inside fragment shaders.
+ *
+ * @function mouse
+ * @param {Object} [params]
+ * @param {{x: number?, y: number?}} [params.initial] initial mouse position. Defaults to `{x: 0, y: 0}`.
+ * @returns {mouseUtility}
+ *
+ * @example mouse({initial: {x: 0.5, y: 0.5}})
+ */
+function mouse({
+     initial = { x: 0, y: 0 },
+ } = {}) {
+    /**
+     * @typedef {Object} mouseUtility
+     * @property {{x: number?, y: number?}} position
+     *
+     * @example
+     * mouse.position = {x: 0.4, y: 0.2};
+     */
+    return {
+        fragment: {
+            uniform: {
+                u_mouse: 'vec2',
+            },
+        },
+        get position() {
+            const [x, y] = this.uniforms[0].data;
+            return { x, y };
+        },
+        set position({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[0].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[0].data[1] = y;
+        },
+        uniforms: [
+            {
+                name: 'u_mouse',
+                type: 'f',
+                data: [initial.x || 0, initial.y || 0],
+            },
+        ],
+    };
+}
+
+/**
  * @function alphaMask
  * @param {Object} [params]
  * @param {boolean} [params.isLuminance=false] whether to use luminance when reading mask values
@@ -103,50 +193,45 @@ function alphaMask ({ isLuminance = false } = {}) {
 }
 
 /**
+ * Depends on the `resolution` utility.
+ * Depends on the `mouse` utility.
+ *
  * @function deformation
  * @param {Object} [params]
- * @param {{radius: number}} [params.radius] initial radius to use for circle of effect boundaries. Defaults to 0 which means no effect.
- * @param {{aspectRatio: number}} [params.aspectRatio]
+ * @param {number} [params.radius] initial radius to use for circle of effect boundaries. Defaults to 0 which means no effect.
  * @param {string} [params.wrap] wrapping method to use. Defaults to `deformation.CLAMP`.
- * @param {string} [params.deformation] deformation method to use within the mask. Defaults to `deformation.NONE`.
+ * @param {string} [params.deformation] deformation method to use within the radius. Defaults to `deformation.NONE`.
  * @returns {deformationEffect}
  *
- * @example deformation({radius: 0.1, aspectRatio: 4 / 3, wrap: deformation.CLAMP, deformation: deformation.TUNNEL})
+ * @example deformation({radius: 0.1, wrap: deformation.CLAMP, deformation: deformation.TUNNEL})
  */
 function deformation({
     radius,
-    aspectRatio,
     wrap = WRAP_METHODS$1.WRAP,
     deformation = DEFORMATION_METHODS.NONE,
 } = {}) {
     const dataRadius = radius || 0;
-    const dataAspectRatio = aspectRatio || 1;
 
     /**
      * @typedef {Object} deformationEffect
      * @property {boolean} disabled
-     * @property {{x: number?, y: number?}} position
      * @property {number} radius
-     * @property {number} aspectRatio
      *
      * @example
      * effect.disabled = true;
-     * effect.position = {x: 0.4, y: 0.2};
      * effect.radius = 0.253;
-     * effect.aspectRatio = 16 / 9;
      */
     return {
         fragment: {
             uniform: {
                 u_deformationEnabled: 'bool',
                 u_radius: 'float',
-                u_position: 'vec2',
-                u_aspectRatio: 'float',
             },
-            constant: `const float PI = ${Math.PI};`,
             source: `
-        vec2 diff = sourceCoord - u_position;
-        float dist = diff.x * diff.x * u_aspectRatio * u_aspectRatio + diff.y * diff.y;
+        float _aspectRatio = u_resolution.x / u_resolution.y;
+        vec2 _position = u_mouse;
+        vec2 diff = sourceCoord - _position;
+        float dist = diff.x * diff.x * _aspectRatio * _aspectRatio + diff.y * diff.y;
         float r = sqrt(dist);
         bool isInsideDeformation = dist < u_radius * u_radius;
 
@@ -155,7 +240,7 @@ function deformation({
                 vec2 dispVec = diff;
                 float a = atan(diff.y, diff.x);
                 ${deformation}
-                dispVec = dispVec + u_position;
+                dispVec = dispVec + _position;
                 ${wrap}
                 sourceCoord = dispVec;
             }
@@ -175,21 +260,7 @@ function deformation({
             return this.uniforms[1].data[0];
         },
         set radius(r) {
-            if (typeof r !== 'undefined') this.uniforms[1].data[0] = x;
-        },
-        get aspectRatio() {
-            return this.uniforms[3].data[0];
-        },
-        set aspectRatio(ar) {
-            if (typeof ar !== 'undefined') this.uniforms[3].data[0] = ar;
-        },
-        get position() {
-            const [x, y] = this.uniforms[2].data;
-            return { x, y };
-        },
-        set position({ x, y }) {
-            if (typeof x !== 'undefined') this.uniforms[2].data[0] = x;
-            if (typeof y !== 'undefined') this.uniforms[2].data[1] = y;
+            if (typeof r !== 'undefined') this.uniforms[1].data[0] = r;
         },
         uniforms: [
             {
@@ -201,16 +272,6 @@ function deformation({
                 name: 'u_radius',
                 type: 'f',
                 data: [dataRadius],
-            },
-            {
-                name: 'u_position',
-                type: 'f',
-                data: [0, 0],
-            },
-            {
-                name: 'u_aspectRatio',
-                type: 'f',
-                data: [dataAspectRatio],
             },
         ],
     };
@@ -1164,7 +1225,6 @@ function kaleidoscope ({ segments = 6, offset = 0 } = {}) {
                 u_segments: 'float',
                 u_offset: 'float',
             },
-            constant: `const float PI = ${Math.PI};`,
             source: `
     if (u_kaleidoscopeEnabled) {
         vec2 centered = v_texCoord - 0.5;
@@ -1577,6 +1637,67 @@ float noise (vec3 v) {
     m = m * m;
     return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), 
                                     dot(p2,x2), dot(p3,x3) ) );
+}`;
+
+/*!
+ * Adopted from https://www.shadertoy.com/view/tlcBRl
+ */
+/**
+ * Implementation of white noise with 3 seeds. Exposes a `noise(vec3 seed)` function for use inside fragment shaders.
+ */
+var white = `
+float noise1 (vec2 seed) {
+    return fract(
+        seed.x + 12.34567 * fract(
+            100. * (abs(seed.x * 0.91) + seed.y + 94.68) * fract(
+                (abs(seed.y * 0.41) + 45.46) * fract(
+                    (abs(seed.y) + 757.21) * fract(
+                        seed.x * 0.0171
+                    )
+                )
+            )
+        )
+    ) * 1.0038 - 0.00185;
+}
+
+//2 seeds
+float noise2 (vec2 seed) {
+    float buff1 = abs(seed.x + 100.94) + 1000.;
+    float buff2 = abs(seed.y + 100.73) + 1000.;
+    buff1 = buff1 * fract(buff2 * fract(buff1 * fract(buff2 * 0.63)));
+    buff2 = buff2 * fract(buff2 * fract(buff1 + buff2 * fract(seed.x * 0.79)));
+    buff1 = noise1(vec2(buff1, buff2));
+
+    return buff1 * 1.0038 - 0.00185;
+}
+
+//3 seeds
+float noise3 (vec3 seed) {
+    float buff1 = abs(seed.x + 100.81) + 1000.3;
+    float buff2 = abs(seed.y + 100.45) + 1000.2;
+    float buff3 = abs(noise1(seed.xy) + seed.z) + 1000.1;
+    buff1 = buff3 * fract(buff2 * fract(buff1 * fract(buff2 * 0.146)));
+    buff2 = buff2 * fract(buff2 * fract(buff1 + buff2 * fract(buff3 * 0.52)));
+    buff1 = noise1(vec2(buff1, buff2));
+
+    return buff1;
+}
+
+float noise (vec3 seed) {
+    float buff1 = abs(seed.x + 100.813) + 1000.314;
+    float buff2 = abs(seed.y + 100.453) + 1000.213;
+    float buff3 = abs(noise1(vec2(buff2, buff1)) + seed.z) + 1000.17;
+    buff1 = buff3 * fract(buff2 * fract(buff1 * fract(buff2 * 0.14619)));
+    buff2 = buff2 * fract(buff2 * fract(buff1 + buff2 * fract(buff3 * 0.5215)));
+    buff1 = noise3(
+        vec3(
+            noise1(vec2(seed.y, buff1)),
+            noise1(vec2(seed.x, buff2)),
+            noise1(vec2(seed.z, buff3))
+        )
+    );
+
+    return buff1;
 }`;
 
 /**
@@ -2185,6 +2306,9 @@ function dissolve ({
     };
 }
 
+const LUMA_COEFFICIENT = 'const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);';
+const MATH_PI = `const float PI = ${Math.PI};`;
+
 const vertexSimpleTemplate = ({
     uniform = '',
     attribute = '',
@@ -2198,7 +2322,8 @@ ${attribute}
 attribute vec2 a_position;
 ${varying}
 
-const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);
+${LUMA_COEFFICIENT}
+${MATH_PI}
 ${constant}
 void main() {
     ${main}
@@ -2220,7 +2345,8 @@ attribute vec2 a_position;
 ${varying}
 varying vec2 v_texCoord;
 
-const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);
+${LUMA_COEFFICIENT}
+${MATH_PI}
 ${constant}
 void main() {
     v_texCoord = a_texCoord;
@@ -2239,7 +2365,8 @@ precision highp float;
 ${varying}
 ${uniform}
 
-const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);
+${LUMA_COEFFICIENT}
+${MATH_PI}
 ${constant}
 void main() {
     ${source}
@@ -2262,7 +2389,8 @@ varying vec2 v_texCoord;
 ${uniform}
 uniform sampler2D u_source;
 
-const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);
+${LUMA_COEFFICIENT}
+${MATH_PI}
 ${constant}
 void main() {
     vec2 sourceCoord = v_texCoord;
@@ -3510,7 +3638,13 @@ const transitions = {
 const noise = {
     perlinNoise,
     simplex,
-    cellular
+    cellular,
+    white,
+};
+
+const utilities = {
+    mouse,
+    resolution,
 };
 
 exports.Kampos = Kampos;
@@ -3518,3 +3652,4 @@ exports.Ticker = Ticker;
 exports.effects = effects;
 exports.noise = noise;
 exports.transitions = transitions;
+exports.utilities = utilities;

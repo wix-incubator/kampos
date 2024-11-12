@@ -1,28 +1,31 @@
-import { Kampos, effects, noise } from '../index.js';
+import { Kampos, utilities, noise } from '../index.js';
+
+const WIDTH = 854;
+const HEIGHT = 480;
+const CELL = 10;
 
 const target = document.querySelector('canvas');
-target.width = 854;
-target.height = 480;
+target.width = WIDTH;
+target.height = HEIGHT;
+
+const resolution = utilities.resolution({
+    x: CELL / WIDTH,
+    y: CELL / HEIGHT,
+});
 
 const render = {
     fragment: {
         uniform: {
-            u_resolution: 'vec2',
             u_time: 'float',
         },
         constant: noise.cellular,
-        main: 'color = vec3(noise(vec3(gl_FragCoord.xy/u_resolution.xy, u_time * 0.0005)));',
+        main: 'color = vec3(noise(vec3(gl_FragCoord.xy * u_resolution.xy, u_time * 0.0005)));',
     },
     uniforms: [
         {
             name: 'u_time',
             type: 'f',
             data: [1.0],
-        },
-        {
-            name: 'u_resolution',
-            type: 'f',
-            data: [854 / 10, 480 / 10],
         },
     ],
     get time() {
@@ -33,7 +36,7 @@ const render = {
     },
 };
 
-const instance = new Kampos({ target, effects: [render], noSource: true });
+const instance = new Kampos({ target, effects: [resolution, render], noSource: true });
 
 const start = Date.now();
 

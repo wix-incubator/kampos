@@ -1,3 +1,6 @@
+const LUMA_COEFFICIENT = 'const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);';
+const MATH_PI = `const float PI = ${Math.PI};`;
+
 const vertexSimpleTemplate = ({
     uniform = '',
     attribute = '',
@@ -11,7 +14,8 @@ ${attribute}
 attribute vec2 a_position;
 ${varying}
 
-const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);
+${LUMA_COEFFICIENT}
+${MATH_PI}
 ${constant}
 void main() {
     ${main}
@@ -33,7 +37,8 @@ attribute vec2 a_position;
 ${varying}
 varying vec2 v_texCoord;
 
-const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);
+${LUMA_COEFFICIENT}
+${MATH_PI}
 ${constant}
 void main() {
     v_texCoord = a_texCoord;
@@ -52,7 +57,8 @@ precision highp float;
 ${varying}
 ${uniform}
 
-const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);
+${LUMA_COEFFICIENT}
+${MATH_PI}
 ${constant}
 void main() {
     ${source}
@@ -75,7 +81,8 @@ varying vec2 v_texCoord;
 ${uniform}
 uniform sampler2D u_source;
 
-const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);
+${LUMA_COEFFICIENT}
+${MATH_PI}
 ${constant}
 void main() {
     vec2 sourceCoord = v_texCoord;
