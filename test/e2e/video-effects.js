@@ -139,7 +139,6 @@ async function initImage(ctx, src, dims) {
 async function drawEffect(ctx, filterContent, data, canvasDims) {
     const page = ctx.page;
     const source = ctx.source;
-    console.log(filterContent);
 
     ctx.kampos = await page.evaluateHandle(
         async (source, filterContent, data, canvasDims) => {

@@ -19,13 +19,13 @@ const easeOutQuad = (t) => {
 };
 
 class PointerTexture {
-    constructor ({ target, width, height, radius, intensity, maxAge, canvas, forceDecay }){
+    constructor ({ target, width, height, radius, intensity, maxAge, canvas, forceDecay = 0.01 }){
         this.width = width;
         this.height = height;
         this.radius = radius || 100;
         this.intensity = intensity;
         this.maxAge = maxAge;
-        this.decayFactor = forceDecay || 0.01;
+        this.decayFactor = forceDecay;
         this.last = null;
         this.points = [];
         this.ctx = canvas.getContext('2d');
@@ -39,21 +39,26 @@ class PointerTexture {
     }
 
     addPoint (e){
+        const x = e.offsetX / this.width;
+        const y = e.offsetY / this.height;
         const point = {
-            x: e.offsetX / this.width,
-            y: e.offsetY / this.height,
+            x,
+            y,
             age: 0,
+            speed: 0,
+            vx: 0,
+            vy: 0,
         };
 
         if (this.last) {
-            const relatveX = point.x - this.last.x;
-            const relatveY = point.y - this.last.y;
+            const relativeX = point.x - this.last.x;
+            const relativeY = point.y - this.last.y;
 
-            const speedSquared = relatveX ** 2 + relatveY ** 2;
+            const speedSquared = relativeX ** 2 + relativeY ** 2;
             const speed = Math.sqrt(speedSquared);
 
-            point.vx = relatveX / (speed + 1e-5);
-            point.vy = relatveY / (speed + 1e-5);
+            point.vx = relativeX / (speed + 1e-5);
+            point.vy = relativeY / (speed + 1e-5);
 
             point.speed = Math.min(speedSquared * 1e3, 1);
         }
@@ -67,13 +72,17 @@ class PointerTexture {
         this.clear();
         this.points.forEach((point, i) => {
             const decay = 1 - (point.age / this.maxAge);
-            const force = point.speed * decay * this.decayFactor;
+            const force = point.speed * decay ** 2 * this.decayFactor;
             point.x += point.vx * force;
             point.y += point.vy * force;
             point.age += 1;
 
             if (point.age > this.maxAge) {
                 this.points.splice(i, 1);
+
+                if (this.points.length === 0) {
+                    this.last = null;
+                }
             } else {
                 this.drawPoint(point);
             }
@@ -94,7 +103,7 @@ class PointerTexture {
         intensity *= point.speed;
 
         const red = (1 + point.vx) / 2 * 255;
-        const green = (1 + point.vy) / 2 * 255;
+        const green = (1 - point.vy) / 2 * 255;
         const blue = intensity * 255;
 
         const offset = this.width * 5;
