@@ -215,6 +215,60 @@
               
                 
                 <li><a
+                  href='#utilities'
+                  class="h5 bold black caps toggle-sibling">
+                  utilities
+                  <span class='icon'>▸</span>
+                </a>
+                
+                <div class='toggle-target display-none'>
+                  
+                  <ul class='list-reset py1-ul pl1'>
+                    <li class='h5'><span>Static members</span></li>
+                    
+                      <li><a
+                        href='#resolution'
+                        class='regular pre-open'>
+                        .resolution
+                      </a></li>
+                    
+                      <li><a
+                        href='#mouse'
+                        class='regular pre-open'>
+                        .mouse
+                      </a></li>
+                    
+                    </ul>
+                  
+                  
+                  
+                  
+                </div>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#resolutionutility'
+                  class="">
+                  resolutionUtility
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#mouseutility'
+                  class="">
+                  mouseUtility
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
                   href='#effects'
                   class="h5 bold black caps toggle-sibling">
                   effects
@@ -490,6 +544,16 @@
                   href='#simplex-3d'
                   class="">
                   simplex-3d
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#white'
+                  class="">
+                  white
                   
                 </a>
                 
@@ -2054,6 +2118,418 @@ This will replace canvas DOM element with a fresh clone.</p>
   
   <div class='clearfix'>
     
+    <h3 class='fl m0' id='utilities'>
+      utilities
+    </h3>
+    
+    
+  </div>
+  
+
+  
+    <div class='pre p1 fill-light mt0'>utilities</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Static Members</div>
+    <div class="clearfix">
+  
+    <div class='border-bottom' id='resolution'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>resolution(params?)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Exposes the <code>u_resolution</code> uniform for use inside fragment shaders.</p>
+
+    <div class='pre p1 fill-light mt0'>resolution(params: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?): <a href="#resolutionutility">resolutionUtility</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>params</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
+	    
+          </div>
+          
+          <table class='mt1 mb2 fixed-table h5 col-12'>
+            <colgroup>
+              <col width='30%' />
+              <col width='70%' />
+            </colgroup>
+            <thead>
+              <tr class='bold fill-light'>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody class='mt1'>
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.width</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?</code>
+  </td>
+  <td class='break-word'><span>initial canvas width. Defaults to 
+<code>window.innerWidth</code>
+.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.height</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?</code>
+  </td>
+  <td class='break-word'><span>initial canvas height. Defaults to 
+<code>window.innerHeight</code>
+.
+</span></td>
+</tr>
+
+
+              
+            </tbody>
+          </table>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="#resolutionutility">resolutionUtility</a></code>:
+        
+      
+    
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">resolution</span>({<span class="hljs-attr">width</span>: <span class="hljs-number">1600</span>, <span class="hljs-attr">height</span>: <span class="hljs-number">900</span>})</pre>
+    
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+    <div class='border-bottom' id='mouse'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>mouse(params?)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  <p>Exposes the <code>u_mouse</code> uniform for use inside fragment shaders.</p>
+
+    <div class='pre p1 fill-light mt0'>mouse(params: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?): <a href="#mouseutility">mouseUtility</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>params</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
+	    
+          </div>
+          
+          <table class='mt1 mb2 fixed-table h5 col-12'>
+            <colgroup>
+              <col width='30%' />
+              <col width='70%' />
+            </colgroup>
+            <thead>
+              <tr class='bold fill-light'>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody class='mt1'>
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.initial</span> <code class='quiet'>{x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?}?</code>
+  </td>
+  <td class='break-word'><span>initial mouse position. Defaults to 
+<code>{x: 0, y: 0}</code>
+.
+</span></td>
+</tr>
+
+
+              
+            </tbody>
+          </table>
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="#mouseutility">mouseUtility</a></code>:
+        
+      
+    
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">mouse</span>({<span class="hljs-attr">initial</span>: {<span class="hljs-attr">x</span>: <span class="hljs-number">0.5</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0.5</span>}})</pre>
+    
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
+</div>
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='resolutionutility'>
+      resolutionUtility
+    </h3>
+    
+    
+  </div>
+  
+
+  
+    <div class='pre p1 fill-light mt0'>resolutionUtility</div>
+  
+    <p>
+      Type:
+      <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>
+    </p>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Properties</div>
+    <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>resolution</span> <code class='quiet'>({width: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?, height: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?})</code>
+          
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'>mouse.<span class="hljs-property">resolution</span> = {<span class="hljs-attr">width</span>: <span class="hljs-number">854</span>, <span class="hljs-attr">height</span>: <span class="hljs-number">480</span>};</pre>
+    
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='mouseutility'>
+      mouseUtility
+    </h3>
+    
+    
+  </div>
+  
+
+  
+    <div class='pre p1 fill-light mt0'>mouseUtility</div>
+  
+    <p>
+      Type:
+      <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>
+    </p>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Properties</div>
+    <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>position</span> <code class='quiet'>({x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?})</code>
+          
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'>mouse.<span class="hljs-property">position</span> = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.4</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0.2</span>};</pre>
+    
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
     <h3 class='fl m0' id='effects'>
       effects
     </h3>
@@ -3124,7 +3600,9 @@ This will replace canvas DOM element with a fresh clone.</p>
 
   
 
-  
+  <p>Depends on the <code>resolution</code> utility.
+Depends on the <code>mouse</code> utility.</p>
+
     <div class='pre p1 fill-light mt0'>deformation(params: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?): <a href="#deformationeffect">deformationEffect</a></div>
   
   
@@ -3160,18 +3638,10 @@ This will replace canvas DOM element with a fresh clone.</p>
             <tbody class='mt1'>
               
                 <tr>
-  <td class='break-word'><span class='code bold'>params.radius</span> <code class='quiet'>{radius: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>}?</code>
+  <td class='break-word'><span class='code bold'>params.radius</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?</code>
   </td>
   <td class='break-word'><span>initial radius to use for circle of effect boundaries. Defaults to 0 which means no effect.
 </span></td>
-</tr>
-
-
-              
-                <tr>
-  <td class='break-word'><span class='code bold'>params.aspectRatio</span> <code class='quiet'>{aspectRatio: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>}?</code>
-  </td>
-  <td class='break-word'><span></span></td>
 </tr>
 
 
@@ -3190,7 +3660,7 @@ This will replace canvas DOM element with a fresh clone.</p>
                 <tr>
   <td class='break-word'><span class='code bold'>params.deformation</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>?</code>
   </td>
-  <td class='break-word'><span>deformation method to use within the mask. Defaults to 
+  <td class='break-word'><span>deformation method to use within the radius. Defaults to 
 <code>deformation.NONE</code>
 .
 </span></td>
@@ -3225,7 +3695,7 @@ This will replace canvas DOM element with a fresh clone.</p>
     <div class='py1 quiet mt1 prose-big'>Example</div>
     
       
-      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">deformation</span>({<span class="hljs-attr">radius</span>: <span class="hljs-number">0.1</span>, <span class="hljs-attr">aspectRatio</span>: <span class="hljs-number">4</span> / <span class="hljs-number">3</span>, <span class="hljs-attr">wrap</span>: deformation.<span class="hljs-property">CLAMP</span>, <span class="hljs-attr">deformation</span>: deformation.<span class="hljs-property">TUNNEL</span>})</pre>
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">deformation</span>({<span class="hljs-attr">radius</span>: <span class="hljs-number">0.1</span>, <span class="hljs-attr">wrap</span>: deformation.<span class="hljs-property">CLAMP</span>, <span class="hljs-attr">deformation</span>: deformation.<span class="hljs-property">TUNNEL</span>})</pre>
     
   
 
@@ -4159,19 +4629,7 @@ effect.<span class="hljs-property">offset</span> = <span class="hljs-number">0.5
         </div>
       
         <div class='space-bottom0'>
-          <span class='code bold'>position</span> <code class='quiet'>({x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?})</code>
-          
-          
-        </div>
-      
-        <div class='space-bottom0'>
           <span class='code bold'>radius</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
-          
-          
-        </div>
-      
-        <div class='space-bottom0'>
-          <span class='code bold'>aspectRatio</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
           
           
         </div>
@@ -4190,9 +4648,7 @@ effect.<span class="hljs-property">offset</span> = <span class="hljs-number">0.5
     
       
       <pre class='p1 overflow-auto round fill-light'>effect.<span class="hljs-property">disabled</span> = <span class="hljs-literal">true</span>;
-effect.<span class="hljs-property">position</span> = {<span class="hljs-attr">x</span>: <span class="hljs-number">0.4</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0.2</span>};
-effect.<span class="hljs-property">radius</span> = <span class="hljs-number">0.253</span>;
-effect.<span class="hljs-property">aspectRatio</span> = <span class="hljs-number">16</span> / <span class="hljs-number">9</span>;</pre>
+effect.<span class="hljs-property">radius</span> = <span class="hljs-number">0.253</span>;</pre>
     
   
 
@@ -5058,6 +5514,56 @@ effect.<span class="hljs-property">progress</span> = <span class="hljs-number">0
   <p>Implementation of a 3D Simplex noise. Exposes a <code>noise(vec3 v)</code> function for use inside fragment shaders.</p>
 
     <div class='pre p1 fill-light mt0'>simplex-3d</div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='white'>
+      white
+    </h3>
+    
+    
+  </div>
+  
+
+  <p>Implementation of white noise with 3 seeds. Exposes a <code>noise(vec3 seed)</code> function for use inside fragment shaders.</p>
+
+    <div class='pre p1 fill-light mt0'>white</div>
   
   
 

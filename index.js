@@ -1,3 +1,5 @@
+import resolution from './src/utilities/resolution.js';
+import mouse from './src/utilities/mouse.js';
 import alphaMask from './src/effects/alpha-mask.js';
 import deformation from './src/effects/deformation.js';
 import blend from './src/effects/blend.js';
@@ -10,6 +12,7 @@ import kaleidoscope from './src/effects/kaleidoscope.js';
 import perlinNoise from './src/noise/perlin-noise-3d.js';
 import cellular from './src/noise/cellular-noise-3d.js';
 import simplex from './src/noise/simplex-3d.js';
+import white from './src/noise/white.js';
 import turbulence from './src/effects/turbulence.js';
 import fade from './src/transitions/fade.js';
 import displacementTransition from './src/transitions/displacement.js';
@@ -41,5 +44,11 @@ export const transitions = {
 export const noise = {
     perlinNoise,
     simplex,
-    cellular
+    cellular,
+    white,
+};
+
+export const utilities = {
+    mouse,
+    resolution,
 };

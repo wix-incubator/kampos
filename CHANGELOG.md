@@ -6,6 +6,8 @@ _New:_
 -   Added `channelSplit` effect.
 -   Extended `displacement` effect to support blue channel for intensity.
 -   Added `multi-pointer` demo.
+-   Added `white` noise.
+-   Added `mouse` utility for adding the `u_mouse` uniform to the shader.
 
 ### 0.10.2 (2024-08-25)
 

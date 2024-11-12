@@ -8,6 +8,12 @@ toc:
   - Attribute
   - Uniform
   - textureConfig
+  - name: utilities
+    children:
+      - resolution
+      - mouse
+  - resolutionUtility
+  - mouseUtility
   - name: effects
     children:
       - brightnessContrast
