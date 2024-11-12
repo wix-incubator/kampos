@@ -8,6 +8,7 @@ _New:_
 -   Added `multi-pointer` demo.
 -   Added `white` noise.
 -   Added `mouse` utility for adding the `u_mouse` uniform to the shader.
+-   Added `resolution` utility for adding the `u_resolution` uniform to the shader.
 
 ### 0.10.2 (2024-08-25)
 
