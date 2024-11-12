@@ -18,7 +18,7 @@ export default function channelSplit({
     offsetInputR = 'u_channelOffsetR',
     offsetInputG = 'u_channelOffsetG',
     offsetInputB = 'u_channelOffsetB',
-}) {
+} = {}) {
 
     /**
      * @typedef {Object} channelSplitEffect

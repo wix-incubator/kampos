@@ -1055,7 +1055,7 @@ const mat3 satmat = mat3(
         offsetInputR = 'u_channelOffsetR',
         offsetInputG = 'u_channelOffsetG',
         offsetInputB = 'u_channelOffsetB',
-    }) {
+    } = {}) {
 
         /**
          * @typedef {Object} channelSplitEffect

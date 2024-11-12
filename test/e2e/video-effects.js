@@ -139,6 +139,7 @@ async function initImage(ctx, src, dims) {
 async function drawEffect(ctx, filterContent, data, canvasDims) {
     const page = ctx.page;
     const source = ctx.source;
+    console.log(filterContent);
 
     ctx.kampos = await page.evaluateHandle(
         async (source, filterContent, data, canvasDims) => {
@@ -237,7 +238,7 @@ beforeEach(async (ctx) => {
 });
 
 afterEach(async (ctx) => {
-    await ctx.page.evaluate((kampos) => kampos.destroy(), ctx.kampos);
+    await ctx.page.evaluate((kampos) => kampos?.destroy(), ctx.kampos);
     await ctx.page.close();
 });
 
@@ -247,7 +248,7 @@ afterAll(async () => {
 });
 
 function getTestFilenamePrefix(ctx) {
-    return `test/e2e/screenshots/${ctx.title?.replace(/\s/g, '-')}`;
+    return `test/e2e/screenshots/${ctx.task.name?.replace(/\s/g, '-')}`;
 }
 
 function takeScreenshot(page, filename, clip = {}) {
@@ -345,6 +346,29 @@ function getDuotoneFilter(dark, light) {
                                      ${light[1] - dark[1]} 0 0 0 ${dark[1]}
                                      ${light[2] - dark[2]} 0 0 0 ${dark[2]}
                                      0                     0 0 1 0"></feColorMatrix>`;
+}
+
+function getSpecificChannelFilter(channels, value = 1) {
+    return `<feComponentTransfer color-interpolation-filters="sRGB" in="SourceGraphic">
+    <feFuncR type="linear" slope="${channels.includes('r') ? 1 : 0}"/>
+    <feFuncG type="linear" slope="${channels.includes('g') ? 1 : 0}"/>
+    <feFuncB type="linear" slope="${channels.includes('b') ? 1 : 0}"/>
+</feComponentTransfer>`;
+}
+
+function getOffsetFilter(offset, result = '') {
+    return `<feOffset dx="${offset.x || 0}" dy="${offset.y || 0}"${result ? ` result="${result}"` : ''}/>`;
+}
+
+function getChannelSplitFilter(offsetRed, offsetGreen, offsetBlue) {
+    return `${getSpecificChannelFilter('r')}
+    ${getOffsetFilter({x: offsetRed}, 'red')}
+    ${getSpecificChannelFilter('g')}
+    ${getOffsetFilter({x: offsetGreen}, 'green')}
+    ${getSpecificChannelFilter('b')}
+    ${getOffsetFilter({x: offsetBlue}, 'blue')}
+    <feComposite operator="arithmetic" in="red" in2="green" result="yellow" k1="0" k2="1" k3="1" k4="0"></feComposite>
+    <feComposite operator="arithmetic" in="yellow" in2="blue" k1="0" k2="1" k3="1" k4="0"></feComposite>`;
 }
 
 test('brightness 1.0', async (ctx) => {
@@ -1431,4 +1455,50 @@ test('luminosity color indianred 1.0', async (ctx) => {
     );
 
     expect(diffPixels).toBe(0);
+});
+
+test('channelSplit red cyan', async (ctx) => {
+    await initImage(ctx, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+    const offset = SIMPLE_VIDEO_DIMS.width * 0.01;
+
+    await drawEffect(
+        ctx,
+        getChannelSplitFilter(-offset, offset, offset),
+        [
+            { name: 'channelSplit', arg: { offsetRed: {x: 0.01, y: 0}, offsetGreen: {x: -0.01, y: 0}, offsetBlue: {x: -0.01, y: 0} } },
+        ],
+        SIMPLE_VIDEO_CANVAS_DIMS,
+    );
+
+    const diffPixels = await getDiffPixels(
+        ctx,
+        SIMPLE_VIDEO_CANVAS_DIMS,
+        IMAGE_CANVAS_POS,
+    );
+
+    // TODO: fix by taking the correct snapshots excluding the sides
+    expect(diffPixels).toBe(7680); // expect the 7680 pixels of the horizontal sides to be different
+});
+
+test('channelSplit magenta green', async (ctx) => {
+    await initImage(ctx, IMAGE_URL, SIMPLE_VIDEO_DIMS);
+    const offset = SIMPLE_VIDEO_DIMS.width * 0.05;
+
+    await drawEffect(
+        ctx,
+        getChannelSplitFilter(offset, -offset, offset),
+        [
+            { name: 'channelSplit', arg: { offsetRed: {x: -0.05, y: 0}, offsetGreen: {x: 0.05, y: 0}, offsetBlue: {x: -0.05, y: 0} } },
+        ],
+        SIMPLE_VIDEO_CANVAS_DIMS,
+    );
+
+    const diffPixels = await getDiffPixels(
+        ctx,
+        SIMPLE_VIDEO_CANVAS_DIMS,
+        IMAGE_CANVAS_POS,
+    );
+
+    // TODO: fix by taking the correct snapshots excluding the sides
+    expect(diffPixels).toBe(40320); // expect the 40320 pixels of the horizontal sides to be different
 });
