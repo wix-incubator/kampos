@@ -25,7 +25,6 @@ export default function ({ segments = 6, offset = 0 } = {}) {
                 u_segments: 'float',
                 u_offset: 'float',
             },
-            constant: `const float PI = ${Math.PI};`,
             source: `
     if (u_kaleidoscopeEnabled) {
         vec2 centered = v_texCoord - 0.5;
