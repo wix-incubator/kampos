@@ -117,8 +117,8 @@ declare type Ticker = {
     remove: (instance: Drawable) => void;
 };
 
-declare type Kampos = {
-    constructor: (config: KamposConfig) => Kampos;
+declare type IKampos = {
+    constructor: (config: KamposConfig) => IKampos;
     init: (config?: KamposConfig) => void;
     draw: (time?: number) => void;
     destroy: (keepState?: boolean) => void;
