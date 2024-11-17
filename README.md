@@ -84,8 +84,7 @@ npm install
 npm run build
 ```
 
-if npm install fails on node-gyp :
-MacOS:
+If npm install fails on node-gyp on MacOS run the following:
 
 ```
 brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
