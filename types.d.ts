@@ -1,4 +1,5 @@
 import {defaultExclude} from "vitest/config";
+import { Kampos, Ticker, effects, transitions, utilities, noise } from './index';
 
 declare type KamposConfig = {
     target: HTMLCanvasElement;
@@ -109,23 +110,11 @@ declare type Drawable = {
     draw: (time: number) => void;
 };
 
-declare type Ticker = {
-    start: () => void;
-    stop: () => void;
-    draw: (time: number) => void;
-    add: (instance: Drawable) => void;
-    remove: (instance: Drawable) => void;
-};
-
-declare type IKampos = {
-    constructor: (config: KamposConfig) => IKampos;
-    init: (config?: KamposConfig) => void;
-    draw: (time?: number) => void;
-    destroy: (keepState?: boolean) => void;
-    play: (beforeDraw?: (time?: number) => void, afterDraw?: (time?: number) => void) => void;
-    stop: () => void;
-    setSource: (source: KamposSource | KamposSource['media'], skipTextureCreation?: boolean) => void;
-    restoreContext: () => void;
+declare module 'kampos' {
+    export const Kampos: Kampos;
+    export const Ticker: Ticker;
+    export const effects: effects;
+    export const transitions: transitions;
+    export const noise: noise;
+    export const utilities: utilities;
 }
-
-declare module 'kampos';
