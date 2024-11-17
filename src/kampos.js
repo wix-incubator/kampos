@@ -203,7 +203,7 @@ export class Kampos {
     /**
      * Draw current scene.
      *
-     * @param {number} time
+     * @param {number} [time]
      */
     draw(time) {
         if (this.lostContext) {
@@ -228,8 +228,8 @@ export class Kampos {
      *
      * If a {@link Ticker} is used, this instance will be added to that {@link Ticker}.
      *
-     * @param {function} beforeDraw function to run before each draw call
-     * @param {function} afterDraw function to run after each draw call
+     * @param {function} [beforeDraw] function to run before each draw call
+     * @param {function} [afterDraw] function to run after each draw call
      */
     play(beforeDraw, afterDraw) {
         if (typeof beforeDraw === 'function') {
@@ -278,7 +278,7 @@ export class Kampos {
     /**
      * Stops the animation loop and frees all resources.
      *
-     * @param {boolean} keepState for internal use.
+     * @param {boolean} [keepState] for internal use.
      */
     destroy(keepState) {
         this.stop();
