@@ -102,8 +102,8 @@ class PointerTexture {
         }
         intensity *= point.speed;
 
-        const red = (1 + point.vx) / 2 * 255;
-        const green = (1 - point.vy) / 2 * 255;
+        const red = (1 - point.vx) / 2 * 255;
+        const green = (1 + point.vy) / 2 * 255;
         const blue = intensity * 255;
 
         const offset = this.width * 5;

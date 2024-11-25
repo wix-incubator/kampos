@@ -44,9 +44,10 @@ function displacement({ wrap = WRAP_METHODS.CLAMP, scale, enableBlueChannel } = 
             },
             source: `
     if (u_displacementEnabled) {
-        vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb - 0.5;
-        float dispMapB = u_enableBlueChannel ? dispMap.b : 0.0;
-        vec2 dispVec = vec2(sourceCoord.x + (u_dispScale.x + dispMapB) * dispMap.r, sourceCoord.y + (u_dispScale.y + dispMapB) * dispMap.g);
+        vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb;
+        vec2 dispMapPosition = dispMap.rg - 0.5;
+        float dispIntensity = u_enableBlueChannel ? dispMap.b : 0.0;
+        vec2 dispVec = vec2(sourceCoord.x + (u_dispScale.x + dispIntensity) * dispMapPosition.r, sourceCoord.y + (u_dispScale.y + dispIntensity) * dispMapPosition.g);
         ${wrap}
         sourceCoord = dispVec;
     }`,
