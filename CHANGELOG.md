@@ -1,4 +1,10 @@
-### 0.11.2 (2024-11-17)
+### 0.11.4 (2024-11-25)
+
+_Fixed:_
+
+-   Blue channel in `displacement` effect should not be offset by -0.5.
+
+### 0.11.3 (2024-11-17)
 
 _New:_
 

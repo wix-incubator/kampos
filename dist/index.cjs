@@ -1010,9 +1010,10 @@ function displacement({ wrap = WRAP_METHODS.CLAMP, scale, enableBlueChannel } = 
             },
             source: `
     if (u_displacementEnabled) {
-        vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb - 0.5;
-        float dispMapB = u_enableBlueChannel ? dispMap.b : 0.0;
-        vec2 dispVec = vec2(sourceCoord.x + (u_dispScale.x + dispMapB) * dispMap.r, sourceCoord.y + (u_dispScale.y + dispMapB) * dispMap.g);
+        vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb;
+        vec2 dispMapPosition = dispMap.rg - 0.5;
+        float dispIntensity = u_enableBlueChannel ? dispMap.b : 0.0;
+        vec2 dispVec = vec2(sourceCoord.x + (u_dispScale.x + dispIntensity) * dispMapPosition.r, sourceCoord.y + (u_dispScale.y + dispIntensity) * dispMapPosition.g);
         ${wrap}
         sourceCoord = dispVec;
     }`,
@@ -3298,7 +3299,7 @@ class Kampos {
     /**
      * Draw current scene.
      *
-     * @param {number} time
+     * @param {number} [time]
      */
     draw(time) {
         if (this.lostContext) {
@@ -3323,8 +3324,8 @@ class Kampos {
      *
      * If a {@link Ticker} is used, this instance will be added to that {@link Ticker}.
      *
-     * @param {function} beforeDraw function to run before each draw call
-     * @param {function} afterDraw function to run after each draw call
+     * @param {function} [beforeDraw] function to run before each draw call
+     * @param {function} [afterDraw] function to run after each draw call
      */
     play(beforeDraw, afterDraw) {
         if (typeof beforeDraw === 'function') {
@@ -3373,7 +3374,7 @@ class Kampos {
     /**
      * Stops the animation loop and frees all resources.
      *
-     * @param {boolean} keepState for internal use.
+     * @param {boolean} [keepState] for internal use.
      */
     destroy(keepState) {
         this.stop();
