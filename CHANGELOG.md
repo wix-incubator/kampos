@@ -1,3 +1,10 @@
+### 0.11.5 (2024-12-01)
+
+_New:_
+
+-   Added `simplex-2d` noise.
+-   Added `circle` utility for creating a circle mask.
+
 ### 0.11.4 (2024-11-25)
 
 _Fixed:_
