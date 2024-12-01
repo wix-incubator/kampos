@@ -12,8 +12,10 @@ toc:
     children:
       - resolution
       - mouse
+      - circle
   - resolutionUtility
   - mouseUtility
+  - circleUtility
   - name: effects
     children:
       - brightnessContrast

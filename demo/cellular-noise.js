@@ -9,8 +9,8 @@ target.width = WIDTH;
 target.height = HEIGHT;
 
 const resolution = utilities.resolution({
-    x: CELL / WIDTH,
-    y: CELL / HEIGHT,
+    width: WIDTH / CELL,
+    height: HEIGHT / CELL,
 });
 
 const render = {
@@ -19,7 +19,7 @@ const render = {
             u_time: 'float',
         },
         constant: noise.cellular,
-        main: 'color = vec3(noise(vec3(gl_FragCoord.xy * u_resolution.xy, u_time * 0.0005)));',
+        main: 'color = vec3(noise(vec3(gl_FragCoord.xy / u_resolution.xy, u_time * 0.0005)));',
     },
     uniforms: [
         {
