@@ -91,6 +91,40 @@ function mouse({
 }
 
 /**
+ * Exposes the `circle` function to be used by effects.
+ * This function takes a point, radius, and spread, and returns a value between 0 and 1.
+ *
+ * @function circle
+ * @returns {circleUtility}
+ *
+ * @example circle()
+ */
+function circle() {
+    /**
+     * @typedef {Object} circleUtility
+     *
+     * @example
+     * float aspectRatio = u_resolution.x / u_resolution.y;
+     * vec2 st_ = gl_FragCoord.xy / u_resolution;
+     * float circle_ = circle(
+     *      vec2(st_.x * aspectRatio, st_.y),
+     *      vec2(u_mouse.x * aspectRatio, u_mouse.y),
+     *      0.35,
+     *      0.1
+     * );
+     */
+    return {
+        fragment: {
+            constant: `
+    float circle(vec2 _point1, vec2 _point2, float _radius, float _spread){
+        vec2 dist = _point1 - _point2;
+        return 1.0 - smoothstep(_radius - _spread, _radius + _spread, sqrt(dot(dist, dist)) / _radius);
+    }`
+        },
+    };
+}
+
+/**
  * @function alphaMask
  * @param {Object} [params]
  * @param {boolean} [params.isLuminance=false] whether to use luminance when reading mask values
@@ -1270,6 +1304,93 @@ function kaleidoscope ({ segments = 6, offset = 0 } = {}) {
                 name: 'u_offset',
                 type: 'f',
                 data: [offset],
+            },
+        ],
+    };
+}
+
+/**
+ * @function slitScan
+ * @requires resolution
+ * @param {Object} params
+ * @param {noise} params.noise 2D noise implementation to use.
+ * @param {number} [params.time=0.0] initial time for controlling initial noise value.
+ * @param {number} [params.intensity=0.1] initial intensity to use.
+ * @param {number} [params.frequency] initial frequency to use .
+ * @returns {slitScanEffect}
+ *
+ * @example slitScan({intensity: 0.5, frequency: 3.0})
+ */
+function slitScan ({
+    noise,
+    time = 0.0,
+    intensity = 0.1,
+    frequency = 2.0
+}) {
+    /**
+     * @typedef {Object} slitScanEffect
+     * @property {boolean} disabled
+     * @property {number} intensity
+     * @property {number} frequency
+     * @property {number} time
+     *
+     * @example
+     * effect.intensity = 0.5;
+     * effect.frequency = 3.5;
+     */
+    return {
+        fragment: {
+            uniform: {
+                u_slitScanEnabled: 'bool',
+                u_intensity: 'float',
+                u_frequency: 'float',
+                u_time: 'float',
+            },
+            constant: noise,
+            source: `
+    float noiseValue = noise(vec2(gl_FragCoord.x / u_resolution.x * u_frequency, u_time * 0.0001));
+    float sourceX = sourceCoord.x + noiseValue * u_intensity;
+    float mirroredX = mod(-sourceX, 1.0) * (mod(sourceX - 1.0, 2.0) - mod(sourceX, 1.0)) + mod(sourceX, 1.0) * (mod(sourceX, 2.0) - mod(sourceX, 1.0));
+    sourceCoord = vec2(mirroredX, sourceCoord.y);`,
+        },
+        get disabled() {
+            return !this.uniforms[0].data[0];
+        },
+        set disabled(b) {
+            this.uniforms[0].data[0] = +!b;
+        },
+        get intensity() {
+            return this.uniforms[1].data[0];
+        },
+        set intensity(i) {
+            this.uniforms[1].data[0] = i;
+        },
+        get frequency() {
+            return this.uniforms[2].data[0];
+        },
+        set frequency(f) {
+            this.uniforms[2].data[0] = f;
+        },
+        uniforms: [
+            {
+                name: 'u_slitScanEnabled',
+                type: 'i',
+                data: [1],
+            },
+            {
+                name: 'u_intensity',
+                type: 'f',
+                data: [intensity],
+            },
+            {
+                name: 'u_frequency',
+                type: 'f',
+                data: [frequency],
+            },
+            {
+                name: 'u_time',
+                type: 'f',
+                data: [time],
             },
         ],
     };
@@ -3675,6 +3796,7 @@ const effects = {
     hueSaturation,
     kaleidoscope,
     turbulence,
+    slitScan,
 };
 
 const transitions = {
@@ -3694,6 +3816,7 @@ const noise = {
 const utilities = {
     mouse,
     resolution,
+    circle,
 };
 
 exports.Kampos = Kampos;
