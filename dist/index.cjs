@@ -1371,6 +1371,12 @@ function slitScan ({
         set frequency(f) {
             this.uniforms[2].data[0] = f;
         },
+        get time() {
+            return this.uniforms[3].data[0];
+        },
+        set time(t) {
+            this.uniforms[3].data[0] = t;
+        },
         uniforms: [
             {
                 name: 'u_slitScanEnabled',
