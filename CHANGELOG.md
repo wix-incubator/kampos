@@ -1,3 +1,9 @@
+### 0.11.7 (2024-12-02)
+
+_Fixed:_
+
+-   Fixed `slitScan` effect, added missing setter for the `time` uniform.
+
 ### 0.11.6 (2024-12-02)
 
 _New:_
