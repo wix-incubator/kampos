@@ -10,6 +10,7 @@ import duotone from './src/effects/duotone.js';
 import displacement from './src/effects/displacement.js';
 import channelSplit from './src/effects/channel-split.js';
 import kaleidoscope from './src/effects/kaleidoscope.js';
+import slitScan from './src/effects/slit-scan.js';
 import perlinNoise from './src/noise/perlin-noise-3d.js';
 import cellular from './src/noise/cellular-noise-3d.js';
 import simplex from './src/noise/simplex-3d.js';
@@ -35,6 +36,7 @@ export const effects = {
     hueSaturation,
     kaleidoscope,
     turbulence,
+    slitScan,
 };
 
 export const transitions = {

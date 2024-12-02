@@ -28,6 +28,7 @@ toc:
       - kaleidoscope
       - deformation
       - channelSplit
+      - slitScan
   - brightnessContrastEffect
   - hueSaturationEffect
   - blendEffect
@@ -38,6 +39,7 @@ toc:
   - kaleidoscopeEffect
   - deformationEffect
   - channelSplitEffect
+  - slitScanEffect
   - name: transitions
     children:
       - fadeTransition
