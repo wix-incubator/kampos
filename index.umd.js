@@ -2685,18 +2685,23 @@ void main() {
      * @param {planeConfig} plane
      * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} media
      * @param {kamposSceneData} data
-     * @param {{width: number, height: number}} dimensions
      */
-    function draw(gl, plane = {}, media, data, dimensions) {
-        const { program, source, attributes, uniforms, textures, extensions, vao } =
-            data;
+    function draw(gl, plane = {}, media, data) {
+        const {
+            program,
+            source,
+            attributes,
+            uniforms,
+            textures,
+            extensions,
+            vao
+        } = data;
         const { xSegments = 1, ySegments = 1 } = plane;
 
-        if (media && source && source.texture) {
-            // bind the source texture
-            gl.bindTexture(gl.TEXTURE_2D, source.texture);
+        if (media && source && source.texture && (source.shouldUpdate || !source._sampled)) {
+            source._sampled = true;
 
-            // read source data into texture
+            gl.bindTexture(gl.TEXTURE_2D, source.texture);
             gl.texImage2D(
                 gl.TEXTURE_2D,
                 0,
@@ -2707,17 +2712,14 @@ void main() {
             );
         }
 
-        // Tell it to use our program (pair of shaders)
         gl.useProgram(program);
 
         if (vao) {
             extensions.vao.bindVertexArrayOES(vao);
         } else {
-            // set attribute buffers with data
             _enableVertexAttributes(gl, attributes);
         }
 
-        // set uniforms with data
         _setUniforms(gl, uniforms);
 
         let startTex = gl.TEXTURE0;
@@ -2748,7 +2750,6 @@ void main() {
             }
         }
 
-        // Draw the rectangles
         gl.drawArrays(gl.TRIANGLES, 0, 6 * xSegments * ySegments);
     }
 
@@ -3452,16 +3453,32 @@ void main() {
                 if (!success) return;
             }
 
-            let media, width, height;
+            let media, width, height, shouldUpdate;
 
             if (Object.prototype.toString.call(source) === '[object Object]') {
-                ({ media, width, height } = source);
+                ({ media, width, height, shouldUpdate } = source);
             } else {
                 media = source;
             }
 
+            const isVideo = typeof media === 'HTMLVideoElement';
+            const isCanvas = typeof media === 'HTMLCanvasElement';
+
             if (width && height) {
                 this.dimensions = { width, height };
+            }
+            else if (isVideo) {
+                this.dimensions = { width: media.videoWidth, height: media.videoHeight };
+            }
+            else if (media.naturalWidth) {
+                this.dimensions = { width: media.naturalWidth, height: media.naturalHeight };
+            }
+
+            if (typeof shouldUpdate === 'boolean') {
+                this.data.source.shouldUpdate = shouldUpdate;
+            }
+            else {
+                this.data.source.shouldUpdate = isVideo || isCanvas;
             }
 
             // resize the target canvas if needed
@@ -3472,6 +3489,8 @@ void main() {
             }
 
             this.media = media;
+
+            this.data.source._sampled = false;
         }
 
         /**
@@ -3490,7 +3509,7 @@ void main() {
 
             if (cb && cb(time) === false) return;
 
-            draw(this.gl, this.plane, this.media, this.data, this.dimensions);
+            draw(this.gl, this.plane, this.media, this.data);
 
             if (this.config.afterDraw) {
                 this.config.afterDraw(time);
@@ -3674,6 +3693,7 @@ void main() {
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} media
      * @property {number} width
      * @property {number} height
+     * @property {boolean} [shouldUpdate] whether to resample the source on each draw call
      */
 
     /**

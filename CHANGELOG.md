@@ -1,3 +1,10 @@
+### 0.12.0 (2024-12-04)
+
+_New:_
+
+-   Added `shouldUpdate` flag to `kamposSource` to force/depress source resampling.
+-   Calling `kampos#setSource()` without dimensions will attempt to read dimensions from `HTMLImageElement` or `HTMLVideoElement`.
+
 ### 0.11.7 (2024-12-02)
 
 _Fixed:_

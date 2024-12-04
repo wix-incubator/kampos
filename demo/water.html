@@ -39,6 +39,8 @@
         const width = window.innerWidth;
         const height = window.innerHeight;
 
+        source.src = `https://picsum.photos/id/606/${width}/${height}`;
+
         const ready = new Promise((resolve) => {
             const done = () => {
                 // width = source.naturalWidth;
@@ -51,8 +53,6 @@
             }
             source.onload = done;
         });
-
-        source.src = `https://picsum.photos/id/606/${width}/${height}`;
 
         await ready;
 

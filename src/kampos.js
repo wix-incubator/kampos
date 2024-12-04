@@ -178,16 +178,32 @@ export class Kampos {
             if (!success) return;
         }
 
-        let media, width, height;
+        let media, width, height, shouldUpdate;
 
         if (Object.prototype.toString.call(source) === '[object Object]') {
-            ({ media, width, height } = source);
+            ({ media, width, height, shouldUpdate } = source);
         } else {
             media = source;
         }
 
+        const isVideo = typeof media === 'HTMLVideoElement';
+        const isCanvas = typeof media === 'HTMLCanvasElement';
+
         if (width && height) {
             this.dimensions = { width, height };
+        }
+        else if (isVideo) {
+            this.dimensions = { width: media.videoWidth, height: media.videoHeight };
+        }
+        else if (media.naturalWidth) {
+            this.dimensions = { width: media.naturalWidth, height: media.naturalHeight };
+        }
+
+        if (typeof shouldUpdate === 'boolean') {
+            this.data.source.shouldUpdate = shouldUpdate;
+        }
+        else {
+            this.data.source.shouldUpdate = isVideo || isCanvas;
         }
 
         // resize the target canvas if needed
@@ -198,6 +214,8 @@ export class Kampos {
         }
 
         this.media = media;
+
+        this.data.source._sampled = false;
     }
 
     /**
@@ -216,7 +234,7 @@ export class Kampos {
 
         if (cb && cb(time) === false) return;
 
-        core.draw(this.gl, this.plane, this.media, this.data, this.dimensions);
+        core.draw(this.gl, this.plane, this.media, this.data);
 
         if (this.config.afterDraw) {
             this.config.afterDraw(time);
@@ -400,6 +418,7 @@ export class Kampos {
  * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} media
  * @property {number} width
  * @property {number} height
+ * @property {boolean} [shouldUpdate] whether to resample the source on each draw call
  */
 
 /**
