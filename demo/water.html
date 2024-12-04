@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Rocket Benchmark</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        #target {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+        }
+
+        #source {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="target"></canvas>
+    <img alt="" id="source" crossorigin="anonymous">
+    <script type="module">
+        import { Kampos, effects, noise } from "../index.js";
+
+        function lerp (a, b, t) {
+            return b * t + a * (1 - t);
+        }
+
+        const canvas = document.getElementById("target");
+        const mapCanvas = document.createElement("canvas");
+        const source = document.getElementById("source");
+
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const ready = new Promise((resolve) => {
+            const done = () => {
+                // width = source.naturalWidth;
+                // height = source.naturalHeight;
+                resolve();
+            };
+            if (source.complete) {
+                done();
+                return;
+            }
+            source.onload = done;
+        });
+
+        source.src = `https://picsum.photos/id/606/${width}/${height}`;
+
+        await ready;
+
+        const SCALE = 15 / width;
+
+        canvas.width = width;
+        canvas.height = height;
+        mapCanvas.width = width;
+        mapCanvas.height = height;
+
+        const turbulence = effects.turbulence({
+            noise: noise.simplex,
+            frequency: { x: 0.01, y: 0.02 },
+            octaves: 3,
+            isFractal: false,
+        });
+
+        const displacement = effects.displacement({
+            scale: { x: SCALE, y: SCALE },
+        });
+        displacement.map = mapCanvas;
+        displacement.textures[0].update = true;
+
+        const map = new Kampos({ target: mapCanvas, effects: [turbulence], noSource: true });
+        const instance = new Kampos({ target: canvas, effects: [displacement] });
+
+        instance.setSource({
+            media: source,
+            width,
+            height,
+        });
+
+        const startTime = performance.now();
+        const duration = 40e3;
+
+        instance.play((time) => {
+            const t = ((time - startTime) % duration) / duration;
+            let frequency;
+
+            if (t <= 0.5) {
+                frequency = { x: lerp(0.01, 0.02, t), y: lerp(0.02, 0.04, t) };
+            } else {
+                frequency = { x: lerp(0.02, 0.01, t), y: lerp(0.04, 0.02, t) };
+            }
+
+            turbulence.frequency = frequency;
+            turbulence.time = time * 5;
+            map.draw();
+        });
+    </script>
+</body>
+</html>
