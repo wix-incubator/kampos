@@ -198,18 +198,23 @@ export function resize(gl, dimensions) {
  * @param {planeConfig} plane
  * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} media
  * @param {kamposSceneData} data
- * @param {{width: number, height: number}} dimensions
  */
-export function draw(gl, plane = {}, media, data, dimensions) {
-    const { program, source, attributes, uniforms, textures, extensions, vao } =
-        data;
+export function draw(gl, plane = {}, media, data) {
+    const {
+        program,
+        source,
+        attributes,
+        uniforms,
+        textures,
+        extensions,
+        vao
+    } = data;
     const { xSegments = 1, ySegments = 1 } = plane;
 
-    if (media && source && source.texture) {
-        // bind the source texture
-        gl.bindTexture(gl.TEXTURE_2D, source.texture);
+    if (media && source && source.texture && (source.shouldUpdate || !source._sampled)) {
+        source._sampled = true;
 
-        // read source data into texture
+        gl.bindTexture(gl.TEXTURE_2D, source.texture);
         gl.texImage2D(
             gl.TEXTURE_2D,
             0,
@@ -220,17 +225,14 @@ export function draw(gl, plane = {}, media, data, dimensions) {
         );
     }
 
-    // Tell it to use our program (pair of shaders)
     gl.useProgram(program);
 
     if (vao) {
         extensions.vao.bindVertexArrayOES(vao);
     } else {
-        // set attribute buffers with data
         _enableVertexAttributes(gl, attributes);
     }
 
-    // set uniforms with data
     _setUniforms(gl, uniforms);
 
     let startTex = gl.TEXTURE0;
@@ -261,7 +263,6 @@ export function draw(gl, plane = {}, media, data, dimensions) {
         }
     }
 
-    // Draw the rectangles
     gl.drawArrays(gl.TRIANGLES, 0, 6 * xSegments * ySegments);
 }
 
