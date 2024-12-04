@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Water Benchmark | SVG</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        svg {
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+
+        #source {
+            filter: url(#cloudy);
+        }
+    </style>
+</head>
+<body>
+    <svg>
+        <filter id="cloudy">
+            <feTurbulence
+                in="SourceGraphic"
+                id="turbulence"
+                type="turbulence"
+                baseFrequency="0.01 0.02"
+                numOctaves="3"
+                result="NOISE">
+                <animate
+                    attributeName="baseFrequency"
+                    dur="40s"
+                    keyTimes="0;0.5;1"
+                    values="0.01 0.02;0.02 0.04;0.01 0.02"
+                    repeatCount="indefinite"/>
+            </feTurbulence>
+            <feDisplacementMap in="SourceGraphic" in2="NOISE" scale="15"/>
+        </filter>
+    </svg>
+    <img alt="" id="source" crossorigin="anonymous" src="">
+    <script type="module">
+        const source = document.getElementById("source");
+
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        source.src = `https://picsum.photos/id/606/${width}/${height}`;
+
+        const ready = new Promise((resolve) => {
+            const done = () => {
+                // width = source.naturalWidth;
+                // height = source.naturalHeight;
+                resolve();
+            };
+            if (source.complete) {
+                done();
+                return;
+            }
+            source.onload = done;
+        });
+
+        await ready;
+    </script>
+</body>
+</html>
