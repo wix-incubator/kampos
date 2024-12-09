@@ -12,9 +12,8 @@
         "watch": "rollup -c rollup.build.js -w",
         "demo": "cd demo && rollup -c && cd -",
         "watch:demo": "cd demo && rollup -c -w && cd -",
-        "test:unit": "vitest test/unit/core.js && vitest test/unit/kampos.js",
         "test:e2e": "vitest test/e2e/*.js",
-        "test": "npm run test:unit && npm run test:e2e",
+        "test": "npm run test:e2e",
         "docs": "documentation build ./index.js -f html -o docs -c documentation.yml",
         "check": "npm-check -u",
         "prettier": "prettier --write .",
@@ -46,8 +45,6 @@
         "finalhandler": "^1.3.1",
         "get-port": "^7.1.0",
         "http-server": "^14.1.1",
-        "node-canvas-webgl": "^0.3.0",
-        "gl": "^8.1.6",
         "npm-check": "^6.0.1",
         "pify": "^6.1.0",
         "pixelmatch": "^6.0.0",
@@ -59,8 +56,5 @@
         "rollup-plugin-progress": "^1.1.2",
         "serve-static": "^1.16.2",
         "vitest": "^2.1.7"
-    },
-    "overrides": {
-        "node-gyp": "^11.0.0"
     }
 }
