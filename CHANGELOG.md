@@ -1,3 +1,14 @@
+### 0.13.0 (2024-12-09)
+
+_New:_
+
+-   Added `rotation` property to `kaleidoscope` effect.
+
+_Breaking:_
+
+-   Kaleidoscope effect now does mirrored-repeat instead of simple repeat.
+-   Changed `Kaleidoscope.offset` from a `number` to an object of `{ x: number, y: number }`.
+
 ### 0.12.0 (2024-12-04)
 
 _New:_
