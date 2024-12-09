@@ -19,6 +19,8 @@ prepareVideos([media]).then(() => {
 
     target.addEventListener('pointermove', (e) => {
         const { offsetX, offsetY } = e;
-        kaleidoscope.offset = offsetX / width - 0.5;
+        const x = offsetX / width - 0.5;
+        const y = offsetY / height - 0.5;
+        kaleidoscope.offset = { x, y };
     });
 });

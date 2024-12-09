@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset='utf-8'>
-  <title>kampos 0.11.7 | Documentation</title>
+  <title>kampos 0.13.0 | Documentation</title>
   <meta name='description' content='Tiny and fast effects compositor on WebGL'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' rel='stylesheet'>
@@ -15,7 +15,7 @@
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>kampos</h3>
-          <div class='mb1'><code>0.11.7</code></div>
+          <div class='mb1'><code>0.13.0</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -3707,7 +3707,7 @@ float circle_ = <span class="hljs-title function_">circle</span>(
   
     (default <code>6</code>)
   </td>
-  <td class='break-word'><span>.
+  <td class='break-word'><span>number of times the view is divided.
 </span></td>
 </tr>
 
@@ -3716,9 +3716,20 @@ float circle_ = <span class="hljs-title function_">circle</span>(
                 <tr>
   <td class='break-word'><span class='code bold'>params.offset</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
   
+    (default <code>{x:0.0,y:0.0}</code>)
+  </td>
+  <td class='break-word'><span>offset to move the source media from the center.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>params.rotation</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+  
     (default <code>0</code>)
   </td>
-  <td class='break-word'><span>.
+  <td class='break-word'><span>extra angle to rotate the view.
 </span></td>
 </tr>
 
@@ -4854,7 +4865,13 @@ effect.<span class="hljs-property">isFractal</span> = <span class="hljs-literal"
         </div>
       
         <div class='space-bottom0'>
-          <span class='code bold'>offset</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          <span class='code bold'>offset</span> <code class='quiet'>({x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>?})</code>
+          
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>rotation</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
           
           
         </div>
@@ -4879,7 +4896,8 @@ effect.<span class="hljs-property">isFractal</span> = <span class="hljs-literal"
     
       
       <pre class='p1 overflow-auto round fill-light'>effect.<span class="hljs-property">segments</span> = <span class="hljs-number">8</span>;
-effect.<span class="hljs-property">offset</span> = <span class="hljs-number">0.5</span>;</pre>
+effect.<span class="hljs-property">offset</span> = { <span class="hljs-attr">x</span>: <span class="hljs-number">0.5</span>, <span class="hljs-attr">y</span>: <span class="hljs-number">0.5</span> };
+effect.<span class="hljs-property">rotation</span> = <span class="hljs-number">45</span>;</pre>
     
   
 
