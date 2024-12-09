@@ -84,14 +84,6 @@ npm install
 npm run build
 ```
 
-If npm install fails on node-gyp on MacOS run the following:
-
-```
-brew install pkg-config cairo pango libpng jpeg giflib librsvg pixman
-```
-
-[source and other OS](https://github.com/Automattic/node-canvas#compiling)
-
 ## Running tests
 
 ```bash
