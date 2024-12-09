@@ -61,6 +61,6 @@
         "vitest": "^2.1.7"
     },
     "overrides": {
-        "node-gyp": "^10.3.0"
+        "node-gyp": "^11.0.0"
     }
 }
