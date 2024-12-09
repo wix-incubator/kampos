@@ -47,6 +47,7 @@
         "get-port": "^7.1.0",
         "http-server": "^14.1.1",
         "node-canvas-webgl": "^0.3.0",
+        "gl": "^8.1.6",
         "npm-check": "^6.0.1",
         "pify": "^6.1.0",
         "pixelmatch": "^6.0.0",
