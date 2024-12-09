@@ -30,6 +30,10 @@ jobs:
         name: List the state of node modules
         continue-on-error: true
         run: npm list
+      - name: Install node-canvas dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev librsvg2-dev libxt-dev libxi-dev libgl-dev libxext-dev
       - name: Install dependencies
         run: npm install
       - name: Build
