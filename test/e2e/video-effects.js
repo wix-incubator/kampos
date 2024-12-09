@@ -36,7 +36,9 @@ let browser;
 let pageUrl;
 
 async function createBrowser() {
-    browser = await puppeteer.launch();
+    browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
 }
 
 async function setPage(ctx) {
