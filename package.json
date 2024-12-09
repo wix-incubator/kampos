@@ -59,5 +59,8 @@
         "rollup-plugin-progress": "^1.1.2",
         "serve-static": "^1.16.2",
         "vitest": "^2.1.7"
+    },
+    "overrides": {
+        "node-gyp": "^10.3.0"
     }
 }
