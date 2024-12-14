@@ -1478,7 +1478,7 @@ test('channelSplit red cyan', async (ctx) => {
     );
 
     // TODO: fix by taking the correct snapshots excluding the sides
-    expect(diffPixels).toBe(7680); // expect the 7680 pixels of the horizontal sides to be different
+    expect(diffPixels).toBe(7822); // expect the 7680 pixels of the horizontal sides to be different + 142 pixels of the gl.LINEAR filtering
 });
 
 test('channelSplit magenta green', async (ctx) => {
