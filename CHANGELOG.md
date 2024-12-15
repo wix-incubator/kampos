@@ -1,3 +1,9 @@
+### 0.14.0 (2024-12-14)
+
+_Breaking:_
+
+-   Changed  `TEXTURE_MIN_FILTER`/`TEXTURE_MAG_FILTER` from `NEAREST` to `LINEAR`.
+
 ### 0.13.1 (2024-12-09)
 
 _New:_
