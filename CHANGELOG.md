@@ -1,3 +1,10 @@
+### 0.14.1 (2024-12-15)
+
+_Fixed:_
+
+-   Replaced `main` of `turbulence` effect with `source` to allow reusing the `turbulenceValue` variable for `source` parts as well.
+
+
 ### 0.14.0 (2024-12-14)
 
 _Breaking:_
