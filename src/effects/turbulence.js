@@ -83,8 +83,9 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
 }`,
             source: `
     vec3 turbulenceSeed = vec3(gl_FragCoord.xy, u_time * 0.0001);
-    float turbulenceValue = turbulence(turbulenceSeed, u_turbulenceFrequency, u_turbulenceOctaves, u_isFractal);
-    ${output || ''}`,
+    float turbulenceValue = turbulence(turbulenceSeed, u_turbulenceFrequency, u_turbulenceOctaves, u_isFractal);`,
+            main: `
+    ${output || ''}`
         },
         get frequency() {
             const [x, y] = this.uniforms[0].data;
