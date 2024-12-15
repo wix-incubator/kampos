@@ -81,7 +81,7 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
 
     return clamp(sum, 0.0, 1.0);
 }`,
-            main: `
+            source: `
     vec3 turbulenceSeed = vec3(gl_FragCoord.xy, u_time * 0.0001);
     float turbulenceValue = turbulence(turbulenceSeed, u_turbulenceFrequency, u_turbulenceOctaves, u_isFractal);
     ${output || ''}`,
