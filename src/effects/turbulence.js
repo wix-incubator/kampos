@@ -83,7 +83,7 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
     return clamp(sum, 0.0, 1.0);
 }`,
             source: `    
-    ${INPUT_TYPES[input] || ''}
+    ${INPUT_TYPES[input] || input || ''}
     float turbulenceValue = turbulence(turbulenceSeed, u_turbulenceFrequency, u_turbulenceOctaves, u_isFractal);`,
             main: `
     ${output || ''}`,
@@ -145,9 +145,11 @@ const OUTPUT_TYPES = {
 };
 
 const INPUT_TYPES = {
-    FRAGCOORD_XY_TIME: `vec3 turbulenceSeed = vec3(gl_FragCoord.xy, u_time * 0.0001)`,
-    FRAGCOORD_XYZ: `vec3 turbulenceSeed = vec3(gl_FragCoord.xyz)`,
-    FRAGCOORD_MOUSE_RESOLUTION: `vec3 turbulenceSeed = vec2(gl_FragCoord.x + u_mouse.x * u_resolution.x * -1.0, gl_FragCoord.y + u_mouse.y * u_resolution.y, u_time * 0.0001);`,
+    FRAGCOORD_XY_TIME:
+        'vec3 turbulenceSeed = vec3(gl_FragCoord.xy, u_time * 0.0001)',
+    FRAGCOORD_XYZ: 'vec3 turbulenceSeed = vec3(gl_FragCoord.xyz)',
+    FRAGCOORD_MOUSE_RESOLUTION:
+        'vec3 turbulenceSeed = vec2(gl_FragCoord.x + u_mouse.x * u_resolution.x * -1.0, gl_FragCoord.y + u_mouse.y * u_resolution.y, u_time * 0.0001);',
 };
 
 turbulence.COLOR = OUTPUT_TYPES.COLOR;
