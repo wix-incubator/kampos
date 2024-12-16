@@ -1910,6 +1910,7 @@ float noise (vec3 seed) {
      * @param {number} [params.octaves=1] initial number of octaves to use for turbulence noise generation.
      * @param {boolean} [params.isFractal=false] initial number of octaves to use for turbulence noise generation.
      * @param {number} [params.time=0] initial time for controlling initial noise value.
+     * @param {string} [params.input] how to define `turbulenceSeed`. Defaults to `turbulence.FRAGCOORD_XY_TIME`.
      * @returns {turbulenceEffect}
      *
      * @example turbulence({noise: kampos.noise.simplex, output: turbulence.COLOR, octaves: 4, isFractal: true})
@@ -1921,6 +1922,7 @@ float noise (vec3 seed) {
         octaves = 1,
         isFractal = false,
         time = 0.0,
+        input = INPUT_TYPES.FRAGCOORD_XY_TIME,
     }) {
         const { x: fx, y: fy } = frequency || { x: 0.0, y: 0.0 };
 
@@ -1983,8 +1985,9 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
     return clamp(sum, 0.0, 1.0);
 }`,
                 source: `
-    vec3 turbulenceSeed = vec3(gl_FragCoord.xy, u_time * 0.0001);
-    float turbulenceValue = turbulence(turbulenceSeed, u_turbulenceFrequency, u_turbulenceOctaves, u_isFractal);
+    ${input || ''}
+    float turbulenceValue = turbulence(turbulenceSeed, u_turbulenceFrequency, u_turbulenceOctaves, u_isFractal);`,
+                main: `
     ${output || ''}`,
             },
             get frequency() {
@@ -2043,8 +2046,22 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         ALPHA: 'alpha = turbulenceValue;',
     };
 
+    const INPUT_TYPES = {
+        FRAGCOORD_XY_TIME:
+            'vec3 turbulenceSeed = vec3(gl_FragCoord.xy, u_time * 0.0001);',
+        FRAGCOORD_XYZ: 'vec3 turbulenceSeed = vec3(gl_FragCoord.xyz);',
+        FRAGCOORD_XY_MOUSE_TIME:
+            'vec3 turbulenceSeed = vec3(gl_FragCoord.xy + u_mouse * u_resolution * vec2(-1.0, 1.0), u_time * 0.0001);',
+        FRAGCOORD_XY_MOUSE_Z:
+            'vec3 turbulenceSeed = vec3(gl_FragCoord.xy + u_mouse * u_resolution * vec2(-1.0, 1.0), gl_FragCoord.z);',
+    };
+
     turbulence.COLOR = OUTPUT_TYPES.COLOR;
     turbulence.ALPHA = OUTPUT_TYPES.ALPHA;
+    turbulence.FRAGCOORD_XY_TIME = INPUT_TYPES.FRAGCOORD_XY_TIME;
+    turbulence.FRAGCOORD_XYZ = INPUT_TYPES.FRAGCOORD_XYZ;
+    turbulence.FRAGCOORD_XY_MOUSE_TIME = INPUT_TYPES.FRAGCOORD_XY_MOUSE_TIME;
+    turbulence.FRAGCOORD_XY_MOUSE_Z = INPUT_TYPES.FRAGCOORD_XY_MOUSE_Z;
 
     /**
      * @function fadeTransition
@@ -3492,6 +3509,10 @@ void main() {
             }
             else if (media.naturalWidth) {
                 this.dimensions = { width: media.naturalWidth, height: media.naturalHeight };
+            }
+
+            if (source && !this.data.source) {
+                this.data.source = source;
             }
 
             if (typeof shouldUpdate === 'boolean') {

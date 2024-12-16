@@ -1,4 +1,10 @@
-### 0.14.1 (2024-12-15)
+### 0.14.3 (2024-12-16)
+
+_New:_
+
+-   Added ability to use `u_mouse` as input to `turbulence` effect.
+
+### 0.14.2 (2024-12-15)
 
 _Fixed:_
 
