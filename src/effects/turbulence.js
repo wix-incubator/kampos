@@ -9,6 +9,7 @@
  * @param {number} [params.octaves=1] initial number of octaves to use for turbulence noise generation.
  * @param {boolean} [params.isFractal=false] initial number of octaves to use for turbulence noise generation.
  * @param {number} [params.time=0] initial time for controlling initial noise value.
+ * @param {string} [params.input] how to define `turbulenceSeed`. Defaults to `turbulence.FRAGCOORD_XY_TIME`.
  * @returns {turbulenceEffect}
  *
  * @example turbulence({noise: kampos.noise.simplex, output: turbulence.COLOR, octaves: 4, isFractal: true})
