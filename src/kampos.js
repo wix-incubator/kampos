@@ -199,6 +199,10 @@ export class Kampos {
             this.dimensions = { width: media.naturalWidth, height: media.naturalHeight };
         }
 
+        if (source && !this.data.source) {
+            this.data.source = source;
+        }
+
         if (typeof shouldUpdate === 'boolean') {
             this.data.source.shouldUpdate = shouldUpdate;
         }
