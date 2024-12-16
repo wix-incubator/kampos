@@ -20,8 +20,7 @@ function turbulence({
     octaves = 1,
     isFractal = false,
     time = 0.0,
-    input = 1,
-    angle = 0.0,
+    input = INPUT_TYPES.FRAGCOORD_XY_TIME,
 }) {
     const { x: fx, y: fy } = frequency || { x: 0.0, y: 0.0 };
 
@@ -47,7 +46,6 @@ function turbulence({
                 u_turbulenceOctaves: 'int',
                 u_isFractal: 'bool',
                 u_time: 'float',
-                u_angle_rad: 'float',
             },
             constant: `
 ${noise}
@@ -116,18 +114,6 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         set time(value) {
             this.uniforms[3].data[0] = Math.max(0, parseFloat(value));
         },
-        get input() {
-            return this.uniforms[4].data[0];
-        },
-        set input(value) {
-            this.uniforms[4].data[0] = value;
-        },
-        get angle() {
-            return this.uniforms[5].data[0];
-        },
-        set angle(value) {
-            this.uniforms[5].data[0] = value;
-        },
         uniforms: [
             {
                 name: 'u_turbulenceFrequency',
@@ -149,16 +135,6 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
                 type: 'f',
                 data: [time],
             },
-            {
-                name: 'u_input',
-                type: 'i',
-                data: [input],
-            },
-            {
-                name: 'u_angle_rad',
-                type: 'f',
-                data: [angle],
-            },
         ],
     };
 }
@@ -169,11 +145,9 @@ const OUTPUT_TYPES = {
 };
 
 const INPUT_TYPES = {
-    1: `vec3 turbulenceSeed = vec3(gl_FragCoord.xy, u_time * 0.0001)`,
-    2: `vec3 turbulenceSeed = vec3(gl_FragCoord.xyz)`,
-    3: `vec3 turbulenceSeed = vec2(gl_FragCoord.x + u_mouse.x * u_resolution.x * -1.0, gl_FragCoord.y + u_mouse.y * u_resolution.y, u_time * 0.0001);`,
-    4: `vec2 movement = vec2(u_mouse.x * cos(u_angle_rad) * u_resolution.x * -1.0, u_mouse.y * sin(u_angle_rad) * u_resolution.y);
-    vec3 turbulenceSeed = vec3(gl_FragCoord.xy + movement.xy, u_time * 0.0001);`,
+    FRAGCOORD_XY_TIME: `vec3 turbulenceSeed = vec3(gl_FragCoord.xy, u_time * 0.0001)`,
+    FRAGCOORD_XYZ: `vec3 turbulenceSeed = vec3(gl_FragCoord.xyz)`,
+    FRAGCOORD_MOUSE_RESOLUTION: `vec3 turbulenceSeed = vec2(gl_FragCoord.x + u_mouse.x * u_resolution.x * -1.0, gl_FragCoord.y + u_mouse.y * u_resolution.y, u_time * 0.0001);`,
 };
 
 turbulence.COLOR = OUTPUT_TYPES.COLOR;
