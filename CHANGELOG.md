@@ -1,3 +1,9 @@
+### 0.14.4 (2024-12-17)
+
+_New:_
+
+-   Added `direction` property to `slitScan` effect for choosing `x` or `y`.
+
 ### 0.14.3 (2024-12-16)
 
 _New:_
