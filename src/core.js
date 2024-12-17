@@ -329,8 +329,11 @@ function _initProgram(gl, plane, effects, noSource = false) {
         _getWebGLProgram(gl, vertexSrc, fragmentSrc);
 
     if (error) {
+        function addLineNumbers(str) {
+            return str.split('\n').map((line, i) => `${i + 1}: ${line}`).join('\n');
+        }
         throw new Error(
-            `${type} error:: ${error}\n${type === SHADER_ERROR_TYPES.fragment ? fragmentSrc : vertexSrc}`,
+            `${type} error:: ${error}\n${addLineNumbers(type === SHADER_ERROR_TYPES.fragment ? fragmentSrc : vertexSrc)}`,
         );
     }
 
