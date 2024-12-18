@@ -47,7 +47,7 @@ export default function ({
     if (u_slitScanEnabled) {
         float noiseValue = noise(vec2(${isHorizontal ? noiseFragPart : noiseTimePart}, ${isHorizontal ? noiseTimePart : noiseFragPart}));
         float source_ = sourceCoord.${direction} + noiseValue * u_intensity;
-        float mirrored_ = mod(-source_, 1.0) * (mod(source_ - 1.0, 2.0) - mod(source_, 1.0)) + mod(source_, 1.0) * (mod(source_, 2.0) - mod(source_, 1.0));
+        float mirrored_ = mod(source_, 1.0) * (mod(source_ - 1.0, 2.0) - mod(source_, 1.0)) + mod(-source_, 1.0) * (mod(source_, 2.0) - mod(source_, 1.0));
         sourceCoord = ${isHorizontal ? 'vec2(mirrored_, sourceCoord.y)' : 'vec2(sourceCoord.x, mirrored_)'};
     }`,
         },

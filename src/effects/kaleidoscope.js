@@ -40,7 +40,7 @@ export default function ({ segments = 6, offset, rotation = 0 } = {}) {
         vec2 newCoords = r * vec2(cos(theta), sin(theta)) + 0.5;
         sourceCoord = newCoords - u_offset;
         // mirrored repeat
-        sourceCoord = mod(-sourceCoord, 1.0) * (mod(sourceCoord - 1.0, 2.0) - mod(sourceCoord, 1.0)) + mod(sourceCoord, 1.0) * (mod(sourceCoord, 2.0) - mod(sourceCoord, 1.0));
+        sourceCoord = mod(sourceCoord, 1.0) * (mod(sourceCoord - 1.0, 2.0) - mod(sourceCoord, 1.0)) + mod(-sourceCoord, 1.0) * (mod(sourceCoord, 2.0) - mod(sourceCoord, 1.0));
     }`,
         },
         get segments() {

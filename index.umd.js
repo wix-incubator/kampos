@@ -1279,7 +1279,7 @@ const mat3 satmat = mat3(
         vec2 newCoords = r * vec2(cos(theta), sin(theta)) + 0.5;
         sourceCoord = newCoords - u_offset;
         // mirrored repeat
-        sourceCoord = mod(-sourceCoord, 1.0) * (mod(sourceCoord - 1.0, 2.0) - mod(sourceCoord, 1.0)) + mod(sourceCoord, 1.0) * (mod(sourceCoord, 2.0) - mod(sourceCoord, 1.0));
+        sourceCoord = mod(sourceCoord, 1.0) * (mod(sourceCoord - 1.0, 2.0) - mod(sourceCoord, 1.0)) + mod(-sourceCoord, 1.0) * (mod(sourceCoord, 2.0) - mod(sourceCoord, 1.0));
     }`,
             },
             get segments() {
@@ -1382,7 +1382,7 @@ const mat3 satmat = mat3(
     if (u_slitScanEnabled) {
         float noiseValue = noise(vec2(${isHorizontal ? noiseFragPart : noiseTimePart}, ${isHorizontal ? noiseTimePart : noiseFragPart}));
         float source_ = sourceCoord.${direction} + noiseValue * u_intensity;
-        float mirrored_ = mod(-source_, 1.0) * (mod(source_ - 1.0, 2.0) - mod(source_, 1.0)) + mod(source_, 1.0) * (mod(source_, 2.0) - mod(source_, 1.0));
+        float mirrored_ = mod(source_, 1.0) * (mod(source_ - 1.0, 2.0) - mod(source_, 1.0)) + mod(-source_, 1.0) * (mod(source_, 2.0) - mod(source_, 1.0));
         sourceCoord = ${isHorizontal ? 'vec2(mirrored_, sourceCoord.y)' : 'vec2(sourceCoord.x, mirrored_)'};
     }`,
             },
