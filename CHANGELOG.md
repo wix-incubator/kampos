@@ -1,3 +1,9 @@
+### 0.14.5 (2024-12-18)
+
+_Fixed:_
+
+-   Fixed mirroring of source coordinates in `kaleidoscope` and `slitScan` effects.
+
 ### 0.14.4 (2024-12-17)
 
 _New:_
