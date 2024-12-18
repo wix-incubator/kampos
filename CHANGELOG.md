@@ -1,3 +1,9 @@
+### 0.14.6 (2024-12-18)
+
+_Fixed:_
+
+-   Fixed `mouse` utility to invert `y` coordinate internally.
+
 ### 0.14.5 (2024-12-18)
 
 _Fixed:_

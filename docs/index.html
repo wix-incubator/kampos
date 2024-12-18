@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset='utf-8'>
-  <title>kampos 0.14.4 | Documentation</title>
+  <title>kampos 0.14.5 | Documentation</title>
   <meta name='description' content='Tiny and fast effects compositor on WebGL'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' rel='stylesheet'>
@@ -15,7 +15,7 @@
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>kampos</h3>
-          <div class='mb1'><code>0.14.4</code></div>
+          <div class='mb1'><code>0.14.5</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -2328,7 +2328,8 @@ This will replace canvas DOM element with a fresh clone.</p>
 
   
 
-  <p>Exposes the <code>u_mouse</code> uniform for use inside fragment shaders.</p>
+  <p>Exposes the <code>u_mouse</code> uniform for use inside fragment shaders.
+Note that internally the <code>y</code> coordinate is inverted to match the WebGL coordinate system.</p>
 
     <div class='pre p1 fill-light mt0'>mouse(params: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?): <a href="#mouseutility">mouseUtility</a></div>
   
