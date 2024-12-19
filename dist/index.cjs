@@ -1339,6 +1339,7 @@ function kaleidoscope ({ segments = 6, offset, rotation = 0 } = {}) {
  * @param {number} [params.intensity=0.1] initial intensity to use.
  * @param {number} [params.frequency] initial frequency to use .
  * @param {string} [params.direction='x'] direction to apply the slit scan effect.
+ * @param {string} [params.offsetInput] code to use as input for adding offset. Defaults to empty.
  * @returns {slitScanEffect}
  *
  * @example slitScan({intensity: 0.5, frequency: 3.0})
@@ -1349,6 +1350,7 @@ function slitScan ({
     intensity = 0.1,
     frequency = 2.0,
     direction = 'x',
+    offsetInput = '',
 }) {
     /**
      * @typedef {Object} slitScanEffect
@@ -1362,7 +1364,7 @@ function slitScan ({
      * effect.frequency = 3.5;
      */
     const isHorizontal = direction === 'x';
-    const noiseFragPart = `gl_FragCoord.${direction} / u_resolution.${direction} * u_frequency`;
+    const noiseFragPart = `(gl_FragCoord.${direction} / u_resolution.${direction}${offsetInput ? `+ ${offsetInput}` : ''}) * u_frequency`;
     const noiseTimePart = 'u_time * 0.0001';
 
     return {
