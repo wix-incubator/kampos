@@ -1,3 +1,9 @@
+### 0.14.7 (2024-12-19)
+
+_New:_
+
+-   Added `offsetInput` property to `slitScan` effect for allowing exposing an offset variable.
+
 ### 0.14.6 (2024-12-18)
 
 _Fixed:_
