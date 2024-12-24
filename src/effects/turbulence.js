@@ -150,9 +150,9 @@ const INPUT_TYPES = {
         'vec3 turbulenceSeed = vec3(gl_FragCoord.xy, u_time * 0.0001);',
     FRAGCOORD_XYZ: 'vec3 turbulenceSeed = vec3(gl_FragCoord.xyz);',
     FRAGCOORD_XY_MOUSE_TIME:
-        'vec3 turbulenceSeed = vec3(gl_FragCoord.xy + u_mouse * u_resolution * vec2(-1.0, 1.0), u_time * 0.0001);',
+        'vec3 turbulenceSeed = vec3(gl_FragCoord.xy - u_mouse * u_resolution, u_time * 0.0001);',
     FRAGCOORD_XY_MOUSE_Z:
-        'vec3 turbulenceSeed = vec3(gl_FragCoord.xy + u_mouse * u_resolution * vec2(-1.0, 1.0), gl_FragCoord.z);',
+        'vec3 turbulenceSeed = vec3(gl_FragCoord.xy - u_mouse * u_resolution, gl_FragCoord.z);',
 };
 
 turbulence.COLOR = OUTPUT_TYPES.COLOR;
