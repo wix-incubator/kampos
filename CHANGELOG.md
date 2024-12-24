@@ -1,3 +1,9 @@
+### 0.14.8 (2024-12-24)
+
+_Fixed:_
+
+-   Fixed direction of `u_mouse` offsets in `turbulence` effect.
+
 ### 0.14.7 (2024-12-19)
 
 _New:_
