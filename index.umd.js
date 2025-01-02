@@ -1153,7 +1153,6 @@ const mat3 satmat = mat3(
         offsetInputG = 'u_channelOffsetG',
         offsetInputB = 'u_channelOffsetB',
     } = {}) {
-
         /**
          * @typedef {Object} channelSplitEffect
          * @property {boolean} disabled
@@ -1177,9 +1176,9 @@ const mat3 satmat = mat3(
         vec2 _splitOffsetR = ${offsetInputR};
         vec2 _splitOffsetG = ${offsetInputG};
         vec2 _splitOffsetB = ${offsetInputB};
-        float redSplit = texture2D(u_source, sourceCoord + _splitOffsetR).r;
-        float greenSplit = texture2D(u_source, sourceCoord + _splitOffsetG).g;
-        float blueSplit = texture2D(u_source, sourceCoord + _splitOffsetB).b;
+        float redSplit = texture2D(u_source, mod(sourceCoord + _splitOffsetR, 1.0)).r;
+        float greenSplit = texture2D(u_source, mod(sourceCoord + _splitOffsetG, 1.0)).g;
+        float blueSplit = texture2D(u_source, mod(sourceCoord + _splitOffsetB, 1.0)).b;
         color = vec3(redSplit, greenSplit, blueSplit);
     }`,
             },
@@ -1994,7 +1993,7 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         sum = (sum + 1.0) / 2.0;
     }
 
-    return clamp(sum, 0.0, 1.0);
+    return sum;
 }`,
                 source: `
     ${input || ''}
