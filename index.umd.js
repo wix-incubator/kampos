@@ -1176,12 +1176,9 @@ const mat3 satmat = mat3(
         vec2 _splitOffsetR = ${offsetInputR};
         vec2 _splitOffsetG = ${offsetInputG};
         vec2 _splitOffsetB = ${offsetInputB};
-        vec2 redSample = mod(sourceCoord + _splitOffsetR, 1.0);
-        vec2 greenSample = mod(sourceCoord + _splitOffsetG, 1.0);
-        vec2 blueSample = mod(sourceCoord + _splitOffsetB, 1.0);
-        float redSplit = texture2D(u_source, redSample).r;
-        float greenSplit = texture2D(u_source, greenSample).g;
-        float blueSplit = texture2D(u_source, blueSample).b;
+        float redSplit = texture2D(u_source, mod(sourceCoord + _splitOffsetR, 1.0)).r;
+        float greenSplit = texture2D(u_source, mod(sourceCoord + _splitOffsetG, 1.0)).g;
+        float blueSplit = texture2D(u_source, mod(sourceCoord + _splitOffsetB, 1.0)).b;
         color = vec3(redSplit, greenSplit, blueSplit);
     }`,
             },
