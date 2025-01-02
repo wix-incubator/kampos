@@ -1172,48 +1172,9 @@ function channelSplit({
         vec2 _splitOffsetR = ${offsetInputR};
         vec2 _splitOffsetG = ${offsetInputG};
         vec2 _splitOffsetB = ${offsetInputB};
-        vec2 redSample = sourceCoord + _splitOffsetR;
-        vec2 greenSample = sourceCoord + _splitOffsetG;
-        vec2 blueSample = sourceCoord + _splitOffsetB;
-        if (redSample.x > 1.0) {
-            redSample.x = redSample.x - 1.0;
-        }
-        if (redSample.x < 0.0) {
-            redSample.x = redSample.x + 1.0;
-        }
-        if (redSample.y > 1.0) {
-            redSample.y = redSample.y - 1.0;
-        }
-        if (redSample.y < 0.0) {
-            redSample.y = redSample.y + 1.0;
-        }
-        if (greenSample.x > 1.0) {
-            greenSample.x = greenSample.x - 1.0;
-        }
-        if (greenSample.x < 0.0) {
-            greenSample.x = greenSample.x + 1.0;
-        }
-        if (greenSample.y > 1.0) {
-            greenSample.y = greenSample.y - 1.0;
-        }
-        if (greenSample.y < 0.0) {
-            greenSample.y = greenSample.y + 1.0;
-        }
-        if (blueSample.x > 1.0) {
-            blueSample.x = blueSample.x - 1.0;
-        }
-        if (blueSample.x < 0.0) {
-            blueSample.x = blueSample.x + 1.0;
-        }
-        if (blueSample.y > 1.0) {
-            blueSample.y = blueSample.y - 1.0;
-        }
-        if (blueSample.y < 0.0) {
-            blueSample.y = blueSample.y + 1.0;
-        }
-        float redSplit = texture2D(u_source, redSample).r;
-        float greenSplit = texture2D(u_source, greenSample).g;
-        float blueSplit = texture2D(u_source, blueSample).b;
+        float redSplit = texture2D(u_source, mod(sourceCoord + _splitOffsetR, 1.0)).r;
+        float greenSplit = texture2D(u_source, mod(sourceCoord + _splitOffsetG, 1.0)).g;
+        float blueSplit = texture2D(u_source, mod(sourceCoord + _splitOffsetB, 1.0)).b;
         color = vec3(redSplit, greenSplit, blueSplit);
     }`,
         },
@@ -2028,7 +1989,7 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         sum = (sum + 1.0) / 2.0;
     }
 
-    return clamp(sum, 0.0, 1.0);
+    return sum;
 }`,
             source: `
     ${input || ''}

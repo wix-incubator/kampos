@@ -81,7 +81,7 @@ float turbulence (vec3 seed, vec2 frequency, int numOctaves, bool isFractal) {
         sum = (sum + 1.0) / 2.0;
     }
 
-    return clamp(sum, 0.0, 1.0);
+    return sum;
 }`,
             source: `
     ${input || ''}
