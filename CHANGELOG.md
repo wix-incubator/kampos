@@ -1,3 +1,9 @@
+### 0.14.9 (2025-01-02)
+
+_Fixed:_
+
+-   Automatic setting of source dimensions based on source type.
+
 ### 0.14.8 (2024-12-24)
 
 _Fixed:_

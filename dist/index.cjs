@@ -3509,8 +3509,8 @@ class Kampos {
             media = source;
         }
 
-        const isVideo = typeof media === 'HTMLVideoElement';
-        const isCanvas = typeof media === 'HTMLCanvasElement';
+        const isVideo = media instanceof HTMLVideoElement;
+        const isCanvas = media instanceof HTMLCanvasElement;
 
         if (width && height) {
             this.dimensions = { width, height };
