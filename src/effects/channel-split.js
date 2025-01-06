@@ -19,7 +19,6 @@ export default function channelSplit({
     offsetInputG = 'u_channelOffsetG',
     offsetInputB = 'u_channelOffsetB',
 } = {}) {
-
     /**
      * @typedef {Object} channelSplitEffect
      * @property {boolean} disabled
@@ -43,9 +42,9 @@ export default function channelSplit({
         vec2 _splitOffsetR = ${offsetInputR};
         vec2 _splitOffsetG = ${offsetInputG};
         vec2 _splitOffsetB = ${offsetInputB};
-        float redSplit = texture2D(u_source, sourceCoord + _splitOffsetR).r;
-        float greenSplit = texture2D(u_source, sourceCoord + _splitOffsetG).g;
-        float blueSplit = texture2D(u_source, sourceCoord + _splitOffsetB).b;
+        float redSplit = texture2D(u_source, mod(sourceCoord + _splitOffsetR, 1.0)).r;
+        float greenSplit = texture2D(u_source, mod(sourceCoord + _splitOffsetG, 1.0)).g;
+        float blueSplit = texture2D(u_source, mod(sourceCoord + _splitOffsetB, 1.0)).b;
         color = vec3(redSplit, greenSplit, blueSplit);
     }`,
         },
