@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset='utf-8'>
-  <title>kampos 0.14.8 | Documentation</title>
+  <title>kampos 0.14.9 | Documentation</title>
   <meta name='description' content='Tiny and fast effects compositor on WebGL'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' rel='stylesheet'>
@@ -15,7 +15,7 @@
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>kampos</h3>
-          <div class='mb1'><code>0.14.8</code></div>
+          <div class='mb1'><code>0.14.9</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -3389,6 +3389,17 @@ float circle_ = <span class="hljs-title function_">circle</span>(
 
               
                 <tr>
+  <td class='break-word'><span class='code bold'>params.input</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>?</code>
+  </td>
+  <td class='break-word'><span>input method to use. Defaults to 
+<code>displacement.TEXTURE</code>
+.
+</span></td>
+</tr>
+
+
+              
+                <tr>
   <td class='break-word'><span class='code bold'>params.scale</span> <code class='quiet'>{x: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, y: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>}?</code>
   </td>
   <td class='break-word'><span>initial scale to use for x and y displacement. Defaults to 
@@ -3421,6 +3432,13 @@ float circle_ = <span class="hljs-title function_">circle</span>(
   
     <div class='py1 quiet mt1 prose-big'>Properties</div>
     <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>TEXTURE</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : use texture sampling as input method.
+
+          
+        </div>
       
         <div class='space-bottom0'>
           <span class='code bold'>CLAMP</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>

@@ -1,3 +1,10 @@
+### 0.14.10 (2025-01-08)
+
+_New:_
+
+-   Added `input` property to `displacement` effect to allow switching from texture input to other methods.
+    Currently built-in methods are `displacement.TEXTURE` and `displacement.TURBULENCE` that works when combined with the `turebulence` effect.
+
 ### 0.14.9 (2025-01-02)
 
 _Fixed:_

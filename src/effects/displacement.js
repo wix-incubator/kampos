@@ -1,17 +1,19 @@
 /**
  * @function displacement
+ * @property {string} TEXTURE use texture sampling as input method.
  * @property {string} CLAMP stretch the last value to the edge. This is the default behavior.
  * @property {string} DISCARD discard values beyond the edge of the media - leaving a transparent pixel.
  * @property {string} WRAP continue rendering values from opposite direction when reaching the edge.
  * @param {Object} [params]
  * @param {string} [params.wrap] wrapping method to use. Defaults to `displacement.CLAMP`.
+ * @param {string} [params.input] input method to use. Defaults to `displacement.TEXTURE`.
  * @param {{x: number, y: number}} [params.scale] initial scale to use for x and y displacement. Defaults to `{x: 0.0, y: 0.0}` which means no displacement.
  * @param {boolean} [params.enableBlueChannel] enable blue channel for displacement intensity. Defaults to `false`.
  * @returns {displacementEffect}
  *
  * @example displacement({wrap: displacement.DISCARD, scale: {x: 0.5, y: -0.5}})
  */
-function displacement({ wrap = WRAP_METHODS.CLAMP, scale, enableBlueChannel } = {}) {
+function displacement({ wrap = WRAP_METHODS.CLAMP, input = INPUT_METHODS.TEXTURE, scale, enableBlueChannel } = {}) {
     const { x: sx, y: sy } = scale || { x: 0.0, y: 0.0 };
 
     /**
@@ -44,10 +46,8 @@ function displacement({ wrap = WRAP_METHODS.CLAMP, scale, enableBlueChannel } = 
             },
             source: `
     if (u_displacementEnabled) {
-        vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb;
-        vec2 dispMapPosition = dispMap.rg - 0.5;
-        float dispIntensity = u_enableBlueChannel ? dispMap.b : 0.0;
-        vec2 dispVec = vec2(sourceCoord.x + (u_dispScale.x + dispIntensity) * dispMapPosition.r, sourceCoord.y + (u_dispScale.y + dispIntensity) * dispMapPosition.g);
+        ${input}
+        vec2 dispVec = vec2(sourceCoord.x + (u_dispScale.x + dispIntensity) * dispPosition.r, sourceCoord.y + (u_dispScale.y + dispIntensity) * dispPosition.g);
         ${wrap}
         sourceCoord = dispVec;
     }`,
@@ -117,12 +117,23 @@ function displacement({ wrap = WRAP_METHODS.CLAMP, scale, enableBlueChannel } = 
     };
 }
 
+const INPUT_METHODS = {
+    TEXTURE: `vec3 dispMap = texture2D(u_dispMap, v_displacementMapTexCoord).rgb;
+            vec2 dispPosition = dispMap.rg - 0.5;
+            float dispIntensity = u_enableBlueChannel ? dispMap.b : 0.0;`,
+    TURBULENCE: `vec3 dispMap = vec3(turbulenceValue);
+            vec2 dispPosition = dispMap.rg - 0.5;
+            float dispIntensity = u_enableBlueChannel ? dispMap.b : 0.0;`,
+};
+
 const WRAP_METHODS = {
     CLAMP: `dispVec = clamp(dispVec, 0.0, 1.0);`,
     DISCARD: `if (dispVec.x < 0.0 || dispVec.x > 1.0 || dispVec.y > 1.0 || dispVec.y < 0.0) { discard; }`,
     WRAP: `dispVec = mod(dispVec, 1.0);`,
 };
 
+displacement.TEXTURE = INPUT_METHODS.TEXTURE;
+displacement.TURBULENCE = INPUT_METHODS.TURBULENCE;
 displacement.CLAMP = WRAP_METHODS.CLAMP;
 displacement.DISCARD = WRAP_METHODS.DISCARD;
 displacement.WRAP = WRAP_METHODS.WRAP;

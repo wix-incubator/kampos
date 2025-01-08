@@ -52,19 +52,16 @@ loadImage(
     displacement.textures[0].update = true; // to update
 
     if (DEBUG) {
-        function tick () {
-            requestAnimationFrame(tick);
-
-            pointerTexture.update();
-        }
-
-        requestAnimationFrame(tick);
-    } else {
-        const instance = new Kampos({target, effects: [displacement]});
-
-        // // set media source
-        instance.setSource({media: img, width, height});
-
-        instance.play();
+        document.body.appendChild(mapTarget);
+        mapTarget.style.pointerEvents = 'none';
+        mapTarget.style.position = 'absolute';
+        mapTarget.style.top = '0';
     }
+
+    const instance = new Kampos({target, effects: [displacement]});
+
+    // // set media source
+    instance.setSource({media: img, width, height});
+
+    instance.play();
 });
