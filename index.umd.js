@@ -3555,7 +3555,7 @@ void main() {
                 this._createTextures();
             }
 
-            this.media = media;
+            this.media = media || this.media;
 
             this.data.source._sampled = false;
         }
