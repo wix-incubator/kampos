@@ -1,5 +1,21 @@
-// import fragmentShader from './shape.frag';
+// default Uniforms values
+export const guiObj = {
+    progress: 0,
+    nbDivider: 50,
+    shape: 'circle',
+    shapeBorder: 0.15,
+    effect: 'transition',
+    direction: 'xy',
+    transitionSpread: 1.1,
+    speed: 3.2,
+    easing: 'quart.out',
+    bkgColor: '#121212',
+    brightness: false,
+    brightnessValue: 1,
+    overlayColor: false,
+};
 
+// import fragmentShader from './shape.frag';
 /**
  * @function shapeTransition
  * @returns {shapeTransitionEffect}
@@ -17,8 +33,6 @@ export default function () {
      * effect.progress = 0.5;
      */
 
-    console.log('shnadoc');
-
     return {
         vertex: {
             attribute: {
@@ -33,6 +47,7 @@ export default function () {
                 u_transitionProgress: 'float',
                 u_transitionTo: 'sampler2D',
                 u_resolution: 'vec2',
+                u_nbDivider: 'float',
             },
             constant: `
             const float circleBorder = 0.15;
@@ -56,7 +71,7 @@ export default function () {
             vec2 st = gl_FragCoord.xy / u_resolution;
             vec2 aspect = u_resolution / min(u_resolution.x, u_resolution.y); // Calculate aspect ratio
             st.x *= aspect.x / aspect.y; // Adjust x coordinate based on aspect ratio to have square
-            st *= 10.; // TODO: nbShapes      // Scale up the space by 3
+            st *= u_nbDivider; // TODO: nbShapes      // Scale up the space by 3
             st = fract(st); // Wrap around 1.0
 
 
@@ -93,18 +108,12 @@ export default function () {
 
 
             vec3 shapeColor = vec3(0.,0.,0.);
-
             shapeColor = vec3(circle(st, max(circleProgress, 0.)));
 
-
             vec4 textureTarget = texture2D(u_transitionTo, v_transitionToTexCoord);
-            // color = mix(color, targetPixel.rgb, u_transitionProgress);
 
             color = mix(textureTarget.rgb, color, smoothstep(0., 1., transition)) * shapeColor;
             alpha = shapeColor.r;
-
-            // color = vec3(uResolution.x, uResolution.y, 0.0);
-            // alpha = mix(alpha, targetPixel.a, u_transitionProgress);
 }`,
         },
         get disabled() {
@@ -129,6 +138,9 @@ export default function () {
             this.uniforms[3].data[0] = width;
             this.uniforms[3].data[1] = height;
         },
+        set nbDivider(value) {
+            this.uniforms[4].data[0] = value;
+        },
         varying: {
             v_transitionToTexCoord: 'vec2',
         },
@@ -152,6 +164,11 @@ export default function () {
                 name: 'u_resolution',
                 type: 'f',
                 data: [0, 0],
+            },
+            {
+                name: 'u_nbDivider',
+                type: 'f',
+                data: [guiObj.nbDivider],
             },
         ],
         attributes: [
