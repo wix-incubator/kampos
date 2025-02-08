@@ -180,6 +180,15 @@
                 refresh: 'refresh12',
             });
         },
+
+        section13() {
+            startDemo('./shape-transition.js', {
+                code: 'code13',
+                preview: 'preview',
+                video: 'videos2',
+                refresh: 'refresh13',
+            });
+        },
     };
 
     insertSection('section11');
