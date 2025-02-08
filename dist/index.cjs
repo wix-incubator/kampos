@@ -2541,7 +2541,7 @@ function dissolve ({
     };
 }
 
-var fragmentShader = "#define GLSLIFY 1\nif(u_transitionEnabled){vec4 targetPixel=texture2D(u_transitionTo,v_transitionToTexCoord);color=mix(color,targetPixel.rgb,u_transitionProgress);alpha=mix(alpha,targetPixel.a,u_transitionProgress);}"; // eslint-disable-line
+// import fragmentShader from './shape.frag';
 
 /**
  * @function shapeTransition
@@ -2560,6 +2560,8 @@ function shapeTransition () {
      * effect.progress = 0.5;
      */
 
+    console.log('shnadoc');
+
     return {
         vertex: {
             attribute: {
@@ -2573,8 +2575,24 @@ function shapeTransition () {
                 u_transitionEnabled: 'bool',
                 u_transitionProgress: 'float',
                 u_transitionTo: 'sampler2D',
+                u_resolution: 'vec2',
             },
-            main: fragmentShader,
+            main: `if (u_transitionEnabled) {
+
+            // Grid of circles
+            vec2 st = gl_FragCoord.xy / u_resolution;
+            vec2 aspect = u_resolution / min(u_resolution.x, u_resolution.y); // Calculate aspect ratio
+            st.x *= aspect.x / aspect.y; // Adjust x coordinate based on aspect ratio to have square
+            st *= 10.; // TODO: nbShapes      // Scale up the space by 3
+            st = fract(st); // Wrap around 1.0
+
+
+            vec4 targetPixel = texture2D(u_transitionTo, st);
+            // color = mix(color, targetPixel.rgb, u_transitionProgress);
+            color = targetPixel.rgb;
+            // color = vec3(uResolution.x, uResolution.y, 0.0);
+            alpha = mix(alpha, targetPixel.a, u_transitionProgress);
+}`,
         },
         get disabled() {
             return !this.uniforms[0].data[0];
@@ -2594,6 +2612,10 @@ function shapeTransition () {
         set to(media) {
             this.textures[0].data = media;
         },
+        set resolution([width, height]) {
+            this.uniforms[3].data[0] = width;
+            this.uniforms[3].data[1] = height;
+        },
         varying: {
             v_transitionToTexCoord: 'vec2',
         },
@@ -2612,6 +2634,11 @@ function shapeTransition () {
                 name: 'u_transitionProgress',
                 type: 'f',
                 data: [0],
+            },
+            {
+                name: 'u_resolution',
+                type: 'f',
+                data: [0, 0],
             },
         ],
         attributes: [

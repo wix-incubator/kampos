@@ -24,6 +24,7 @@ prepareVideos([media1, media2]).then(() => {
 
     // start kampos
     instance.play();
+    resiveHandler();
 });
 
 let x, y, rect;
@@ -53,6 +54,10 @@ const moveHandler = (e) => {
     }
 };
 
+const resiveHandler = () => {
+    fade.resolution = [target.offsetWidth, target.offsetHeight];
+};
+
 /*
  * register event handlers for interaction
  */
@@ -63,3 +68,6 @@ target.addEventListener('mouseenter', () => {
 target.addEventListener('mouseleave', () => {
     target.removeEventListener('mousemove', moveHandler);
 });
+
+window.addEventListener('resize', resiveHandler);
+resiveHandler();
