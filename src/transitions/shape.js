@@ -34,7 +34,23 @@ export default function () {
                 u_transitionTo: 'sampler2D',
                 u_resolution: 'vec2',
             },
-            main: `if (u_transitionEnabled) {
+            constant: `
+            const float circleBorder = 0.15;
+
+            float circle(vec2 _uv, float _radius){
+                vec2 l = _uv - vec2(0.5);
+                float border = circleBorder;
+                return 1. - smoothstep(_radius - (_radius * border),
+                                    _radius + (_radius * border),
+                                    dot(l, l) * 4.0);
+            }
+            `,
+            main: `
+            // Under the hood
+            // vec4 pixel = texture2D(u_source, sourceCoord);
+            // vec3 color = pixel.rgb;
+
+            if (u_transitionEnabled) {
 
             // Grid of circles
             vec2 st = gl_FragCoord.xy / u_resolution;
@@ -44,11 +60,51 @@ export default function () {
             st = fract(st); // Wrap around 1.0
 
 
-            vec4 targetPixel = texture2D(u_transitionTo, st);
+            // Circle progress
+            float circleProgress = v_texCoord.x + 1.; // 1 à 2
+            float offset = 0.;
+            // if (uDirection == 2.) {
+            //     circleProgress = vUv.y + 1.;
+            // } else if (uDirection == 3.) {
+            //     circleProgress = (vUv.x + 1. + vUv.y + 1.) / 2.;
+            // } else if (uDirection == 4.) {
+            //     circleProgress = (vUv.x + 1. + (1. - vUv.y)) / 2.;
+            //     offset = 1.;
+            // }
+
+            // Transition
+            float transition = (circleProgress * 2. + offset) - u_transitionProgress * 6.;
+            circleProgress = pow(abs(transition), 1.15);
+
+            // if (uEffect == 1.) {
+            //     if (uDirection == 5.) {
+            //     transition = 2.15 - uProgress * 4.6;
+            //     }
+            //     circleProgress = pow(abs(transition), uTransitionSpread);
+            // } else {
+            //     transition = (circleProgress * 2. + offset) - uProgress * 4.;
+            //     circleProgress = pow(transition, uTransitionSpread);
+
+            //     if (uDirection == 5.) {
+            //     // adding 0.15 extra to be sure shapes are covering the whole space (espacially for circle because of blurry border)
+            //     circleProgress = 2.15 - uProgress * 2.3;
+            //     }
+            // }
+
+
+            vec3 shapeColor = vec3(0.,0.,0.);
+
+            shapeColor = vec3(circle(st, max(circleProgress, 0.)));
+
+
+            vec4 textureTarget = texture2D(u_transitionTo, v_transitionToTexCoord);
             // color = mix(color, targetPixel.rgb, u_transitionProgress);
-            color = targetPixel.rgb;
+
+            color = mix(textureTarget.rgb, color, smoothstep(0., 1., transition)) * shapeColor;
+            alpha = shapeColor.r;
+
             // color = vec3(uResolution.x, uResolution.y, 0.0);
-            alpha = mix(alpha, targetPixel.a, u_transitionProgress);
+            // alpha = mix(alpha, targetPixel.a, u_transitionProgress);
 }`,
         },
         get disabled() {
