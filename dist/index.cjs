@@ -2541,24 +2541,6 @@ function dissolve ({
     };
 }
 
-// default Uniforms values
-const guiObj = {
-    progress: 0,
-    nbDivider: 50,
-    shape: 'circle',
-    shapeBorder: 0.15,
-    effect: 'transition',
-    direction: 'xy',
-    transitionSpread: 1.1,
-    speed: 3.2,
-    easing: 'quart.out',
-    bkgColor: '#121212',
-    brightness: false,
-    brightnessValue: 1,
-    overlayColor: false,
-};
-
-// import fragmentShader from './shape.frag';
 /**
  * @function shapeTransition
  * @returns {shapeTransitionEffect}
@@ -2576,6 +2558,23 @@ function shapeTransition () {
      * effect.progress = 0.5;
      */
 
+    // Default Uniforms values
+    const DEFAULT = {
+        progress: 0,
+        nbDivider: 50,
+        shape: 'circle',
+        shapeBorder: 0.15,
+        effect: 1, // 1, 2 or 3 , see demo
+        direction: 'xy',
+        transitionSpread: 1.1,
+        speed: 3.2,
+        easing: 'quart.out',
+        bkgColor: '#121212',
+        brightness: false,
+        brightnessValue: 1,
+        overlayColor: false,
+    };
+
     return {
         vertex: {
             attribute: {
@@ -2591,9 +2590,19 @@ function shapeTransition () {
                 u_transitionTo: 'sampler2D',
                 u_resolution: 'vec2',
                 u_nbDivider: 'float',
+                u_shapeBorder: 'float',
+                u_effect: 'float',
             },
             constant: `
             const float circleBorder = 0.15;
+            const float transitionSpread = 1.15;
+
+            vec2 rotate(vec2 v, float a) {
+                float s = sin(a);
+                float c = cos(a);
+                mat2 m = mat2(c, -s, s, c);
+                return m * v;
+            }
 
             float circle(vec2 _uv, float _radius){
                 vec2 l = _uv - vec2(0.5);
@@ -2601,6 +2610,22 @@ function shapeTransition () {
                 return 1. - smoothstep(_radius - (_radius * border),
                                     _radius + (_radius * border),
                                     dot(l, l) * 4.0);
+            }
+
+            float square(vec2 _uv, float _size) {
+                vec2 l = abs(_uv - vec2(0.5));
+                float border = u_shapeBorder;
+                return 1. - smoothstep(_size - (_size * border),
+                                    _size + (_size * border),
+                                    max(l.x, l.y) * 2.0);
+            }
+
+            float diamond(vec2 _uv, float _size) {
+                vec2 l = abs(rotate(_uv - vec2(0.5), PI / 4.0)); // Rotate by 45 degrees (PI / 4)
+                float border = u_shapeBorder;
+                return 1. - smoothstep(_size - (_size * border),
+                                    _size + (_size * border),
+                                    max(l.x, l.y) * 2.0);
             }
             `,
             main: `
@@ -2632,22 +2657,21 @@ function shapeTransition () {
 
             // Transition
             float transition = (circleProgress * 2. + offset) - u_transitionProgress * 6.;
-            circleProgress = pow(abs(transition), 1.15);
 
-            // if (uEffect == 1.) {
+            if (u_effect == 1.) {
             //     if (uDirection == 5.) {
-            //     transition = 2.15 - uProgress * 4.6;
+            //     transition = 2.15 - u_transitionProgress * 4.6;
             //     }
-            //     circleProgress = pow(abs(transition), uTransitionSpread);
-            // } else {
-            //     transition = (circleProgress * 2. + offset) - uProgress * 4.;
-            //     circleProgress = pow(transition, uTransitionSpread);
+                circleProgress = pow(abs(transition), transitionSpread);
+            } else {
+                transition = (circleProgress * 2. + offset) - u_transitionProgress * 4.;
+                circleProgress = pow(transition, transitionSpread);
 
             //     if (uDirection == 5.) {
             //     // adding 0.15 extra to be sure shapes are covering the whole space (espacially for circle because of blurry border)
-            //     circleProgress = 2.15 - uProgress * 2.3;
+            //     circleProgress = 2.15 - u_transitionProgress * 2.3;
             //     }
-            // }
+            }
 
 
             vec3 shapeColor = vec3(0.,0.,0.);
@@ -2655,8 +2679,17 @@ function shapeTransition () {
 
             vec4 textureTarget = texture2D(u_transitionTo, v_transitionToTexCoord);
 
-            color = mix(textureTarget.rgb, color, smoothstep(0., 1., transition)) * shapeColor;
-            alpha = shapeColor.r;
+            if (u_effect == 1.) {
+                color = mix(textureTarget.rgb, color, smoothstep(0., 1., transition)) * shapeColor;
+                alpha = shapeColor.r;
+            } else if (u_effect == 2.) {
+                color = mix(textureTarget.rgb, color, smoothstep(0., 1., shapeColor.r));
+                alpha = 1.;
+            } else {
+                color = mix(textureTarget.rgb, color, smoothstep(0., 1., shapeColor.r));
+                alpha = shapeColor.r;
+            }
+
 }`,
         },
         get disabled() {
@@ -2683,6 +2716,12 @@ function shapeTransition () {
         },
         set nbDivider(value) {
             this.uniforms[4].data[0] = value;
+        },
+        set shapeBorder(value) {
+            this.uniforms[5].data[0] = value;
+        },
+        set effect(value) {
+            this.uniforms[6].data[0] = value;
         },
         varying: {
             v_transitionToTexCoord: 'vec2',
@@ -2711,7 +2750,17 @@ function shapeTransition () {
             {
                 name: 'u_nbDivider',
                 type: 'f',
-                data: [guiObj.nbDivider],
+                data: [DEFAULT.nbDivider],
+            },
+            {
+                name: 'u_shapeBorder',
+                type: 'f',
+                data: [DEFAULT.shapeBorder],
+            },
+            {
+                name: 'u_effect',
+                type: 'f',
+                data: [DEFAULT.effect],
             },
         ],
         attributes: [

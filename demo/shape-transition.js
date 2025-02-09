@@ -122,7 +122,7 @@ const setGUI = () => {
     gui.add(guiObj, 'shapeBorder', 0, 1)
         .step(0.01)
         .onChange((value) => {
-            // program.uniforms.uShapeBorder.value = value;
+            fade.shapeBorder = value;
         });
     gui.add(guiObj, 'shape', ['circle', 'diamond', 'square']).onChange(
         (value) => {
@@ -169,13 +169,13 @@ const setGUI = () => {
     ]).onChange((value) => {
         switch (value) {
             case 'transition':
-                // program.uniforms.uEffect.value = 1;
+                fade.effect = 1;
                 break;
             case 'transitionAlpha':
-                // program.uniforms.uEffect.value = 2;
+                fade.effect = 2;
                 break;
             case 'appearAlpha':
-                // program.uniforms.uEffect.value = 3;
+                fade.effect = 3;
                 break;
         }
     });
