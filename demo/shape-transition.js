@@ -38,7 +38,6 @@ window.addEventListener('resize', resiveHandler);
 resiveHandler();
 
 const startTransition = () => {
-    console.log('ici');
     gsap.to(guiObj, {
         duration: guiObj.speed,
         progress: guiObj.progress < 0.5 ? 1 : 0,
@@ -60,7 +59,6 @@ export const guiObj = {
     shapeBorder: 0.15,
     effect: 'transition',
     direction: 'xy',
-    transitionSpread: 1.1,
     speed: 3.2,
     easing: 'quart.out',
     bkgColor: '#121212',
@@ -128,13 +126,13 @@ const setGUI = () => {
         (value) => {
             switch (value) {
                 case 'circle':
-                    // program.uniforms.uShape.value = 1;
+                    fade.shape = 1;
                     break;
                 case 'diamond':
-                    // program.uniforms.uShape.value = 2;
+                    fade.shape = 2;
                     break;
                 case 'square':
-                    // program.uniforms.uShape.value = 3;
+                    fade.shape = 3;
                     break;
             }
         }
@@ -180,11 +178,6 @@ const setGUI = () => {
         }
     });
 
-    gui.add(guiObj, 'transitionSpread', 1, 4)
-        .step(0.1)
-        .onChange((value) => {
-            // program.uniforms.uTransitionSpread.value = value;
-        });
     gui.add(guiObj, 'speed', 0.5, 4).step(0.1);
     gui.add(guiObj, 'easing', gsapEasings);
     gui.addColor(guiObj, 'bkgColor').onChange((value) => {

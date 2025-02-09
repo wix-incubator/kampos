@@ -19,11 +19,10 @@ export default function () {
     const DEFAULT = {
         progress: 0,
         nbDivider: 50,
-        shape: 'circle',
         shapeBorder: 0.15,
-        effect: 1, // 1, 2 or 3 , see demo
+        shape: 1, // 1, 2 or 3 , see demo
         direction: 'xy',
-        transitionSpread: 1.1,
+        effect: 1, // 1, 2 or 3 , see demo
         speed: 3.2,
         easing: 'quart.out',
         bkgColor: '#121212',
@@ -48,6 +47,7 @@ export default function () {
                 u_resolution: 'vec2',
                 u_nbDivider: 'float',
                 u_shapeBorder: 'float',
+                u_shape: 'float',
                 u_effect: 'float',
             },
             constant: `
@@ -132,7 +132,13 @@ export default function () {
 
 
             vec3 shapeColor = vec3(0.,0.,0.);
-            shapeColor = vec3(circle(st, max(circleProgress, 0.)));
+            if (u_shape == 1.) {
+                shapeColor = vec3(circle(st, max(circleProgress, 0.)));
+            } else if (u_shape == 2.) {
+                shapeColor = vec3(diamond(st, max(circleProgress, 0.)));
+            } else if (u_shape == 3.) {
+                shapeColor = vec3(square(st, max(circleProgress, 0.)));
+            }
 
             vec4 textureTarget = texture2D(u_transitionTo, v_transitionToTexCoord);
 
@@ -177,8 +183,11 @@ export default function () {
         set shapeBorder(value) {
             this.uniforms[5].data[0] = value;
         },
-        set effect(value) {
+        set shape(value) {
             this.uniforms[6].data[0] = value;
+        },
+        set effect(value) {
+            this.uniforms[7].data[0] = value;
         },
         varying: {
             v_transitionToTexCoord: 'vec2',
@@ -213,6 +222,11 @@ export default function () {
                 name: 'u_shapeBorder',
                 type: 'f',
                 data: [DEFAULT.shapeBorder],
+            },
+            {
+                name: 'u_shape',
+                type: 'f',
+                data: [DEFAULT.shape],
             },
             {
                 name: 'u_effect',
