@@ -18,8 +18,8 @@ export default function channelSplit({
     offsetInputR = 'u_channelOffsetR',
     offsetInputG = 'u_channelOffsetG',
     offsetInputB = 'u_channelOffsetB',
+    boundsOffsetFactor = (boundsOffset) => '1.0',
 } = {}) {
-
     /**
      * @typedef {Object} channelSplitEffect
      * @property {boolean} disabled
@@ -43,9 +43,21 @@ export default function channelSplit({
         vec2 _splitOffsetR = ${offsetInputR};
         vec2 _splitOffsetG = ${offsetInputG};
         vec2 _splitOffsetB = ${offsetInputB};
-        float redSplit = texture2D(u_source, sourceCoord + _splitOffsetR).r;
-        float greenSplit = texture2D(u_source, sourceCoord + _splitOffsetG).g;
-        float blueSplit = texture2D(u_source, sourceCoord + _splitOffsetB).b;
+        vec2 redSample = sourceCoord + _splitOffsetR;
+        vec2 greenSample = sourceCoord + _splitOffsetG;
+        vec2 blueSample = sourceCoord + _splitOffsetB;
+        float redBoundsOffset = min(0.0, min(min(redSample.x, redSample.y), min(1.0 - redSample.x, 1.0 - redSample.y)));
+        float greenBoundsOffset = min(0.0, min(min(greenSample.x, greenSample.y), min(1.0 - greenSample.x, 1.0 - greenSample.y)));
+        float blueBoundsOffset = min(0.0, min(min(blueSample.x, blueSample.y), min(1.0 - blueSample.x, 1.0 - blueSample.y)));
+        float redSplit = texture2D(u_source, sourceCoord + _splitOffsetR).r * ${boundsOffsetFactor(
+            'redBoundsOffset'
+        )};
+        float greenSplit = texture2D(u_source, sourceCoord + _splitOffsetG).g * ${boundsOffsetFactor(
+            'greenBoundsOffset'
+        )};
+        float blueSplit = texture2D(u_source, sourceCoord + _splitOffsetB).b * ${boundsOffsetFactor(
+            'blueBoundsOffset'
+        )};
         color = vec3(redSplit, greenSplit, blueSplit);
     }`,
         },
