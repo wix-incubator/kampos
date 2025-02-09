@@ -63,7 +63,7 @@ export const guiObj = {
     easing: 'quart.out',
     bkgColor: '#121212',
     brightness: false,
-    brightnessValue: 1,
+    maxBrightness: 1,
     overlayColor: false,
 };
 
@@ -105,6 +105,19 @@ const gsapEasings = [
     'quint.out',
     'quint.inOut',
 ];
+
+function hexToWebGLArray(hex, alpha = 1.0) {
+    // Remove the # if present
+    hex = hex.replace(/^#/, '');
+
+    // Parse r, g, b from the hex string
+    let r = parseInt(hex.substring(0, 2), 16) / 255;
+    let g = parseInt(hex.substring(2, 4), 16) / 255;
+    let b = parseInt(hex.substring(4, 6), 16) / 255;
+
+    // Return as a WebGL-compatible array
+    return new Float32Array([r, g, b, alpha]);
+}
 
 const setGUI = () => {
     const gui = new GUI();
@@ -182,7 +195,7 @@ const setGUI = () => {
     gui.add(guiObj, 'easing', gsapEasings);
     gui.addColor(guiObj, 'bkgColor').onChange((value) => {
         document.body.style.backgroundColor = value;
-        // program.uniforms.uColor.value = new Color(value);
+        fade.color = hexToWebGLArray(value);
     });
 
     const extras = gui.addFolder('Extras FX');
@@ -191,21 +204,21 @@ const setGUI = () => {
         .add(guiObj, 'brightness')
         .name('Brightness')
         .onChange((value) => {
-            // program.uniforms.uBrightness.value = value ? 1 : 0;
+            fade.brightnessEnabled = value;
         });
     extras
-        .add(guiObj, 'brightnessValue', 0, 1)
+        .add(guiObj, 'maxBrightness', 0, 1)
         .step(0.01)
         .name('Brightness strength')
         .onChange((value) => {
-            // program.uniforms.uBrightnessValue.value = value;
+            fade.maxBrightness = value;
         });
 
     extras
         .add(guiObj, 'overlayColor')
         .name('Overlay Color')
         .onChange((value) => {
-            // program.uniforms.uOverlayColor.value = value ? 1 : 0;
+            fade.overlayColorEnabled = value;
         });
 
     document.body.style.backgroundColor = guiObj.bkgColor;

@@ -2558,6 +2558,8 @@ function shapeTransition () {
      * effect.progress = 0.5;
      */
 
+    // TODO: get uniforms params from the
+
     // Default Uniforms values
     const DEFAULT = {
         progress: 0,
@@ -2570,7 +2572,7 @@ function shapeTransition () {
         easing: 'quart.out',
         bkgColor: '#121212',
         brightness: false,
-        brightnessValue: 1,
+        maxBrightness: 1,
         overlayColor: false,
     };
 
@@ -2593,6 +2595,10 @@ function shapeTransition () {
                 u_shape: 'float',
                 u_direction: 'float',
                 u_effect: 'float',
+                u_brightnessEnabled: 'bool',
+                u_maxBrightness: 'float',
+                u_color: 'vec3',
+                u_overlayColorEnabled: 'bool',
             },
             constant: `
             const float circleBorder = 0.15;
@@ -2630,9 +2636,6 @@ function shapeTransition () {
             }
             `,
             main: `
-            // Under the hood
-            // vec4 pixel = texture2D(u_source, sourceCoord);
-            // vec3 color = pixel.rgb;
 
             if (u_transitionEnabled) {
 
@@ -2697,6 +2700,18 @@ function shapeTransition () {
                 alpha = shapeColor.r;
             }
 
+            // Apply brightness.
+            if (u_brightnessEnabled) {
+                float brightness = (0.5 * u_maxBrightness) * (1. - (abs(u_transitionProgress - 0.5) * 2.0));
+                color.rgb += brightness;
+            }
+
+            // Apply color.
+            if (u_overlayColorEnabled) {
+                float overlayProgress = (1. - (abs(u_transitionProgress - 0.5) * 2.0));
+                color.rgb += overlayProgress * u_color;
+            }
+
 }`,
         },
         get disabled() {
@@ -2735,6 +2750,20 @@ function shapeTransition () {
         },
         set effect(value) {
             this.uniforms[8].data[0] = value;
+        },
+        set brightnessEnabled(value) {
+            this.uniforms[9].data[0] = +value;
+        },
+        set maxBrightness(value) {
+            this.uniforms[10].data[0] = value;
+        },
+        set color([r, g, b, a]) {
+            this.uniforms[11].data[0] = r;
+            this.uniforms[11].data[1] = g;
+            this.uniforms[11].data[2] = b;
+        },
+        set overlayColorEnabled(value) {
+            this.uniforms[12].data[0] = +value;
         },
         varying: {
             v_transitionToTexCoord: 'vec2',
@@ -2784,6 +2813,26 @@ function shapeTransition () {
                 name: 'u_effect',
                 type: 'f',
                 data: [DEFAULT.effect],
+            },
+            {
+                name: 'u_brightnessEnabled',
+                type: 'i',
+                data: [0],
+            },
+            {
+                name: 'u_maxBrightness',
+                type: 'f',
+                data: [DEFAULT.maxBrightness],
+            },
+            {
+                name: 'u_color',
+                type: 'f',
+                data: [0, 0, 0],
+            },
+            {
+                name: 'u_overlayColorEnabled',
+                type: 'i',
+                data: [0],
             },
         ],
         attributes: [
