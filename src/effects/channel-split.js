@@ -45,9 +45,9 @@ export default function channelSplit({
         vec2 redSample = sourceCoord + _splitOffsetR;
         vec2 greenSample = sourceCoord + _splitOffsetG;
         vec2 blueSample = sourceCoord + _splitOffsetB;
-        float redFactor = exp(10.0 * min(min(0.0, min(redSample.x, redSample.y)), min(0.0, min(1.0 - redSample.x, 1.0 - redSample.y))));
-        float greenFactor = exp(10.0 * min(min(0.0, min(greenSample.x, greenSample.y)), min(0.0, min(1.0 - greenSample.x, 1.0 - greenSample.y))));
-        float blueFactor = exp(10.0 * min(min(0.0, min(blueSample.x, blueSample.y)), min(0.0, min(1.0 - blueSample.x, 1.0 - blueSample.y))));
+        float redFactor = exp(100.0 * min(min(0.0, min(redSample.x, redSample.y)), min(0.0, min(1.0 - redSample.x, 1.0 - redSample.y))));
+        float greenFactor = exp(100.0 * min(min(0.0, min(greenSample.x, greenSample.y)), min(0.0, min(1.0 - greenSample.x, 1.0 - greenSample.y))));
+        float blueFactor = exp(100.0 * min(min(0.0, min(blueSample.x, blueSample.y)), min(0.0, min(1.0 - blueSample.x, 1.0 - blueSample.y))));
         float redSplit = texture2D(u_source, sourceCoord + _splitOffsetR).r * redFactor;
         float greenSplit = texture2D(u_source, sourceCoord + _splitOffsetG).g * greenFactor;
         float blueSplit = texture2D(u_source, sourceCoord + _splitOffsetB).b * blueFactor;
