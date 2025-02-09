@@ -25,8 +25,6 @@ export default function () {
         shape: 1, // 1, 2 or 3 , see demo
         direction: 3, // 1, 2, 3 , 4, 5 see demo
         effect: 1, // 1, 2 or 3 , see demo
-        speed: 3.2,
-        easing: 'quart.out',
         bkgColor: '#121212',
         brightness: false,
         maxBrightness: 1,
