@@ -1,6 +1,5 @@
 import progress from 'rollup-plugin-progress';
 import filesize from 'rollup-plugin-filesize';
-import glslify from 'rollup-plugin-glslify';
 
 export default {
     input: './index.js',
@@ -15,6 +14,5 @@ export default {
             clearLine: false,
         }),
         filesize(),
-        glslify(),
     ],
 };
