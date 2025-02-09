@@ -142,19 +142,19 @@ const setGUI = () => {
         (value) => {
             switch (value) {
                 case 'x':
-                    // program.uniforms.uDirection.value = 1;
+                    fade.direction = 1;
                     break;
                 case 'y':
-                    // program.uniforms.uDirection.value = 2;
+                    fade.direction = 2;
                     break;
                 case 'xy':
-                    // program.uniforms.uDirection.value = 3;
+                    fade.direction = 3;
                     break;
                 case 'yx':
-                    // program.uniforms.uDirection.value = 4;
+                    fade.direction = 4;
                     break;
                 case 'inside':
-                    // program.uniforms.uDirection.value = 5;
+                    fade.direction = 5;
                     break;
             }
         }

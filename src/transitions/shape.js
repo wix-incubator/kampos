@@ -21,7 +21,7 @@ export default function () {
         nbDivider: 50,
         shapeBorder: 0.15,
         shape: 1, // 1, 2 or 3 , see demo
-        direction: 'xy',
+        direction: 3, // 1, 2, 3 , 4, 5 see demo
         effect: 1, // 1, 2 or 3 , see demo
         speed: 3.2,
         easing: 'quart.out',
@@ -48,6 +48,7 @@ export default function () {
                 u_nbDivider: 'float',
                 u_shapeBorder: 'float',
                 u_shape: 'float',
+                u_direction: 'float',
                 u_effect: 'float',
             },
             constant: `
@@ -103,31 +104,31 @@ export default function () {
             // Circle progress
             float circleProgress = v_texCoord.x + 1.; // 1 à 2
             float offset = 0.;
-            // if (uDirection == 2.) {
-            //     circleProgress = vUv.y + 1.;
-            // } else if (uDirection == 3.) {
-            //     circleProgress = (vUv.x + 1. + vUv.y + 1.) / 2.;
-            // } else if (uDirection == 4.) {
-            //     circleProgress = (vUv.x + 1. + (1. - vUv.y)) / 2.;
-            //     offset = 1.;
-            // }
+            if (u_direction == 2.) {
+                circleProgress = v_texCoord.y + 1.;
+            } else if (u_direction == 3.) {
+                circleProgress = (v_texCoord.x + 1. + v_texCoord.y + 1.) / 2.;
+            } else if (u_direction == 4.) {
+                circleProgress = (v_texCoord.x + 1. + (1. - v_texCoord.y)) / 2.;
+                offset = 1.;
+            }
 
             // Transition
             float transition = (circleProgress * 2. + offset) - u_transitionProgress * 6.;
 
             if (u_effect == 1.) {
-            //     if (uDirection == 5.) {
-            //     transition = 2.15 - u_transitionProgress * 4.6;
-            //     }
+                if (u_direction == 5.) {
+                    transition = 2.15 - u_transitionProgress * 4.6;
+                }
                 circleProgress = pow(abs(transition), transitionSpread);
             } else {
                 transition = (circleProgress * 2. + offset) - u_transitionProgress * 4.;
                 circleProgress = pow(transition, transitionSpread);
 
-            //     if (uDirection == 5.) {
-            //     // adding 0.15 extra to be sure shapes are covering the whole space (espacially for circle because of blurry border)
-            //     circleProgress = 2.15 - u_transitionProgress * 2.3;
-            //     }
+                if (u_direction == 5.) {
+                    // adding 0.15 extra to be sure shapes are covering the whole space (espacially for circle because of blurry border)
+                    circleProgress = 2.15 - u_transitionProgress * 2.3;
+                }
             }
 
 
@@ -186,8 +187,11 @@ export default function () {
         set shape(value) {
             this.uniforms[6].data[0] = value;
         },
-        set effect(value) {
+        set direction(value) {
             this.uniforms[7].data[0] = value;
+        },
+        set effect(value) {
+            this.uniforms[8].data[0] = value;
         },
         varying: {
             v_transitionToTexCoord: 'vec2',
@@ -227,6 +231,11 @@ export default function () {
                 name: 'u_shape',
                 type: 'f',
                 data: [DEFAULT.shape],
+            },
+            {
+                name: 'u_direction',
+                type: 'f',
+                data: [DEFAULT.direction],
             },
             {
                 name: 'u_effect',
