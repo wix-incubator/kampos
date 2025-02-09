@@ -1159,6 +1159,7 @@ function channelSplit({
     offsetInputR = 'u_channelOffsetR',
     offsetInputG = 'u_channelOffsetG',
     offsetInputB = 'u_channelOffsetB',
+    boundsOffsetFactor = (boundsOffset) => '1.0',
 } = {}) {
     /**
      * @typedef {Object} channelSplitEffect
@@ -1186,12 +1187,18 @@ function channelSplit({
         vec2 redSample = sourceCoord + _splitOffsetR;
         vec2 greenSample = sourceCoord + _splitOffsetG;
         vec2 blueSample = sourceCoord + _splitOffsetB;
-        float redFactor = exp(10.0 * min(min(0.0, min(redSample.x, redSample.y)), min(0.0, min(1.0 - redSample.x, 1.0 - redSample.y))));
-        float greenFactor = exp(10.0 * min(min(0.0, min(greenSample.x, greenSample.y)), min(0.0, min(1.0 - greenSample.x, 1.0 - greenSample.y))));
-        float blueFactor = exp(10.0 * min(min(0.0, min(blueSample.x, blueSample.y)), min(0.0, min(1.0 - blueSample.x, 1.0 - blueSample.y))));
-        float redSplit = texture2D(u_source, sourceCoord + _splitOffsetR).r * redFactor;
-        float greenSplit = texture2D(u_source, sourceCoord + _splitOffsetG).g * greenFactor;
-        float blueSplit = texture2D(u_source, sourceCoord + _splitOffsetB).b * blueFactor;
+        float redBoundsOffset = min(0.0, min(min(redSample.x, redSample.y), min(1.0 - redSample.x, 1.0 - redSample.y)));
+        float greenBoundsOffset = min(0.0, min(min(greenSample.x, greenSample.y), min(1.0 - greenSample.x, 1.0 - greenSample.y)));
+        float blueBoundsOffset = min(0.0, min(min(blueSample.x, blueSample.y), min(1.0 - blueSample.x, 1.0 - blueSample.y)));
+        float redSplit = texture2D(u_source, sourceCoord + _splitOffsetR).r * ${boundsOffsetFactor(
+            'redBoundsOffset'
+        )};
+        float greenSplit = texture2D(u_source, sourceCoord + _splitOffsetG).g * ${boundsOffsetFactor(
+            'greenBoundsOffset'
+        )};
+        float blueSplit = texture2D(u_source, sourceCoord + _splitOffsetB).b * ${boundsOffsetFactor(
+            'blueBoundsOffset'
+        )};
         color = vec3(redSplit, greenSplit, blueSplit);
     }`,
         },
