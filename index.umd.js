@@ -1152,6 +1152,7 @@ const mat3 satmat = mat3(
      * @param {string} [params.offsetInputR] code to use as input for the red offset. Defaults to `u_channelOffsetR`.
      * @param {string} [params.offsetInputG] code to use as input for the green offset. Defaults to `u_channelOffsetG`.
      * @param {string} [params.offsetInputB] code to use as input for the blue offset. Defaults to `u_channelOffsetB`.
+     * @param {function} [params.boundsOffsetFactor] function that takes name of variable for channel offset and returns a float value as string. Defaults to returning `'1.0`'.
      * @returns {channelSplitEffect}
      *
      * @example channelSplit({offsetRed: {x: 0.02, y: 0.0}})
