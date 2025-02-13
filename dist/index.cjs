@@ -1148,6 +1148,7 @@ displacement.WRAP = WRAP_METHODS.WRAP;
  * @param {string} [params.offsetInputR] code to use as input for the red offset. Defaults to `u_channelOffsetR`.
  * @param {string} [params.offsetInputG] code to use as input for the green offset. Defaults to `u_channelOffsetG`.
  * @param {string} [params.offsetInputB] code to use as input for the blue offset. Defaults to `u_channelOffsetB`.
+ * @param {function} [params.boundsOffsetFactor] function that takes name of variable for channel offset and returns a float value as string. Defaults to returning `'1.0`'.
  * @returns {channelSplitEffect}
  *
  * @example channelSplit({offsetRed: {x: 0.02, y: 0.0}})
@@ -1159,8 +1160,8 @@ function channelSplit({
     offsetInputR = 'u_channelOffsetR',
     offsetInputG = 'u_channelOffsetG',
     offsetInputB = 'u_channelOffsetB',
+    boundsOffsetFactor = (boundsOffset) => '1.0',
 } = {}) {
-
     /**
      * @typedef {Object} channelSplitEffect
      * @property {boolean} disabled
@@ -1184,9 +1185,21 @@ function channelSplit({
         vec2 _splitOffsetR = ${offsetInputR};
         vec2 _splitOffsetG = ${offsetInputG};
         vec2 _splitOffsetB = ${offsetInputB};
-        float redSplit = texture2D(u_source, sourceCoord + _splitOffsetR).r;
-        float greenSplit = texture2D(u_source, sourceCoord + _splitOffsetG).g;
-        float blueSplit = texture2D(u_source, sourceCoord + _splitOffsetB).b;
+        vec2 redSample = sourceCoord + _splitOffsetR;
+        vec2 greenSample = sourceCoord + _splitOffsetG;
+        vec2 blueSample = sourceCoord + _splitOffsetB;
+        float redBoundsOffset = min(0.0, min(min(redSample.x, redSample.y), min(1.0 - redSample.x, 1.0 - redSample.y)));
+        float greenBoundsOffset = min(0.0, min(min(greenSample.x, greenSample.y), min(1.0 - greenSample.x, 1.0 - greenSample.y)));
+        float blueBoundsOffset = min(0.0, min(min(blueSample.x, blueSample.y), min(1.0 - blueSample.x, 1.0 - blueSample.y)));
+        float redSplit = texture2D(u_source, sourceCoord + _splitOffsetR).r * ${boundsOffsetFactor(
+            'redBoundsOffset'
+        )};
+        float greenSplit = texture2D(u_source, sourceCoord + _splitOffsetG).g * ${boundsOffsetFactor(
+            'greenBoundsOffset'
+        )};
+        float blueSplit = texture2D(u_source, sourceCoord + _splitOffsetB).b * ${boundsOffsetFactor(
+            'blueBoundsOffset'
+        )};
         color = vec3(redSplit, greenSplit, blueSplit);
     }`,
         },
