@@ -27,15 +27,14 @@ prepareVideos([media1, media2]).then(() => {
 
     // start kampos
     instance.play();
-    resiveHandler();
+    resizeHandler();
 });
 
-const resiveHandler = () => {
+const resizeHandler = () => {
     fade.resolution = [target.offsetWidth, target.offsetHeight];
 };
 
-window.addEventListener('resize', resiveHandler);
-resiveHandler();
+window.addEventListener('resize', resizeHandler);
 
 const startTransition = () => {
     gsap.to(guiObj, {
