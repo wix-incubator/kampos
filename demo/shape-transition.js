@@ -1,4 +1,9 @@
 import { Kampos, transitions } from '../index.js';
+import {
+    DIRECTION_ENUM,
+    EFFECT_ENUM,
+    SHAPE_ENUM,
+} from '../src/transitions/shape.js';
 
 const GUI = lil.GUI;
 
@@ -8,8 +13,11 @@ const target = document.querySelector('#target');
 const button = document.querySelector('#button');
 
 // create the effects/transitions we need
-// const hueSat = effects.hueSaturation();
-const fade = transitions.shape();
+const fade = transitions.shape({
+    shape: 'circle',
+    direction: 'xy',
+    effect: 'transition',
+});
 
 // init kampos
 const instance = new Kampos({ target, effects: [fade] });
@@ -136,39 +144,13 @@ const setGUI = () => {
         });
     gui.add(guiObj, 'shape', ['circle', 'diamond', 'square']).onChange(
         (value) => {
-            switch (value) {
-                case 'circle':
-                    fade.shape = 1;
-                    break;
-                case 'diamond':
-                    fade.shape = 2;
-                    break;
-                case 'square':
-                    fade.shape = 3;
-                    break;
-            }
+            fade.shape = SHAPE_ENUM[value];
         }
     );
 
     gui.add(guiObj, 'direction', ['x', 'y', 'xy', 'yx', 'inside']).onChange(
         (value) => {
-            switch (value) {
-                case 'x':
-                    fade.direction = 1;
-                    break;
-                case 'y':
-                    fade.direction = 2;
-                    break;
-                case 'xy':
-                    fade.direction = 3;
-                    break;
-                case 'yx':
-                    fade.direction = 4;
-                    break;
-                case 'inside':
-                    fade.direction = 5;
-                    break;
-            }
+            fade.direction = DIRECTION_ENUM[value];
         }
     );
 
@@ -177,17 +159,7 @@ const setGUI = () => {
         'transitionAlpha',
         'appearAlpha',
     ]).onChange((value) => {
-        switch (value) {
-            case 'transition':
-                fade.effect = 1;
-                break;
-            case 'transitionAlpha':
-                fade.effect = 2;
-                break;
-            case 'appearAlpha':
-                fade.effect = 3;
-                break;
-        }
+        fade.effect = EFFECT_ENUM[value];
     });
 
     gui.add(guiObj, 'speed', 0.5, 4).step(0.1);

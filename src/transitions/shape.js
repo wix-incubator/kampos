@@ -1,34 +1,62 @@
+export const SHAPE_ENUM = {
+    circle: 1,
+    diamond: 2,
+    square: 3,
+};
+
+export const EFFECT_ENUM = {
+    transition: 1,
+    transitionAlpha: 2,
+    appearAlpha: 3,
+};
+
+export const DIRECTION_ENUM = {
+    x: 1,
+    y: 2,
+    xy: 3,
+    yx: 4,
+    inside: 5,
+};
+
 /**
  * @function shapeTransition
  * @returns {shapeTransitionEffect}
  * @example shapeTransition()
  */
-export default function () {
+export default function ({
+    nbDivider = 50,
+    shape = 'circle',
+    direction = 'xy',
+    effect = 'transition',
+    brightness = false,
+    overlayColor = false,
+    bkgColor = '#121212',
+} = {}) {
     /**
      * @typedef {Object} shapeTransitionEffect
-     * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
-     * @property {number} progress number between 0.0 and 1.0
-     * @property {boolean} disabled
+     * @property {number} nbDivider number of shapes to divide the screen into
+     * @property {string} shape ENUM['circle', 'diamond', 'square'] shape of the transition
+     * @property {string} direction ENUM['x', 'y', 'xy', 'yx', 'inside'] direction of the transition
+     * @property {string} effect ENUM['transition', 'transitionAlpha', 'appearAlpha'] effect of the transition
+     * @property {boolean} brightness enable brightness effect
+     * @property {boolean} overlayColor enable overlay color effect
+     * @property {string} bkgColor background color for overlay color effect
      *
      * @example
-     * effect.to = document.querySelector('#video-to');
-     * effect.progress = 0.5;
      */
-
-    // TODO: get uniforms params from the
 
     // Default Uniforms values
     const DEFAULT = {
         progress: 0,
-        nbDivider: 50,
+        nbDivider: nbDivider,
         shapeBorder: 0.15,
-        shape: 1, // 1, 2 or 3 , see demo
-        direction: 3, // 1, 2, 3 , 4, 5 see demo
-        effect: 1, // 1, 2 or 3 , see demo
-        bkgColor: '#121212',
-        brightness: false,
+        shape: SHAPE_ENUM[shape], // 1, 2 or 3 , see demo
+        direction: DIRECTION_ENUM[direction], // 1, 2, 3 , 4, 5 see demo
+        effect: EFFECT_ENUM[effect], // 1, 2 or 3 , see demo
+        bkgColor: bkgColor,
+        brightness: brightness,
         maxBrightness: 1,
-        overlayColor: false,
+        overlayColor: overlayColor,
     };
 
     return {
