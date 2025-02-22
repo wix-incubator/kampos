@@ -2762,18 +2762,21 @@ function resize(gl, dimensions) {
  * @param {kamposSceneData} data
  */
 function draw(gl, plane = {}, media, data, fboData) {
+    let startTex = gl.TEXTURE0;
 
     if (fboData) {
-        const { buffer, size } = fboData;
+        const { buffer, size, program } = fboData;
         // FBO :: Update flowmap
+        gl.useProgram(program);
         gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newInfo.fb);
         gl.viewport(0, 0, size, size);
 
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-        // const positionLocation = gl.getAttribLocation(this.flowmapProgram, 'position')
-        // gl.enableVertexAttribArray(positionLocation)
-        // gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
+        const positionLocation = gl.getAttribLocation(program, 'position');
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
+        gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -2784,7 +2787,7 @@ function draw(gl, plane = {}, media, data, fboData) {
             fboData.newInfo = temp;
         }
 
-        gl.activeTexture(gl.TEXTURE0);
+        gl.activeTexture(startTex);
         gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
@@ -2818,7 +2821,7 @@ function draw(gl, plane = {}, media, data, fboData) {
     // resize to default viewport
     if (fboData) gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
-    if (vao) {
+    if (vao && !fboData) {
         extensions.vao.bindVertexArrayOES(vao);
     } else {
         _enableVertexAttributes(gl, attributes);
@@ -2826,12 +2829,10 @@ function draw(gl, plane = {}, media, data, fboData) {
 
     _setUniforms(gl, uniforms);
 
-    let startTex = gl.TEXTURE0;
-
     if (source) {
         gl.activeTexture(startTex);
         gl.bindTexture(gl.TEXTURE_2D, source.texture);
-        startTex = gl.TEXTURE1;
+        startTex++;
     }
 
     if (textures) {
@@ -3370,8 +3371,67 @@ function _getTextureWrap(key) {
     return TEXTURE_WRAP[key] || TEXTURE_WRAP['stretch'];
 }
 
+const FLOWMAP_GRID_VERTEX = `
+    attribute vec2 position;
+    varying vec2 vUv;
+
+    void main() {
+        vUv = position * 0.5 + 0.5; // Convert to [0, 1] range
+        gl_Position = vec4(position, 0, 1);
+    }
+`;
+
+const FLOWMAP_GRID_FRAGMENT = `
+precision mediump float;
+varying vec2 vUv;
+uniform sampler2D uFlowMap;
+uniform vec2 uMouse;
+uniform vec2 uDeltaMouse;
+uniform float uMovement;
+uniform float uRelaxation;
+uniform float uRadius;
+uniform vec2 uResolution;
+uniform vec2 uContainerResolution;
+uniform float uAspectRatio;
+
+float getDistance(vec2 uv, vec2 mouse, vec2 containerRes, float aspectRatio) {
+    // adjust mouse ratio based on the grid aspectRatio wanted
+    vec2 newMouse = mouse;
+    newMouse -= 0.5;
+    if (containerRes.x < containerRes.y) {
+        newMouse.x *= (containerRes.x / containerRes.y) / aspectRatio;
+    } else {
+        newMouse.y *= (containerRes.y / containerRes.x) * aspectRatio;
+    }
+    newMouse += 0.5;
+
+    // adjust circle based on the grid aspectRatio wanted
+    vec2 diff = uv - newMouse;
+    diff.y /= aspectRatio;
+    return length(diff);
+}
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / uResolution.xy;
+
+    vec4 color = texture2D(uFlowMap, uv);
+
+    // Adjust values for square / rectangle ratio
+    float dist = getDistance(uv, uMouse, uContainerResolution, uAspectRatio);
+    dist = 1.0 - (smoothstep(0.0, uRadius / 1000., dist));
+
+    vec2 delta = uDeltaMouse;
+
+    color.rg += delta * dist;
+    color.rg *= min(uRelaxation, uMovement);
+
+    gl_FragColor = color;
+    gl_FragColor.a = 1.0;
+}`;
+
 function _initFBO(gl, fbo) {
-    const program = 'ok';
+    const { program } = _getWebGLProgram(gl, FLOWMAP_GRID_VERTEX, FLOWMAP_GRID_FRAGMENT);
+
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(
@@ -3380,9 +3440,9 @@ function _initFBO(gl, fbo) {
         gl.STATIC_DRAW
     );
 
-            // const positionLocation = gl.getAttribLocation(this.flowmapProgram, 'position')
-        // gl.enableVertexAttribArray(positionLocation)
-        // gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
+    const positionLocation = gl.getAttribLocation(program, 'position');
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
     const tex1 = createTexture(gl, { width: fbo.size, height: fbo.size }).texture;
     const tex2 = createTexture(gl, { width: fbo.size, height: fbo.size }).texture;
