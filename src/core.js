@@ -228,6 +228,10 @@ export function draw(gl, plane = {}, media, data, fboData) {
           fboData.oldFboInfo = fboData.newFboInfo
           fboData.newFboInfo = temp
         }
+
+        gl.activeTexture(gl.TEXTURE0)
+        gl.bindTexture(gl.TEXTURE_2D, fboData.oldFboInfo.tex)
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null)
     }
 
     const {
@@ -820,6 +824,10 @@ function _initFBO(gl, fbo) {
         new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
         gl.STATIC_DRAW
     );
+
+            // const positionLocation = gl.getAttribLocation(this.flowmapProgram, 'position')
+        // gl.enableVertexAttribArray(positionLocation)
+        // gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
 
     const tex1 = createTexture(gl, { width: fbo.size, height: fbo.size }).texture;
     const tex2 = createTexture(gl, { width: fbo.size, height: fbo.size }).texture;
