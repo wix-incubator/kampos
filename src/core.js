@@ -208,30 +208,29 @@ export function resize(gl, dimensions) {
 export function draw(gl, plane = {}, media, data, fboData) {
 
     if (fboData) {
-        const { buffer, size } = fboData
+        const { buffer, size } = fboData;
         // FBO :: Update flowmap
-        // gl.useProgram(this.flowmapProgram)
-        gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newFboInfo.fb)
-        gl.viewport(0, 0, size, size)
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newInfo.fb);
+        gl.viewport(0, 0, size, size);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
         // const positionLocation = gl.getAttribLocation(this.flowmapProgram, 'position')
         // gl.enableVertexAttribArray(positionLocation)
         // gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
 
 
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
         // Swap flowmap textures
         {
-          const temp = fboData.oldFboInfo
-          fboData.oldFboInfo = fboData.newFboInfo
-          fboData.newFboInfo = temp
+            const temp = fboData.oldInfo;
+            fboData.oldInfo = fboData.newInfo;
+            fboData.newInfo = temp;
         }
 
-        gl.activeTexture(gl.TEXTURE0)
-        gl.bindTexture(gl.TEXTURE_2D, fboData.oldFboInfo.tex)
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null)
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
     const {
@@ -835,19 +834,19 @@ function _initFBO(gl, fbo) {
     const frameBuffer1 = _createFramebuffer(gl, tex1);
     const frameBuffer2 = _createFramebuffer(gl, tex2);
 
-    const oldFboInfo = {
+    const oldInfo = {
         fb: frameBuffer1,
         tex: tex1,
     };
 
-    const newFboInfo = {
+    const newInfo = {
         fb: frameBuffer2,
         tex: tex2,
     };
 
     console.log(fbo.size)
 
-    return { buffer, program, oldFboInfo, newFboInfo, size: fbo.size }
+    return { buffer, program, oldInfo, newInfo, size: fbo.size }
 }
 
 /**
