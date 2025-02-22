@@ -120,11 +120,13 @@ const SHADER_ERROR_TYPES = {
 export function init({ gl, plane, effects, dimensions, noSource, fbo }) {
     const programData = _initProgram(gl, plane, effects, noSource);
 
+    let fboData
+
     if (fbo) {
-        _initFBO(gl, fbo);
+        fboData = _initFBO(gl, fbo);
     }
 
-    return { gl, data: programData, dimensions: dimensions || {} };
+    return { gl, data: programData, dimensions: dimensions || {}, fboData };
 }
 
 let WEBGL_CONTEXT_SUPPORTED = false;
@@ -203,7 +205,31 @@ export function resize(gl, dimensions) {
  * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} media
  * @param {kamposSceneData} data
  */
-export function draw(gl, plane = {}, media, data) {
+export function draw(gl, plane = {}, media, data, fboData) {
+
+    if (fboData) {
+        const { buffer, size } = fboData
+        // FBO :: Update flowmap
+        // gl.useProgram(this.flowmapProgram)
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newFboInfo.fb)
+        gl.viewport(0, 0, size, size)
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
+        // const positionLocation = gl.getAttribLocation(this.flowmapProgram, 'position')
+        // gl.enableVertexAttribArray(positionLocation)
+        // gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
+
+
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+
+        // Swap flowmap textures
+        {
+          const temp = fboData.oldFboInfo
+          fboData.oldFboInfo = fboData.newFboInfo
+          fboData.newFboInfo = temp
+        }
+    }
+
     const {
         program,
         source,
@@ -230,6 +256,8 @@ export function draw(gl, plane = {}, media, data) {
     }
 
     gl.useProgram(program);
+    // resize to default viewport
+    if (fboData) gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
     if (vao) {
         extensions.vao.bindVertexArrayOES(vao);
@@ -809,8 +837,9 @@ function _initFBO(gl, fbo) {
         tex: tex2,
     };
 
-    console.log(newFboInfo)
+    console.log(fbo.size)
 
+    return { buffer, program, oldFboInfo, newFboInfo, size: fbo.size }
 }
 
 /**

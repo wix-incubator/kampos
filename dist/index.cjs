@@ -2676,11 +2676,13 @@ const SHADER_ERROR_TYPES = {
 function init({ gl, plane, effects, dimensions, noSource, fbo }) {
     const programData = _initProgram(gl, plane, effects, noSource);
 
+    let fboData;
+
     if (fbo) {
-        _initFBO(gl, fbo);
+        fboData = _initFBO(gl, fbo);
     }
 
-    return { gl, data: programData, dimensions: dimensions || {} };
+    return { gl, data: programData, dimensions: dimensions || {}, fboData };
 }
 
 let WEBGL_CONTEXT_SUPPORTED = false;
@@ -2759,7 +2761,31 @@ function resize(gl, dimensions) {
  * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} media
  * @param {kamposSceneData} data
  */
-function draw(gl, plane = {}, media, data) {
+function draw(gl, plane = {}, media, data, fboData) {
+
+    if (fboData) {
+        const { buffer, size } = fboData;
+        // FBO :: Update flowmap
+        // gl.useProgram(this.flowmapProgram)
+        gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newFboInfo.fb);
+        gl.viewport(0, 0, size, size);
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        // const positionLocation = gl.getAttribLocation(this.flowmapProgram, 'position')
+        // gl.enableVertexAttribArray(positionLocation)
+        // gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
+
+
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+        // Swap flowmap textures
+        {
+          const temp = fboData.oldFboInfo;
+          fboData.oldFboInfo = fboData.newFboInfo;
+          fboData.newFboInfo = temp;
+        }
+    }
+
     const {
         program,
         source,
@@ -2786,6 +2812,8 @@ function draw(gl, plane = {}, media, data) {
     }
 
     gl.useProgram(program);
+    // resize to default viewport
+    if (fboData) gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
     if (vao) {
         extensions.vao.bindVertexArrayOES(vao);
@@ -3340,6 +3368,7 @@ function _getTextureWrap(key) {
 }
 
 function _initFBO(gl, fbo) {
+    const program = 'ok';
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(
@@ -3351,16 +3380,22 @@ function _initFBO(gl, fbo) {
     const tex1 = createTexture(gl, { width: fbo.size, height: fbo.size }).texture;
     const tex2 = createTexture(gl, { width: fbo.size, height: fbo.size }).texture;
 
-    _createFramebuffer(gl, tex1);
+    const frameBuffer1 = _createFramebuffer(gl, tex1);
     const frameBuffer2 = _createFramebuffer(gl, tex2);
+
+    const oldFboInfo = {
+        fb: frameBuffer1,
+        tex: tex1,
+    };
 
     const newFboInfo = {
         fb: frameBuffer2,
         tex: tex2,
     };
 
-    console.log(newFboInfo);
+    console.log(fbo.size);
 
+    return { buffer, program, oldFboInfo, newFboInfo, size: fbo.size }
 }
 
 /**
@@ -3526,7 +3561,7 @@ class Kampos {
             ySegments,
         };
 
-        const { data } = init({
+        const { data, fboData } = init({
             gl,
             plane: this.plane,
             effects,
@@ -3537,6 +3572,7 @@ class Kampos {
 
         this.gl = gl;
         this.data = data;
+        this.fboData = fboData;
 
         // cache for restoring context
         this.config = config;
@@ -3627,7 +3663,7 @@ class Kampos {
 
         if (cb && cb(time) === false) return;
 
-        draw(this.gl, this.plane, this.media, this.data);
+        draw(this.gl, this.plane, this.media, this.data, this.fboData);
 
         if (this.config.afterDraw) {
             this.config.afterDraw(time);

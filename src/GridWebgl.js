@@ -100,7 +100,6 @@ class Scene {
       uFlowMap: gl.getUniformLocation(this.flowmapProgram, 'uFlowMap'),
       uMouse: gl.getUniformLocation(this.flowmapProgram, 'uMouse'),
       uResolution: gl.getUniformLocation(this.flowmapProgram, 'uResolution'),
-      uTime: gl.getUniformLocation(this.flowmapProgram, 'uTime'),
       uDeltaMouse: gl.getUniformLocation(this.flowmapProgram, 'uDeltaMouse'),
       uMovement: gl.getUniformLocation(this.flowmapProgram, 'uMovement'),
       uRelaxation: gl.getUniformLocation(this.flowmapProgram, 'uRelaxation'),

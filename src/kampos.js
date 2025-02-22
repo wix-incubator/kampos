@@ -138,7 +138,7 @@ export class Kampos {
             ySegments,
         };
 
-        const { data } = core.init({
+        const { data, fboData } = core.init({
             gl,
             plane: this.plane,
             effects,
@@ -149,6 +149,7 @@ export class Kampos {
 
         this.gl = gl;
         this.data = data;
+        this.fboData = fboData;
 
         // cache for restoring context
         this.config = config;
@@ -239,7 +240,7 @@ export class Kampos {
 
         if (cb && cb(time) === false) return;
 
-        core.draw(this.gl, this.plane, this.media, this.data);
+        core.draw(this.gl, this.plane, this.media, this.data, this.fboData);
 
         if (this.config.afterDraw) {
             this.config.afterDraw(time);
