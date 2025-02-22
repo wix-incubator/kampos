@@ -106,7 +106,7 @@ export class Kampos {
      */
     init(config) {
         config = config || this.config;
-        let { target, plane, effects, ticker, noSource } = config;
+        let { target, plane, effects, ticker, noSource, fbo } = config;
 
         if (Kampos.preventContextCreation) return false;
 
@@ -144,6 +144,7 @@ export class Kampos {
             effects,
             dimensions: this.dimensions,
             noSource,
+            fbo
         });
 
         this.gl = gl;

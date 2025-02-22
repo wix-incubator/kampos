@@ -180,6 +180,15 @@
                 refresh: 'refresh12',
             });
         },
+
+        section14() {
+            startDemo('./grid-mouse-displacement.js', {
+                code: 'code14',
+                preview: 'preview',
+                video: 'videos2',
+                refresh: 'refresh14',
+            });
+        },
     };
 
     insertSection('section11');

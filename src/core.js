@@ -117,8 +117,12 @@ const SHADER_ERROR_TYPES = {
  * @param {boolean} [config.noSource]
  * @return {{gl: WebGLRenderingContext, data: kamposSceneData, [dimensions]: {width: number, height: number}}}
  */
-export function init({ gl, plane, effects, dimensions, noSource }) {
+export function init({ gl, plane, effects, dimensions, noSource, fbo }) {
     const programData = _initProgram(gl, plane, effects, noSource);
+
+    if (fbo) {
+        _initFBO(gl, fbo);
+    }
 
     return { gl, data: programData, dimensions: dimensions || {} };
 }
@@ -708,6 +712,19 @@ function _createBuffer(gl, program, name, data) {
     return { location, buffer };
 }
 
+function _createFramebuffer(gl, tex) {
+    const fb = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    gl.framebufferTexture2D(
+        gl.FRAMEBUFFER,
+        gl.COLOR_ATTACHMENT0,
+        gl.TEXTURE_2D,
+        tex,
+        0
+    );
+    return fb;
+}
+
 function _initVertexAttributes(gl, program, data) {
     return (data || []).map((attr) => {
         const { location, buffer } = _createBuffer(
@@ -764,6 +781,36 @@ function _enableVertexAttributes(gl, attributes) {
 
 function _getTextureWrap(key) {
     return TEXTURE_WRAP[key] || TEXTURE_WRAP['stretch'];
+}
+
+function _initFBO(gl, fbo) {
+    const program = 'ok';
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(
+        gl.ARRAY_BUFFER,
+        new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+        gl.STATIC_DRAW
+    );
+
+    const tex1 = createTexture(gl, { width: fbo.size, height: fbo.size }).texture;
+    const tex2 = createTexture(gl, { width: fbo.size, height: fbo.size }).texture;
+
+    const frameBuffer1 = _createFramebuffer(gl, tex1);
+    const frameBuffer2 = _createFramebuffer(gl, tex2);
+
+    const oldFboInfo = {
+        fb: frameBuffer1,
+        tex: tex1,
+    };
+
+    const newFboInfo = {
+        fb: frameBuffer2,
+        tex: tex2,
+    };
+
+    console.log(newFboInfo)
+
 }
 
 /**
