@@ -1,4 +1,4 @@
-import { Kampos, transitions, fbos, effects } from '../index.js';
+import { Kampos, fbos, effects } from '../index.js';
 
 const media1 = document.querySelector('#video3');
 const media2 = document.querySelector('#video4');
@@ -17,7 +17,6 @@ const gui = {
     rgbShift: true,
     ratio: 'rectangle',
 };
-
 
 // init kampos
 const instance = new Kampos({
@@ -46,39 +45,62 @@ prepareVideos([media1, media2]).then(() => {
 
 let x, y, rect;
 let drawing = false;
+let movement = 1;
+let mousePos = [0, 0];
+let deltaMouse = [0, 0];
+let mouse = {
+    x: 0,
+    y: 0,
+};
 
 // this is invoked once in every animation frame, while there's a mouse move over the canvas
 function tick() {
-    gridMouseDisplacement.progress = Math.max(0, Math.min(1, (x - rect.x) / rect.width));
+    // gridMouseDisplacement.progress = Math.max(0, Math.min(1, (x - rect.x) / rect.width));
     // hueSat.hue = Math.max(0, Math.min(1, (x - rect.x) / rect.width)) * 360 - 180;
-    drawing = false;
+
+    // movement -= (gui.resetForce * 0.01 * deltaTime) / 8
+    movement -= gui.resetForce * 0.01;
+    movement = Math.max(0, movement);
+    // drawing = false;
+
+    flowmapGrid.mouse = mousePos;
+    flowmapGrid.deltaMouse = deltaMouse;
+    flowmapGrid.movement = movement;
+
+    requestAnimationFrame(tick);
 }
+
+tick();
 
 // handler for detecting mouse move
 const moveHandler = (e) => {
-    const { clientX } = e;
+    const { clientX, clientY } = e;
 
     // cache mouse location
-    x = clientX;
-    // y = clientY;
 
-    // only once! a frame
-    if (!drawing) {
-        drawing = true;
-        // read here
-        rect = target.getBoundingClientRect();
-        // write on next frame
-        requestAnimationFrame(tick);
-    }
+    rect = target.getBoundingClientRect();
+
+    mouse.x = (clientX - rect.x) / rect.width;
+    mouse.y = 1 - clientY / rect.height;
+
+    deltaMouse = [(mouse.x - mousePos[0]) * 80, (mouse.y - mousePos[1]) * 80];
+    mousePos = [mouse.x, mouse.y];
+
+    movement = 1;
+
+    // // only once! a frame
+    // if (!drawing) {
+    //     drawing = true;
+    //     // read here
+    //     rect = target.getBoundingClientRect();
+    //     // write on next frame
+    //     requestAnimationFrame(tick);
+    // }
 };
 
 /*
  * register event handlers for interaction
  */
-target.addEventListener('mouseenter', () => {
-    target.addEventListener('mousemove', moveHandler);
-});
+target.addEventListener('mousemove', moveHandler);
 
-target.addEventListener('mouseleave', () => {
-    target.removeEventListener('mousemove', moveHandler);
-});
+// target.removeEventListener('mousemove', moveHandler);

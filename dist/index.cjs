@@ -2597,17 +2597,19 @@ function flowmapGrid () {
         set disabled(b) {
             this.uniforms[0].data[0] = +!b;
         },
-        get progress() {
-            return this.uniforms[2].data[0];
+        set mouse(pos) {
+            this.uniforms[0].data[0] = pos[0];
+            this.uniforms[0].data[1] = pos[1];
         },
-        set progress(p) {
-            this.uniforms[2].data[0] = p;
+        set deltaMouse(pos) {
+            this.uniforms[1].data[0] = pos[0];
+            this.uniforms[1].data[1] = pos[1];
         },
-        get to() {
-            return this.textures[0].data;
+        set movement(value) {
+            this.uniforms[3].data[0] = value;
         },
-        set to(media) {
-            this.textures[0].data = media;
+        set relaxation(value) {
+            this.uniforms[4].data[0] = value;
         },
         uniforms: [
             {
@@ -3629,9 +3631,7 @@ void main() {
     color.rg += delta * dist;
     color.rg *= min(uRelaxation, uMovement);
 
-    gl_FragColor.rgb = vec3(1., 1., 0.);
-
-    // gl_FragColor = color;
+    gl_FragColor = color;
     gl_FragColor.a = 1.0;
 }`;
 

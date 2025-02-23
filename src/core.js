@@ -882,9 +882,7 @@ void main() {
     color.rg += delta * dist;
     color.rg *= min(uRelaxation, uMovement);
 
-    gl_FragColor.rgb = vec3(1., 1., 0.);
-
-    // gl_FragColor = color;
+    gl_FragColor = color;
     gl_FragColor.a = 1.0;
 }`
 
