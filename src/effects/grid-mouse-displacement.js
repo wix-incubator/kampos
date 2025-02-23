@@ -17,10 +17,9 @@ export default function () {
   return {
       vertex: {
           attribute: {
-              a_transitionToTexCoord: 'vec2',
+              a_uv: 'vec2',
           },
-          main: `
-  v_transitionToTexCoord = a_transitionToTexCoord;`,
+          main: `v_uv = a_uv;`,
       },
       fragment: {
           uniform: {
@@ -31,14 +30,14 @@ export default function () {
               uContainerResolution: 'vec2'
           },
           main: `
-  if (u_transitionEnabled) {
-      vec4 targetPixel = texture2D(u_transitionTo, v_transitionToTexCoord);
-      color = mix(color, targetPixel.rgb, u_transitionProgress);
-      vec4 displacement = texture2D(uFlowMap, v_transitionToTexCoord);
-      displacement.a = 1.;
-      color.rgb = displacement.rgb;
-      alpha = mix(alpha, targetPixel.a, u_transitionProgress);
-  }`,
+        if (u_transitionEnabled) {
+            vec4 targetPixel = texture2D(u_transitionTo, v_uv);
+            color = mix(color, targetPixel.rgb, u_transitionProgress);
+            vec4 displacement = texture2D(uFlowMap, v_uv);
+            displacement.a = 1.;
+            color.rgb = displacement.rgb;
+            alpha = mix(alpha, targetPixel.a, u_transitionProgress);
+        }`,
       },
       get disabled() {
           return !this.uniforms[0].data[0];
@@ -59,7 +58,7 @@ export default function () {
           this.textures[0].data = media;
       },
       varying: {
-          v_transitionToTexCoord: 'vec2',
+        v_uv: 'vec2',
       },
       uniforms: [
           {
@@ -80,7 +79,7 @@ export default function () {
       ],
       attributes: [
           {
-              name: 'a_transitionToTexCoord',
+              name: 'a_uv',
               extends: 'a_texCoord',
           },
       ],

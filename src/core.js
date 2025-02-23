@@ -123,7 +123,7 @@ export function init({ gl, plane, effects, dimensions, noSource, fbo }) {
     let fboData
 
     if (fbo) {
-        fboData = _initFBO(gl, fbo);
+        fboData = _initFBOProgram(gl, plane, fbo);
     }
 
     return { gl, data: programData, dimensions: dimensions || {}, fboData };
@@ -301,10 +301,10 @@ function drawFBO(gl, fboData) {
     gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
 
     // // Set uniforms
-    gl.uniform1i(gl.getUniformLocation(program, 'uFlowMap'), 0);
-    gl.uniform2fv(gl.getUniformLocation(program, 'uResolution'), [size, size]);
-    gl.uniform2fv(gl.getUniformLocation(program, 'uContainerResolution'), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
     _setUniforms(gl, uniforms);
+
+    gl.uniform1i(gl.getUniformLocation(program, 'uFlowMap'), 0);
+    gl.uniform2fv(gl.getUniformLocation(program, 'uContainerResolution'), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -627,6 +627,7 @@ function _getWebGLProgram(gl, vertexSrc, fragmentSrc) {
     }
 
     if (fragmentShader.error) {
+        console.error(fragmentShader.error)
         return fragmentShader;
     }
 
@@ -916,12 +917,22 @@ function createFloatTexture(gl, data, width, height) {
     return tex;
 }
 
-function _initFBO(gl, fbo) {
-    const { program } = _getWebGLProgram(gl, FLOWMAP_GRID_VERTEX, FLOWMAP_GRID_FRAGMENT);
-    const effect = fbo.effects[0]
+function _initFBOProgram(gl, plane, fbo) {
 
-    // TODO, merge Effects?
-    const uniforms = _initUniforms(gl, program, effect.uniforms);
+    const data = _mergeEffectsData(plane, fbo.effects, true);
+    const vertexSrc = _stringifyShaderSrc(
+        data.vertex,
+        vertexSimpleTemplate,
+    );
+    const fragmentSrc = _stringifyShaderSrc(
+        data.fragment,
+        fragmentSimpleTemplate,
+    );
+
+    console.log(vertexSrc)
+    console.log(fragmentSrc)
+    const { program } = _getWebGLProgram(gl, vertexSrc, fragmentSrc);
+    const uniforms = _initUniforms(gl, program, data.uniforms);
 
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);

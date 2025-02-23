@@ -2571,47 +2571,91 @@ function flowmapGrid () {
      * effect.progress = 0.5;
      */
     return {
-//         vertex: {
-//             attribute: {
-//                 a_transitionToTexCoord: 'vec2',
-//             },
-//             main: `
-//   v_transitionToTexCoord = a_transitionToTexCoord;`,
-//         },
-//         fragment: {
-//             uniform: {
-//                 u_transitionEnabled: 'bool',
-//                 u_transitionProgress: 'float',
-//                 u_transitionTo: 'sampler2D',
-//             },
-//             main: `
-//   if (u_transitionEnabled) {
-//       vec4 targetPixel = texture2D(u_transitionTo, v_transitionToTexCoord);
-//       color = mix(color, targetPixel.rgb, u_transitionProgress);
-//       alpha = mix(alpha, targetPixel.a, u_transitionProgress);
-//   }`,
-//         },
-        get disabled() {
-            return !this.uniforms[0].data[0];
+        vertex: {
+            attribute: {
+                a_uv: 'vec2',
+            },
+            main: `
+               v_uv = a_uv; // Convert to [0, 1] range`,
         },
-        set disabled(b) {
-            this.uniforms[0].data[0] = +!b;
+        fragment: {
+            constant: `
+                float getDistance(vec2 uv, vec2 mouse, vec2 containerRes, float aspectRatio) {
+                    // adjust mouse ratio based on the grid aspectRatio wanted
+                    vec2 newMouse = mouse;
+                    newMouse -= 0.5;
+                    if (containerRes.x < containerRes.y) {
+                        newMouse.x *= (containerRes.x / containerRes.y) / aspectRatio;
+                    } else {
+                        newMouse.y *= (containerRes.y / containerRes.x) * aspectRatio;
+                    }
+                    newMouse += 0.5;
+
+                    // adjust circle based on the grid aspectRatio wanted
+                    vec2 diff = uv - newMouse;
+                    diff.y /= aspectRatio;
+                    return length(diff);
+                }
+            `,
+            uniform: {
+                uFlowMap: 'sampler2D',
+                uMouse: 'vec2',
+                uDeltaMouse: 'vec2',
+                uMovement: 'float',
+                uRelaxation: 'float',
+                uRadius: 'float',
+                uContainerResolution: 'vec2',
+                uAspectRatio: 'float',
+            },
+            main: `
+                    vec4 colorMap = texture2D(uFlowMap, v_uv);
+
+                    // Adjust values for square / rectangle ratio
+                    float dist = getDistance(v_uv, uMouse, uContainerResolution, uAspectRatio);
+                    dist = 1.0 - (smoothstep(0.0, uRadius / 1000., dist));
+
+                    vec2 delta = uDeltaMouse;
+
+                    colorMap.rg += delta * dist;
+                    colorMap.rg *= min(uRelaxation, uMovement);
+
+                    color = colorMap.rgb;
+                    alpha = 1.0;
+                `,
         },
         set mouse(pos) {
-            this.uniforms[0].data[0] = pos[0];
-            this.uniforms[0].data[1] = pos[1];
-        },
-        set deltaMouse(pos) {
             this.uniforms[1].data[0] = pos[0];
             this.uniforms[1].data[1] = pos[1];
         },
-        set movement(value) {
-            this.uniforms[2].data[0] = value;
+        set deltaMouse(pos) {
+            this.uniforms[2].data[0] = pos[0];
+            this.uniforms[2].data[1] = pos[1];
         },
-        set relaxation(value) {
+        set movement(value) {
             this.uniforms[3].data[0] = value;
         },
+        set relaxation(value) {
+            this.uniforms[4].data[0] = value;
+        },
+        set radius(value) {
+            this.uniforms[5].data[0] = value;
+        },
+        set containerResolution(value) {
+            this.uniforms[6].data[0] = value[0];
+            this.uniforms[6].data[1] = value[1];
+        },
+        set aspectRatio(value) {
+            this.uniforms[7].data[0] = value;
+        },
+        varying: {
+            v_uv: 'vec2',
+        },
         uniforms: [
+            {
+                name: 'uFlowMap',
+                type: 'i',
+                data: [0],
+            },
             {
                 name: 'uMouse',
                 type: 'f',
@@ -2638,19 +2682,23 @@ function flowmapGrid () {
                 data: [130],
             },
             {
+                name: 'uContainerResolution',
+                type: 'f',
+                data: [0, 0],
+            },
+            {
                 name: 'uAspectRatio',
                 type: 'f',
                 data: [1],
             },
         ],
+        attributes: [
+            {
+                name: 'a_uv',
+            },
+        ],
     };
 }
-
-// {
-//     name: 'u_resolution',
-//     type: 'f',
-//     data: [0, 0],
-// },
 
 /**
  * @function gridMouseDisplacement
@@ -2671,10 +2719,9 @@ function gridMouseDisplacement () {
   return {
       vertex: {
           attribute: {
-              a_transitionToTexCoord: 'vec2',
+              a_uv: 'vec2',
           },
-          main: `
-  v_transitionToTexCoord = a_transitionToTexCoord;`,
+          main: `v_uv = a_uv;`,
       },
       fragment: {
           uniform: {
@@ -2685,14 +2732,14 @@ function gridMouseDisplacement () {
               uContainerResolution: 'vec2'
           },
           main: `
-  if (u_transitionEnabled) {
-      vec4 targetPixel = texture2D(u_transitionTo, v_transitionToTexCoord);
-      color = mix(color, targetPixel.rgb, u_transitionProgress);
-      vec4 displacement = texture2D(uFlowMap, v_transitionToTexCoord);
-      displacement.a = 1.;
-      color.rgb = displacement.rgb;
-      alpha = mix(alpha, targetPixel.a, u_transitionProgress);
-  }`,
+        if (u_transitionEnabled) {
+            vec4 targetPixel = texture2D(u_transitionTo, v_uv);
+            color = mix(color, targetPixel.rgb, u_transitionProgress);
+            vec4 displacement = texture2D(uFlowMap, v_uv);
+            displacement.a = 1.;
+            color.rgb = displacement.rgb;
+            alpha = mix(alpha, targetPixel.a, u_transitionProgress);
+        }`,
       },
       get disabled() {
           return !this.uniforms[0].data[0];
@@ -2713,7 +2760,7 @@ function gridMouseDisplacement () {
           this.textures[0].data = media;
       },
       varying: {
-          v_transitionToTexCoord: 'vec2',
+        v_uv: 'vec2',
       },
       uniforms: [
           {
@@ -2734,7 +2781,7 @@ function gridMouseDisplacement () {
       ],
       attributes: [
           {
-              name: 'a_transitionToTexCoord',
+              name: 'a_uv',
               extends: 'a_texCoord',
           },
       ],
@@ -2872,7 +2919,7 @@ function init({ gl, plane, effects, dimensions, noSource, fbo }) {
     let fboData;
 
     if (fbo) {
-        fboData = _initFBO(gl, fbo);
+        fboData = _initFBOProgram(gl, plane, fbo);
     }
 
     return { gl, data: programData, dimensions: dimensions || {}, fboData };
@@ -3050,10 +3097,10 @@ function drawFBO(gl, fboData) {
     gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
 
     // // Set uniforms
-    gl.uniform1i(gl.getUniformLocation(program, 'uFlowMap'), 0);
-    gl.uniform2fv(gl.getUniformLocation(program, 'uResolution'), [size, size]);
-    gl.uniform2fv(gl.getUniformLocation(program, 'uContainerResolution'), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
     _setUniforms(gl, uniforms);
+
+    gl.uniform1i(gl.getUniformLocation(program, 'uFlowMap'), 0);
+    gl.uniform2fv(gl.getUniformLocation(program, 'uContainerResolution'), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -3376,6 +3423,7 @@ function _getWebGLProgram(gl, vertexSrc, fragmentSrc) {
     }
 
     if (fragmentShader.error) {
+        console.error(fragmentShader.error);
         return fragmentShader;
     }
 
@@ -3580,64 +3628,6 @@ function _getTextureWrap(key) {
     return TEXTURE_WRAP[key] || TEXTURE_WRAP['stretch'];
 }
 
-const FLOWMAP_GRID_VERTEX = `
-    attribute vec2 position;
-    varying vec2 vUv;
-
-    void main() {
-        vUv = position * 0.5 + 0.5; // Convert to [0, 1] range
-        gl_Position = vec4(position, 0, 1);
-    }
-`;
-
-const FLOWMAP_GRID_FRAGMENT = `
-precision mediump float;
-varying vec2 vUv;
-uniform sampler2D uFlowMap;
-uniform vec2 uMouse;
-uniform vec2 uDeltaMouse;
-uniform float uMovement;
-uniform float uRelaxation;
-uniform float uRadius;
-uniform vec2 uResolution;
-uniform vec2 uContainerResolution;
-uniform float uAspectRatio;
-
-float getDistance(vec2 uv, vec2 mouse, vec2 containerRes, float aspectRatio) {
-    // adjust mouse ratio based on the grid aspectRatio wanted
-    vec2 newMouse = mouse;
-    newMouse -= 0.5;
-    if (containerRes.x < containerRes.y) {
-        newMouse.x *= (containerRes.x / containerRes.y) / aspectRatio;
-    } else {
-        newMouse.y *= (containerRes.y / containerRes.x) * aspectRatio;
-    }
-    newMouse += 0.5;
-
-    // adjust circle based on the grid aspectRatio wanted
-    vec2 diff = uv - newMouse;
-    diff.y /= aspectRatio;
-    return length(diff);
-}
-
-void main() {
-    vec2 uv = gl_FragCoord.xy / uResolution.xy;
-
-    vec4 color = texture2D(uFlowMap, uv);
-
-    // Adjust values for square / rectangle ratio
-    float dist = getDistance(uv, uMouse, uContainerResolution, uAspectRatio);
-    dist = 1.0 - (smoothstep(0.0, uRadius / 1000., dist));
-
-    vec2 delta = uDeltaMouse;
-
-    color.rg += delta * dist;
-    color.rg *= min(uRelaxation, uMovement);
-
-    gl_FragColor = color;
-    gl_FragColor.a = 1.0;
-}`;
-
 function createFloatTexture(gl, data, width, height) {
     // Enable OES_texture_float extension
     const ext = gl.getExtension('OES_texture_float');
@@ -3665,12 +3655,22 @@ function createFloatTexture(gl, data, width, height) {
     return tex;
 }
 
-function _initFBO(gl, fbo) {
-    const { program } = _getWebGLProgram(gl, FLOWMAP_GRID_VERTEX, FLOWMAP_GRID_FRAGMENT);
-    const effect = fbo.effects[0];
+function _initFBOProgram(gl, plane, fbo) {
 
-    // TODO, merge Effects?
-    const uniforms = _initUniforms(gl, program, effect.uniforms);
+    const data = _mergeEffectsData(plane, fbo.effects, true);
+    const vertexSrc = _stringifyShaderSrc(
+        data.vertex,
+        vertexSimpleTemplate,
+    );
+    const fragmentSrc = _stringifyShaderSrc(
+        data.fragment,
+        fragmentSimpleTemplate,
+    );
+
+    console.log(vertexSrc);
+    console.log(fragmentSrc);
+    const { program } = _getWebGLProgram(gl, vertexSrc, fragmentSrc);
+    const uniforms = _initUniforms(gl, program, data.uniforms);
 
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
