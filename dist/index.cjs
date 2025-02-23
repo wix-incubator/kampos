@@ -2955,40 +2955,8 @@ function resize(gl, dimensions) {
  * @param {kamposSceneData} data
  */
 function draw(gl, plane = {}, media, data, fboData) {
-    let startTex = gl.TEXTURE0;
 
-
-    if (fboData) {
-        const { buffer, size, program, uniforms } = fboData;
-        // FBO :: Update
-        gl.useProgram(program);
-        gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newInfo.fb);
-        gl.viewport(0, 0, size, size);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-        const positionLocation = gl.getAttribLocation(program, 'position');
-        gl.enableVertexAttribArray(positionLocation);
-        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-        gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
-
-        // // Set uniforms
-        gl.uniform1i(gl.getUniformLocation(program, 'uFlowMap'), 0);
-        gl.uniform2fv(gl.getUniformLocation(program, 'uResolution'), [size, size]);
-        gl.uniform2fv(gl.getUniformLocation(program, 'uContainerResolution'), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
-        _setUniforms(gl, uniforms);
-
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-        // Swap textures
-        {
-            const temp = fboData.oldInfo;
-            fboData.oldInfo = fboData.newInfo;
-            fboData.newInfo = temp;
-        }
-
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    }
+    if (fboData) drawFBO(gl, fboData);
 
     const {
         program,
@@ -3027,6 +2995,9 @@ function draw(gl, plane = {}, media, data, fboData) {
     }
 
     _setUniforms(gl, uniforms);
+
+    let startTex = gl.TEXTURE0;
+
     if (fboData) {
         // bind fbo texture
         gl.activeTexture(startTex);
@@ -3062,6 +3033,38 @@ function draw(gl, plane = {}, media, data, fboData) {
     }
 
     gl.drawArrays(gl.TRIANGLES, 0, 6 * xSegments * ySegments);
+}
+
+function drawFBO(gl, fboData) {
+    const { buffer, size, program, uniforms } = fboData;
+    // FBO :: Update
+    gl.useProgram(program);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newInfo.fb);
+    gl.viewport(0, 0, size, size);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    const positionLocation = gl.getAttribLocation(program, 'position');
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+    gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
+
+    // // Set uniforms
+    gl.uniform1i(gl.getUniformLocation(program, 'uFlowMap'), 0);
+    gl.uniform2fv(gl.getUniformLocation(program, 'uResolution'), [size, size]);
+    gl.uniform2fv(gl.getUniformLocation(program, 'uContainerResolution'), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
+    _setUniforms(gl, uniforms);
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+    // Swap textures
+    {
+        const temp = fboData.oldInfo;
+        fboData.oldInfo = fboData.newInfo;
+        fboData.newInfo = temp;
+    }
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
 /**
