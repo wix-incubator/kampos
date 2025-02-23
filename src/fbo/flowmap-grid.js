@@ -50,10 +50,10 @@ export default function () {
             this.uniforms[1].data[1] = pos[1];
         },
         set movement(value) {
-            this.uniforms[3].data[0] = value;
+            this.uniforms[2].data[0] = value;
         },
         set relaxation(value) {
-            this.uniforms[4].data[0] = value;
+            this.uniforms[3].data[0] = value;
         },
         uniforms: [
             {

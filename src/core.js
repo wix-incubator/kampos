@@ -886,6 +886,27 @@ void main() {
     gl_FragColor.a = 1.0;
 }`
 
+function createFBOTexture(gl, data, width, height) {
+    const tex = gl.createTexture()
+    gl.bindTexture(gl.TEXTURE_2D, tex)
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0, // mip level
+      gl.RGBA, // internal format
+      width,
+      height,
+      0, // border
+      gl.RGBA, // format
+      gl.FLOAT, // type
+      data
+    )
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+    return tex
+}
+
 function _initFBO(gl, fbo) {
     const { program } = _getWebGLProgram(gl, FLOWMAP_GRID_VERTEX, FLOWMAP_GRID_FRAGMENT);
     const effect = fbo.effects[0]
@@ -906,7 +927,9 @@ function _initFBO(gl, fbo) {
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
 
     const tex1 = createTexture(gl, { width: fbo.size, height: fbo.size }).texture;
+    // const tex1 = createFBOTexture(gl, null, fbo.size, fbo.size)
     const tex2 = createTexture(gl, { width: fbo.size, height: fbo.size }).texture;
+    // const tex2 = createFBOTexture(gl, null, fbo.size, fbo.size)
 
     const frameBuffer1 = _createFramebuffer(gl, tex1);
     const frameBuffer2 = _createFramebuffer(gl, tex2);

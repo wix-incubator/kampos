@@ -2606,10 +2606,10 @@ function flowmapGrid () {
             this.uniforms[1].data[1] = pos[1];
         },
         set movement(value) {
-            this.uniforms[3].data[0] = value;
+            this.uniforms[2].data[0] = value;
         },
         set relaxation(value) {
-            this.uniforms[4].data[0] = value;
+            this.uniforms[3].data[0] = value;
         },
         uniforms: [
             {
@@ -3655,7 +3655,9 @@ function _initFBO(gl, fbo) {
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
     const tex1 = createTexture(gl, { width: fbo.size, height: fbo.size }).texture;
+    // const tex1 = createFBOTexture(gl, null, fbo.size, fbo.size)
     const tex2 = createTexture(gl, { width: fbo.size, height: fbo.size }).texture;
+    // const tex2 = createFBOTexture(gl, null, fbo.size, fbo.size)
 
     const frameBuffer1 = _createFramebuffer(gl, tex1);
     const frameBuffer2 = _createFramebuffer(gl, tex2);
