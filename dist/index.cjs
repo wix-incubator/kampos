@@ -3090,9 +3090,9 @@ function drawFBO(gl, fboData) {
     gl.viewport(0, 0, size, size);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    const positionLocation = gl.getAttribLocation(program, 'position');
-    gl.enableVertexAttribArray(positionLocation);
-    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+    // const positionLocation = gl.getAttribLocation(program, 'position');
+    // gl.enableVertexAttribArray(positionLocation);
+    // gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
     gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
 
     // // Set uniforms
@@ -3422,7 +3422,6 @@ function _getWebGLProgram(gl, vertexSrc, fragmentSrc) {
     }
 
     if (fragmentShader.error) {
-        console.error(fragmentShader.error);
         return fragmentShader;
     }
 
@@ -3679,9 +3678,9 @@ function _initFBOProgram(gl, plane, fbo) {
         gl.STATIC_DRAW
     );
 
-    const positionLocation = gl.getAttribLocation(program, 'position');
-    gl.enableVertexAttribArray(positionLocation);
-    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+    // const positionLocation = gl.getAttribLocation(program, 'position')
+    // gl.enableVertexAttribArray(positionLocation)
+    // gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
 
     const tex1 = createFloatTexture(gl, null, fbo.size, fbo.size);
     const tex2 = createFloatTexture(gl, null, fbo.size, fbo.size);
