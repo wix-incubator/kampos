@@ -88,6 +88,9 @@ const moveHandler = (e) => {
 
     movement = 1;
 
+
+    flowmapGrid.containerResolution = [rect.width, rect.height]
+
     // // only once! a frame
     // if (!drawing) {
     //     drawing = true;

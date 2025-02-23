@@ -3099,7 +3099,7 @@ function drawFBO(gl, fboData) {
     _setUniforms(gl, uniforms);
 
     gl.uniform1i(gl.getUniformLocation(program, 'uFlowMap'), 0);
-    gl.uniform2fv(gl.getUniformLocation(program, 'uContainerResolution'), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
+    // gl.uniform2fv(gl.getUniformLocation(program, 'uContainerResolution'), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
