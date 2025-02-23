@@ -6,7 +6,6 @@ const target = document.querySelector('#target');
 
 // create the effects/transitions we need
 const gridMouseDisplacement = effects.gridMouseDisplacement();
-console.log('hello', gridMouseDisplacement)
 const flowmapGrid = fbos.flowmapGrid();
 
 const gui = {

@@ -2679,11 +2679,16 @@ function gridMouseDisplacement () {
               u_transitionEnabled: 'bool',
               u_transitionProgress: 'float',
               u_transitionTo: 'sampler2D',
+              uFlowMap: 'sampler2D',
+              uContainerResolution: 'vec2'
           },
           main: `
   if (u_transitionEnabled) {
       vec4 targetPixel = texture2D(u_transitionTo, v_transitionToTexCoord);
       color = mix(color, targetPixel.rgb, u_transitionProgress);
+      vec4 displacement = texture2D(uFlowMap, v_transitionToTexCoord);
+      displacement.a = 1.;
+      color.rgb = displacement.rgb;
       alpha = mix(alpha, targetPixel.a, u_transitionProgress);
   }`,
       },
@@ -2965,15 +2970,11 @@ function draw(gl, plane = {}, media, data, fboData) {
 
         gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
 
-
-        // const mousePos = [0,1]
-
         // // Set uniforms
         gl.uniform1i(gl.getUniformLocation(program, 'uFlowMap'), 0);
-        gl.uniform2f(gl.getUniformLocation(program, 'uResolution'), size, size);
+        gl.uniform2fv(gl.getUniformLocation(program, 'uResolution'), [size, size]);
         gl.uniform2fv(gl.getUniformLocation(program, 'uContainerResolution'), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
         _setUniforms(gl, uniforms);
-
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -2984,8 +2985,6 @@ function draw(gl, plane = {}, media, data, fboData) {
             fboData.newInfo = temp;
         }
 
-        gl.activeTexture(startTex);
-        gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     }
 
@@ -3018,13 +3017,21 @@ function draw(gl, plane = {}, media, data, fboData) {
     // resize to default viewport
     if (fboData) gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
-    if (vao && !fboData) {
-        extensions.vao.bindVertexArrayOES(vao);
+    if (vao) {
+        // extensions.vao.bindVertexArrayOES(vao);
+        if (fboData) _enableVertexAttributes(gl, attributes);
     } else {
         _enableVertexAttributes(gl, attributes);
     }
 
     _setUniforms(gl, uniforms);
+    if (fboData) {
+        // bind fbo texture
+        gl.activeTexture(startTex);
+        gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
+        gl.uniform1i(gl.getUniformLocation(program, 'uFlowMap'), 0);
+        startTex++;
+    }
 
     if (source) {
         gl.activeTexture(startTex);
@@ -3622,7 +3629,9 @@ void main() {
     color.rg += delta * dist;
     color.rg *= min(uRelaxation, uMovement);
 
-    gl_FragColor = color;
+    gl_FragColor.rgb = vec3(1., 1., 0.);
+
+    // gl_FragColor = color;
     gl_FragColor.a = 1.0;
 }`;
 
@@ -3632,7 +3641,6 @@ function _initFBO(gl, fbo) {
 
     // TODO, merge Effects?
     const uniforms = _initUniforms(gl, program, effect.uniforms);
-    console.log(uniforms);
 
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
