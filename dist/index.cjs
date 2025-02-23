@@ -2598,7 +2598,7 @@ function flowmapGrid () {
                 }
             `,
             uniform: {
-                uFlowMap: 'sampler2D',
+                u_flowMap: 'sampler2D',
                 uMouse: 'vec2',
                 uDeltaMouse: 'vec2',
                 uMovement: 'float',
@@ -2608,7 +2608,7 @@ function flowmapGrid () {
                 uAspectRatio: 'float',
             },
             main: `
-                    vec4 colorMap = texture2D(uFlowMap, v_uv);
+                    vec4 colorMap = texture2D(u_flowMap, v_uv);
 
                     // Adjust values for square / rectangle ratio
                     float dist = getDistance(v_uv, uMouse, uContainerResolution, uAspectRatio);
@@ -2652,7 +2652,7 @@ function flowmapGrid () {
         },
         uniforms: [
             {
-                name: 'uFlowMap',
+                name: 'u_flowMap',
                 type: 'i',
                 data: [0],
             },
@@ -2728,14 +2728,14 @@ function gridMouseDisplacement () {
               u_transitionEnabled: 'bool',
               u_transitionProgress: 'float',
               u_transitionTo: 'sampler2D',
-              uFlowMap: 'sampler2D',
+              u_flowMap: 'sampler2D',
               uContainerResolution: 'vec2'
           },
           main: `
         if (u_transitionEnabled) {
             vec4 targetPixel = texture2D(u_transitionTo, v_uv);
             color = mix(color, targetPixel.rgb, u_transitionProgress);
-            vec4 displacement = texture2D(uFlowMap, v_uv);
+            vec4 displacement = texture2D(u_flowMap, v_uv);
             displacement.a = 1.;
 
             vec4 visualDisplacement = displacement;
@@ -3056,7 +3056,7 @@ function draw(gl, plane = {}, media, data, fboData) {
         // bind fbo texture
         gl.activeTexture(startTex);
         gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
-        gl.uniform1i(gl.getUniformLocation(program, 'uFlowMap'), 0);
+        gl.uniform1i(gl.getUniformLocation(program, 'u_flowMap'), 0);
         startTex++;
     }
 
@@ -3105,7 +3105,7 @@ function drawFBO(gl, fboData) {
     // // Set uniforms
     _setUniforms(gl, uniforms);
 
-    gl.uniform1i(gl.getUniformLocation(program, 'uFlowMap'), 0);
+    gl.uniform1i(gl.getUniformLocation(program, 'u_flowMap'), 0);
     // gl.uniform2fv(gl.getUniformLocation(program, 'uContainerResolution'), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);

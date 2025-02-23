@@ -1,6 +1,6 @@
 precision mediump float;
 varying vec2 vUv;
-uniform sampler2D uFlowMap;
+uniform sampler2D u_flowMap;
 uniform vec2 uMouse;
 uniform vec2 uDeltaMouse;
 uniform float uMovement;
@@ -30,7 +30,7 @@ float getDistance(vec2 uv, vec2 mouse, vec2 containerRes, float aspectRatio) {
 void main() {
     vec2 uv = gl_FragCoord.xy / uResolution.xy;
 
-    vec4 color = texture2D(uFlowMap, uv);
+    vec4 color = texture2D(u_flowMap, uv);
 
     // Adjust values for square / rectangle ratio
     float dist = getDistance(uv, uMouse, uContainerResolution, uAspectRatio);

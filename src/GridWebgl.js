@@ -97,9 +97,10 @@ class Scene {
     this.flowmapProgram = webglUtils.createProgramFromSources(gl, [flowmapVS, flowmapFS])
 
     this.flowmapPrgLocs = {
-      uFlowMap: gl.getUniformLocation(this.flowmapProgram, 'uFlowMap'),
+      u_flowMap: gl.getUniformLocation(this.flowmapProgram, 'u_flowMap'),
       uMouse: gl.getUniformLocation(this.flowmapProgram, 'uMouse'),
       uResolution: gl.getUniformLocation(this.flowmapProgram, 'uResolution'),
+      uTime: gl.getUniformLocation(this.flowmapProgram, 'uTime'),
       uDeltaMouse: gl.getUniformLocation(this.flowmapProgram, 'uDeltaMouse'),
       uMovement: gl.getUniformLocation(this.flowmapProgram, 'uMovement'),
       uRelaxation: gl.getUniformLocation(this.flowmapProgram, 'uRelaxation'),
@@ -230,7 +231,7 @@ class Scene {
     // resize
     // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.canvas.width, gl.canvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 
-    gl.uniform1i(this.flowmapPrgLocs.uFlowMap, 0)
+    gl.uniform1i(this.flowmapPrgLocs.u_flowMap, 0)
     gl.uniform2f(this.flowmapPrgLocs.uResolution, this.size, this.size)
     gl.uniform2fv(this.flowmapPrgLocs.uMouse, this.mousePos)
     gl.uniform2fv(this.flowmapPrgLocs.uContainerResolution, this.containerResolution)
@@ -272,7 +273,7 @@ class Scene {
     gl.uniform1i(gl.getUniformLocation(this.drawProgram, 'uImage'), 1)
 
     // Draw
-    gl.uniform1i(gl.getUniformLocation(this.drawProgram, 'uFlowMap'), 0)
+    gl.uniform1i(gl.getUniformLocation(this.drawProgram, 'u_flowMap'), 0)
     gl.uniform2f(gl.getUniformLocation(this.drawProgram, 'uResolution'), gl.canvas.width, gl.canvas.height)
     gl.uniform1f(
       gl.getUniformLocation(this.drawProgram, 'uImageRatio'),

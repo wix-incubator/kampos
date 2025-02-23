@@ -26,14 +26,14 @@ export default function () {
               u_transitionEnabled: 'bool',
               u_transitionProgress: 'float',
               u_transitionTo: 'sampler2D',
-              uFlowMap: 'sampler2D',
+              u_flowMap: 'sampler2D',
               uContainerResolution: 'vec2'
           },
           main: `
         if (u_transitionEnabled) {
             vec4 targetPixel = texture2D(u_transitionTo, v_uv);
             color = mix(color, targetPixel.rgb, u_transitionProgress);
-            vec4 displacement = texture2D(uFlowMap, v_uv);
+            vec4 displacement = texture2D(u_flowMap, v_uv);
             displacement.a = 1.;
 
             vec4 visualDisplacement = displacement;

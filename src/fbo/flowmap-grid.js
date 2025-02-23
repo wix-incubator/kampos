@@ -42,7 +42,7 @@ export default function () {
                 }
             `,
             uniform: {
-                uFlowMap: 'sampler2D',
+                u_flowMap: 'sampler2D',
                 uMouse: 'vec2',
                 uDeltaMouse: 'vec2',
                 uMovement: 'float',
@@ -52,7 +52,7 @@ export default function () {
                 uAspectRatio: 'float',
             },
             main: `
-                    vec4 colorMap = texture2D(uFlowMap, v_uv);
+                    vec4 colorMap = texture2D(u_flowMap, v_uv);
 
                     // Adjust values for square / rectangle ratio
                     float dist = getDistance(v_uv, uMouse, uContainerResolution, uAspectRatio);
@@ -96,7 +96,7 @@ export default function () {
         },
         uniforms: [
             {
-                name: 'uFlowMap',
+                name: 'u_flowMap',
                 type: 'i',
                 data: [0],
             },

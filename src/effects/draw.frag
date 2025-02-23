@@ -3,7 +3,7 @@ varying vec2 vUv;
 varying vec2 vUvFlip;
 uniform vec2 uResolution;
 uniform float uImageRatio;
-uniform sampler2D uFlowMap;
+uniform sampler2D u_flowMap;
 uniform sampler2D uImage;
 uniform float uDisplacementForce;
 uniform float uRGBShift;
@@ -33,7 +33,7 @@ void main() {
   vec2 newUvs = coverUvs(uImageRatio, uResolution);
   vec2 griUvs = coverUvs(uAspectRatio, uResolution);
 
-  vec4 displacement = texture2D(uFlowMap, griUvs);
+  vec4 displacement = texture2D(u_flowMap, griUvs);
   displacement.a = 1.;
 
   // Flip the Y component of the red and green channels of the displacement
