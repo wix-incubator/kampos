@@ -52,6 +52,7 @@ export default function () {
                 uAspectRatio: 'float',
             },
             main: `
+                    vec2 uv = gl_FragCoord.xy / uResolution.xy;
                     vec4 colorMap = texture2D(uFlowMap, v_uv);
 
                     // Adjust values for square / rectangle ratio
@@ -134,7 +135,7 @@ export default function () {
                 name: 'uAspectRatio',
                 type: 'f',
                 data: [1],
-            },
+            }
         ],
         attributes: [
             {

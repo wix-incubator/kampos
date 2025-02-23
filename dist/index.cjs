@@ -2608,6 +2608,7 @@ function flowmapGrid () {
                 uAspectRatio: 'float',
             },
             main: `
+                    vec2 uv = gl_FragCoord.xy / uResolution.xy;
                     vec4 colorMap = texture2D(uFlowMap, v_uv);
 
                     // Adjust values for square / rectangle ratio
@@ -2690,7 +2691,7 @@ function flowmapGrid () {
                 name: 'uAspectRatio',
                 type: 'f',
                 data: [1],
-            },
+            }
         ],
         attributes: [
             {
@@ -3093,7 +3094,6 @@ function drawFBO(gl, fboData) {
     const positionLocation = gl.getAttribLocation(program, 'position');
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
     gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
 
     // // Set uniforms
@@ -3102,7 +3102,7 @@ function drawFBO(gl, fboData) {
     gl.uniform1i(gl.getUniformLocation(program, 'uFlowMap'), 0);
     gl.uniform2fv(gl.getUniformLocation(program, 'uContainerResolution'), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
 
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
 
     // Swap textures
     {
