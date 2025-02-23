@@ -35,7 +35,14 @@ export default function () {
             color = mix(color, targetPixel.rgb, u_transitionProgress);
             vec4 displacement = texture2D(uFlowMap, v_uv);
             displacement.a = 1.;
-            color.rgb = displacement.rgb;
+
+            vec4 visualDisplacement = displacement;
+            visualDisplacement *= 0.5;
+            visualDisplacement += 0.5;
+
+            vec4 final = step(0.5, 1.) * visualDisplacement + (1. - step(0.5, 1.)) * 1.;
+
+            color.rgb = final.rgb;
             alpha = mix(alpha, targetPixel.a, u_transitionProgress);
         }`,
       },
