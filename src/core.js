@@ -208,9 +208,10 @@ export function resize(gl, dimensions) {
 export function draw(gl, plane = {}, media, data, fboData) {
     let startTex = gl.TEXTURE0;
 
+
     if (fboData) {
-        const { buffer, size, program } = fboData;
-        // FBO :: Update flowmap
+        const { buffer, size, program, uniforms } = fboData;
+        // FBO :: Update
         gl.useProgram(program);
         gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newInfo.fb);
         gl.viewport(0, 0, size, size);
@@ -222,9 +223,19 @@ export function draw(gl, plane = {}, media, data, fboData) {
 
         gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
 
+
+        // const mousePos = [0,1]
+
+        // // Set uniforms
+        gl.uniform1i(gl.getUniformLocation(program, 'uFlowMap'), 0);
+        gl.uniform2f(gl.getUniformLocation(program, 'uResolution'), size, size);
+        gl.uniform2fv(gl.getUniformLocation(program, 'uContainerResolution'), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
+        _setUniforms(gl, uniforms);
+
+
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-        // Swap flowmap textures
+        // Swap textures
         {
             const temp = fboData.oldInfo;
             fboData.oldInfo = fboData.newInfo;
@@ -875,6 +886,11 @@ void main() {
 
 function _initFBO(gl, fbo) {
     const { program } = _getWebGLProgram(gl, FLOWMAP_GRID_VERTEX, FLOWMAP_GRID_FRAGMENT);
+    const effect = fbo.effects[0]
+
+    // TODO, merge Effects?
+    const uniforms = _initUniforms(gl, program, effect.uniforms);
+    console.log(uniforms)
 
     const buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -904,9 +920,7 @@ function _initFBO(gl, fbo) {
         tex: tex2,
     };
 
-    console.log(fbo.size)
-
-    return { buffer, program, oldInfo, newInfo, size: fbo.size }
+    return { buffer, program, uniforms, oldInfo, newInfo, size: fbo.size }
 }
 
 /**

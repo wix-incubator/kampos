@@ -15,26 +15,26 @@ export default function () {
      * effect.progress = 0.5;
      */
     return {
-        vertex: {
-            attribute: {
-                a_transitionToTexCoord: 'vec2',
-            },
-            main: `
-  v_transitionToTexCoord = a_transitionToTexCoord;`,
-        },
-        fragment: {
-            uniform: {
-                u_transitionEnabled: 'bool',
-                u_transitionProgress: 'float',
-                u_transitionTo: 'sampler2D',
-            },
-            main: `
-  if (u_transitionEnabled) {
-      vec4 targetPixel = texture2D(u_transitionTo, v_transitionToTexCoord);
-      color = mix(color, targetPixel.rgb, u_transitionProgress);
-      alpha = mix(alpha, targetPixel.a, u_transitionProgress);
-  }`,
-        },
+//         vertex: {
+//             attribute: {
+//                 a_transitionToTexCoord: 'vec2',
+//             },
+//             main: `
+//   v_transitionToTexCoord = a_transitionToTexCoord;`,
+//         },
+//         fragment: {
+//             uniform: {
+//                 u_transitionEnabled: 'bool',
+//                 u_transitionProgress: 'float',
+//                 u_transitionTo: 'sampler2D',
+//             },
+//             main: `
+//   if (u_transitionEnabled) {
+//       vec4 targetPixel = texture2D(u_transitionTo, v_transitionToTexCoord);
+//       color = mix(color, targetPixel.rgb, u_transitionProgress);
+//       alpha = mix(alpha, targetPixel.a, u_transitionProgress);
+//   }`,
+//         },
         get disabled() {
             return !this.uniforms[0].data[0];
         },
@@ -53,37 +53,43 @@ export default function () {
         set to(media) {
             this.textures[0].data = media;
         },
-        varying: {
-            v_transitionToTexCoord: 'vec2',
-        },
         uniforms: [
             {
-                name: 'u_transitionEnabled',
-                type: 'i',
-                data: [1],
-            },
-            {
-                name: 'u_transitionTo',
-                type: 'i',
-                data: [1],
-            },
-            {
-                name: 'u_transitionProgress',
+                name: 'uMouse',
                 type: 'f',
-                data: [0],
+                data: [0, 0],
             },
-        ],
-        attributes: [
             {
-                name: 'a_transitionToTexCoord',
-                extends: 'a_texCoord',
+                name: 'uDeltaMouse',
+                type: 'f',
+                data: [0, 0],
             },
-        ],
-        textures: [
             {
-                format: 'RGBA',
-                update: true,
+                name: 'uMovement',
+                type: 'f',
+                data: [1],
+            },
+            {
+                name: 'uRelaxation',
+                type: 'f',
+                data: [0.93],
+            },
+            {
+                name: 'uRadius',
+                type: 'f',
+                data: [130],
+            },
+            {
+                name: 'uAspectRatio',
+                type: 'f',
+                data: [1],
             },
         ],
     };
 }
+
+// {
+//     name: 'u_resolution',
+//     type: 'f',
+//     data: [0, 0],
+// },

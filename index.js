@@ -20,6 +20,8 @@ import turbulence from './src/effects/turbulence.js';
 import fade from './src/transitions/fade.js';
 import displacementTransition from './src/transitions/displacement.js';
 import dissolve from './src/transitions/dissolve.js';
+import flowmapGrid from './src/fbo/flowmap-grid.js';
+import gridMouseDisplacement from './src/effects/grid-mouse-displacement.js';
 
 export { Kampos } from './src/kampos.js';
 
@@ -37,6 +39,7 @@ export const effects = {
     kaleidoscope,
     turbulence,
     slitScan,
+    gridMouseDisplacement
 };
 
 export const transitions = {
@@ -57,4 +60,8 @@ export const utilities = {
     mouse,
     resolution,
     circle,
+};
+
+export const fbos = {
+    flowmapGrid,
 };

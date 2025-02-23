@@ -1,12 +1,13 @@
-import { Kampos, transitions } from '../index.js';
+import { Kampos, transitions, fbos, effects } from '../index.js';
 
 const media1 = document.querySelector('#video3');
 const media2 = document.querySelector('#video4');
 const target = document.querySelector('#target');
 
 // create the effects/transitions we need
-// const hueSat = effects.hueSaturation();
-const fade = transitions.fade();
+const gridMouseDisplacement = effects.gridMouseDisplacement();
+console.log('hello', gridMouseDisplacement)
+const flowmapGrid = fbos.flowmapGrid();
 
 const gui = {
     radius: 130,
@@ -18,13 +19,14 @@ const gui = {
     ratio: 'rectangle',
 };
 
+
 // init kampos
 const instance = new Kampos({
     target,
-    effects: [fade],
+    effects: [gridMouseDisplacement],
     fbo: {
         size: Math.ceil(Math.sqrt(gui.gridSize)),
-        effect: [],
+        effects: [flowmapGrid],
     },
 });
 
@@ -37,7 +39,7 @@ prepareVideos([media1, media2]).then(() => {
     instance.setSource({ media: media1, width, height });
 
     // set media to transition into
-    fade.to = media2;
+    gridMouseDisplacement.to = media2;
 
     // start kampos
     instance.play();
@@ -48,7 +50,7 @@ let drawing = false;
 
 // this is invoked once in every animation frame, while there's a mouse move over the canvas
 function tick() {
-    fade.progress = Math.max(0, Math.min(1, (x - rect.x) / rect.width));
+    gridMouseDisplacement.progress = Math.max(0, Math.min(1, (x - rect.x) / rect.width));
     // hueSat.hue = Math.max(0, Math.min(1, (x - rect.x) / rect.width)) * 360 - 180;
     drawing = false;
 }
