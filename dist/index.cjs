@@ -2576,7 +2576,7 @@ function flowmapGrid () {
                 a_uv: 'vec2',
             },
             main: `
-               v_uv = a_uv; // Convert to [0, 1] range`,
+               v_uv = a_uv;// Convert to [0, 1] range`,
         },
         fragment: {
             constant: `
@@ -2608,7 +2608,6 @@ function flowmapGrid () {
                 uAspectRatio: 'float',
             },
             main: `
-                    vec2 uv = gl_FragCoord.xy / uResolution.xy;
                     vec4 colorMap = texture2D(uFlowMap, v_uv);
 
                     // Adjust values for square / rectangle ratio
