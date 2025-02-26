@@ -1,9 +1,4 @@
 import { Kampos, transitions } from '../index.js';
-import {
-    DIRECTION_ENUM,
-    EFFECT_ENUM,
-    SHAPE_ENUM,
-} from '../src/transitions/shape.js';
 
 const GUI = lil.GUI;
 
@@ -12,37 +7,53 @@ const media2 = document.querySelector('#video4');
 const target = document.querySelector('#target');
 const button = document.querySelector('#button');
 
-// create the effects/transitions we need
-const fade = transitions.shape({
-    shape: 'circle',
-    direction: 'xy',
-    effect: 'transition',
-});
+const MEDIA = {};
+let shapeEffect;
+let instance;
 
-// init kampos
-const instance = new Kampos({ target, effects: [fade] });
+function generateInstance({ shape, direction, effect }) {
+    if (instance) {
+        instance.destroy();
+    }
+
+    // create the effects/transitions we need
+    shapeEffect = transitions.shape({
+        shape,
+        direction,
+        effect,
+    });
+
+    shapeEffect.to = MEDIA.to;
+
+    // init kampos
+    instance = new Kampos({target, effects: [shapeEffect]});
+
+    // set media source
+    instance.setSource({ media: MEDIA.media, width: MEDIA.width, height: MEDIA.height });
+
+    // start kampos
+    resizeHandler(target);
+    instance.play();
+}
+
+const resizeHandler = (target) => {
+    shapeEffect.resolution = [target.offsetWidth, target.offsetHeight];
+};
+
+window.addEventListener('resize', resizeHandler.bind(null, target));
 
 // make sure videos are loaded and playing
 prepareVideos([media1, media2]).then(() => {
-    const width = media1.videoWidth;
-    const height = media1.videoHeight;
+    MEDIA.width = media1.videoWidth;
+    MEDIA.height = media1.videoHeight;
 
-    // set media source
-    instance.setSource({ media: media1, width, height });
+    MEDIA.media = media1;
 
     // set media to transition into
-    fade.to = media2;
+    MEDIA.to = media2;
 
-    // start kampos
-    instance.play();
-    resizeHandler();
+    generateInstance({ shape: 'circle', direction: 'bottomLeft', effect: 'transitionColor' });
 });
-
-const resizeHandler = () => {
-    fade.resolution = [target.offsetWidth, target.offsetHeight];
-};
-
-window.addEventListener('resize', resizeHandler);
 
 const startTransition = () => {
     gsap.to(guiObj, {
@@ -50,7 +61,7 @@ const startTransition = () => {
         progress: guiObj.progress < 0.5 ? 1 : 0,
         ease: guiObj.easing,
         onUpdate: () => {
-            fade.progress = guiObj.progress;
+            shapeEffect.progress = guiObj.progress;
         },
     });
 };
@@ -64,8 +75,8 @@ export const guiObj = {
     nbDivider: 50,
     shape: 'circle',
     shapeBorder: 0.15,
-    effect: 'transition',
-    direction: 'xy',
+    effect: 'transitionColor',
+    direction: 'bottomLeft',
     speed: 3.2,
     easing: 'quart.out',
     bkgColor: '#121212',
@@ -130,43 +141,43 @@ const setGUI = () => {
     const gui = new GUI();
 
     gui.add(guiObj, 'progress', 0, 1).onChange((value) => {
-        fade.progress = value;
+        shapeEffect.progress = value;
     });
     gui.add(guiObj, 'nbDivider', 1, 100)
         .step(1)
         .onChange((value) => {
-            fade.nbDivider = value;
+            shapeEffect.dividerCount = value;
         });
     gui.add(guiObj, 'shapeBorder', 0, 1)
         .step(0.01)
         .onChange((value) => {
-            fade.shapeBorder = value;
+            shapeEffect.shapeBorder = value;
         });
     gui.add(guiObj, 'shape', ['circle', 'diamond', 'square']).onChange(
         (value) => {
-            fade.shape = SHAPE_ENUM[value];
+            generateInstance({ shape: value, direction: guiObj.direction, effect: guiObj.effect });
         }
     );
 
-    gui.add(guiObj, 'direction', ['x', 'y', 'xy', 'yx', 'inside']).onChange(
+    gui.add(guiObj, 'direction', ['topLeft', 'top', 'topRight', 'right', 'bottomRight', 'bottom', 'bottomLeft', 'left', 'constant']).onChange(
         (value) => {
-            fade.direction = DIRECTION_ENUM[value];
+            shapeEffect.direction = value;
         }
     );
 
     gui.add(guiObj, 'effect', [
-        'transition',
+        'transitionColor',
         'transitionAlpha',
         'appearAlpha',
     ]).onChange((value) => {
-        fade.effect = EFFECT_ENUM[value];
+        shapeEffect.effect = value;
     });
 
     gui.add(guiObj, 'speed', 0.5, 4).step(0.1);
     gui.add(guiObj, 'easing', gsapEasings);
     gui.addColor(guiObj, 'bkgColor').onChange((value) => {
         document.body.style.backgroundColor = value;
-        fade.color = hexToWebGLArray(value);
+        shapeEffect.color = hexToWebGLArray(value);
     });
 
     const extras = gui.addFolder('Extras FX');
@@ -175,21 +186,21 @@ const setGUI = () => {
         .add(guiObj, 'brightness')
         .name('Brightness')
         .onChange((value) => {
-            fade.brightnessEnabled = value;
+            shapeEffect.brightnessEnabled = value;
         });
     extras
         .add(guiObj, 'maxBrightness', 0, 1)
         .step(0.01)
         .name('Brightness strength')
         .onChange((value) => {
-            fade.maxBrightness = value;
+            shapeEffect.maxBrightness = value;
         });
 
     extras
         .add(guiObj, 'overlayColor')
         .name('Overlay Color')
         .onChange((value) => {
-            fade.overlayColorEnabled = value;
+            shapeEffect.overlayColorEnabled = value;
         });
 
     document.body.style.backgroundColor = guiObj.bkgColor;

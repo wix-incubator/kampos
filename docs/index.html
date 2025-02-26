@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset='utf-8'>
-  <title>kampos 0.14.11 | Documentation</title>
+  <title>kampos 0.14.12 | Documentation</title>
   <meta name='description' content='Tiny and fast effects compositor on WebGL'>
   <meta name='viewport' content='width=device-width,initial-scale=1'>
   <link href='assets/bass.css' rel='stylesheet'>
@@ -15,7 +15,7 @@
       <div id='split-left' class='overflow-auto fs0 height-viewport-100'>
         <div class='py1 px2'>
           <h3 class='mb0 no-anchor'>kampos</h3>
-          <div class='mb1'><code>0.14.11</code></div>
+          <div class='mb1'><code>0.14.12</code></div>
           <input
             placeholder='Filter'
             id='filter-input'
@@ -512,6 +512,12 @@
                         .dissolveTransition
                       </a></li>
                     
+                      <li><a
+                        href='#shapetransition'
+                        class='regular pre-open'>
+                        .shapeTransition
+                      </a></li>
+                    
                     </ul>
                   
                   
@@ -546,6 +552,16 @@
                   href='#dissolvetransitioneffect'
                   class="">
                   dissolveTransitionEffect
+                  
+                </a>
+                
+                </li>
+              
+                
+                <li><a
+                  href='#shapetransitioneffect'
+                  class="">
+                  shapeTransitionEffect
                   
                 </a>
                 
@@ -5543,6 +5559,328 @@ effect.<span class="hljs-property">frequency</span> = <span class="hljs-number">
       </div>
     </div>
   
+    <div class='border-bottom' id='shapetransition'>
+      <div class="clearfix small pointer toggle-sibling">
+        <div class="py1 contain">
+            <a class='icon pin-right py1 dark-link caret-right'>▸</a>
+            <span class='code strong strong truncate'>shapeTransition(options?)</span>
+        </div>
+      </div>
+      <div class="clearfix display-none toggle-target">
+        <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+
+  
+    <div class='pre p1 fill-light mt0'>shapeTransition(options: <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?): <a href="#shapetransitioneffect">shapeTransitionEffect</a></div>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Parameters</div>
+    <div class='prose'>
+      
+        <div class='space-bottom0'>
+          <div>
+            <span class='code bold'>options</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>?)</code>
+	    
+          </div>
+          
+          <table class='mt1 mb2 fixed-table h5 col-12'>
+            <colgroup>
+              <col width='30%' />
+              <col width='70%' />
+            </colgroup>
+            <thead>
+              <tr class='bold fill-light'>
+                <th>Name</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody class='mt1'>
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>options.nbDivider</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+  
+    (default <code>50</code>)
+  </td>
+  <td class='break-word'><span>number of shapes to divide the screen into
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>options.shape</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
+  
+    (default <code>&#39;circle&#39;</code>)
+  </td>
+  <td class='break-word'><span>ENUM['circle', 'diamond', 'square'] shape of every grid cell in the transition
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>options.direction</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
+  
+    (default <code>&#39;xy&#39;</code>)
+  </td>
+  <td class='break-word'><span>ENUM['constant', 'top', 'bottom', 'left', 'right', 'topLeft', 'topRight', 'bottomLeft', 'bottomRight'] direction of the transition
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>options.effect</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a></code>
+  
+    (default <code>&#39;transitionColor&#39;</code>)
+  </td>
+  <td class='break-word'><span>ENUM['transitionColor', 'transitionAlpha', 'appearAlpha'] effect type of the transition
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>options.enableBrightness</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+  
+    (default <code>false</code>)
+  </td>
+  <td class='break-word'><span>enable brightness effect. Defaults to 
+<code>false</code>
+.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>options.maxBrightness</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+  
+    (default <code>1</code>)
+  </td>
+  <td class='break-word'><span>maximum brightness to use for the effect. Defaults to 
+<code>1</code>
+.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>options.enableColor</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a></code>
+  
+    (default <code>false</code>)
+  </td>
+  <td class='break-word'><span>enable overlay color effect. Defaults to 
+<code>false</code>
+.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>options.color</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Array">Array</a>&#x3C;<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>></code>
+  
+    (default <code>[0.1,0.1,0.1]</code>)
+  </td>
+  <td class='break-word'><span>background color for overlay color effect. Defaults to 
+<code>[0.1, 0.1, 0.1]</code>
+.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>options.progress</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+  
+    (default <code>0</code>)
+  </td>
+  <td class='break-word'><span>progress of the transition. Defaults to 
+<code>0</code>
+.
+</span></td>
+</tr>
+
+
+              
+                <tr>
+  <td class='break-word'><span class='code bold'>options.shapeBorder</span> <code class='quiet'><a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a></code>
+  
+    (default <code>0.15</code>)
+  </td>
+  <td class='break-word'><span>border size of the shape. Defaults to 
+<code>0.15</code>
+.
+</span></td>
+</tr>
+
+
+              
+            </tbody>
+          </table>
+          
+        </div>
+      
+    </div>
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Properties</div>
+    <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>CIRCLE</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : 'circle'
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>SQUARE</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : 'square'
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>DIAMOND</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : 'diamond'
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>COLOR_TRANSITION</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : transition between two media sources using a color overlay
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>ALPHA_TRANSITION</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : transition between two media sources using transparency
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>APPEAR_ALPHA</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : transition between transparent canvas to the source media
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>DIRECTION_LEFT</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : 'left'
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>DIRECTION_RIGHT</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : 'right'
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>DIRECTION_TOP</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : 'top'
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>DIRECTION_BOTTOM</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : 'bottom'
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>DIRECTION_TOP_LEFT</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : 'topLeft'
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>DIRECTION_TOP_RIGHT</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : 'topRight'
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>DIRECTION_BOTTOM_LEFT</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : 'bottomLeft'
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>DIRECTION_BOTTOM_RIGHT</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : 'bottomRight'
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>DIRECTION_CONSTANT</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : 'constant'
+
+          
+        </div>
+      
+    </div>
+  
+
+  
+    
+      <div class='py1 quiet mt1 prose-big'>Returns</div>
+      <code><a href="#shapetransitioneffect">shapeTransitionEffect</a></code>:
+        
+      
+    
+  
+
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Example</div>
+    
+      
+      <pre class='p1 overflow-auto round fill-light'><span class="hljs-title function_">shapeTransition</span>()</pre>
+    
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+      </div>
+    </div>
+  
 </div>
 
   
@@ -5864,6 +6202,149 @@ effect.<span class="hljs-property">map</span> = img;
 effect.<span class="hljs-property">to</span> = <span class="hljs-variable language_">document</span>.<span class="hljs-title function_">querySelector</span>(<span class="hljs-string">&#x27;#video-to&#x27;</span>);
 effect.<span class="hljs-property">progress</span> = <span class="hljs-number">0.5</span>;</pre>
     
+  
+
+  
+
+  
+
+  
+
+  
+</section>
+
+          
+        
+          
+          <section class='p2 mb2 clearfix bg-white minishadow'>
+
+  
+  <div class='clearfix'>
+    
+    <h3 class='fl m0' id='shapetransitioneffect'>
+      shapeTransitionEffect
+    </h3>
+    
+    
+  </div>
+  
+
+  
+    <div class='pre p1 fill-light mt0'>shapeTransitionEffect</div>
+  
+    <p>
+      Type:
+      <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object">Object</a>
+    </p>
+  
+  
+
+  
+  
+  
+  
+  
+  
+
+  
+
+  
+    <div class='py1 quiet mt1 prose-big'>Properties</div>
+    <div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>disabled</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
+          : whether to disable the effect
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>progress</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          : progress of the transition - 0.0 to 1.0
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>to</span> <code class='quiet'>((ArrayBufferView | ImageData | <a href="https://developer.mozilla.org/docs/Web/API/HTMLImageElement">HTMLImageElement</a> | <a href="https://developer.mozilla.org/docs/Web/API/HTMLCanvasElement">HTMLCanvasElement</a> | <a href="https://developer.mozilla.org/docs/Web/API/HTMLVideoElement">HTMLVideoElement</a> | ImageBitmap))</code>
+          : media source to transition into
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>resolution</span> <code class='quiet'>([<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>, <a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>])</code>
+          : resolution of the media source
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>dividerCount</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          : number of shapes to divide the screen into
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>shapeBorder</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number">number</a>)</code>
+          : border size of the shape
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>direction</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : direction of the transition
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>effect</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : effect of the transition
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>brightnessEnabled</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
+          : enable brightness effect
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>maxBrightness</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
+          : maximum brightness to use for the effect
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>color</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String">string</a>)</code>
+          : background color for overlay color effect
+
+          
+        </div>
+      
+        <div class='space-bottom0'>
+          <span class='code bold'>overlayColorEnabled</span> <code class='quiet'>(<a href="https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean">boolean</a>)</code>
+          : enable overlay color effect
+
+          
+        </div>
+      
+    </div>
+  
+
+  
+
+  
+
+  
+
   
 
   

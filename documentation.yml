@@ -45,6 +45,8 @@ toc:
       - fadeTransition
       - displacementTransition
       - dissolveTransition
+      - shapeTransition
   - fadeTransitionEffect
   - displacementTransitionEffect
   - dissolveTransitionEffect
+  - shapeTransitionEffect
