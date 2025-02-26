@@ -1,3 +1,9 @@
+### 0.15.0 (2025-02-26)
+
+_New:_
+
+-   Added `shape` transition and the `shape-transition` demo.
+
 ### 0.14.10 (2025-01-08)
 
 _New:_

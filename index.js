@@ -20,6 +20,7 @@ import turbulence from './src/effects/turbulence.js';
 import fade from './src/transitions/fade.js';
 import displacementTransition from './src/transitions/displacement.js';
 import dissolve from './src/transitions/dissolve.js';
+import shapeTransition from './src/transitions/shape.js';
 
 export { Kampos } from './src/kampos.js';
 
@@ -42,7 +43,8 @@ export const effects = {
 export const transitions = {
     fade,
     displacement: displacementTransition,
-    dissolve
+    dissolve,
+    shape: shapeTransition
 };
 
 export const noise = {
