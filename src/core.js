@@ -239,7 +239,7 @@ export function draw(gl, plane = {}, media, data, fboData) {
     if (fboData) gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
     if (vao) {
-        // extensions.vao.bindVertexArrayOES(vao);
+        extensions.vao.bindVertexArrayOES(vao);
         if (fboData) _enableVertexAttributes(gl, attributes);
     } else {
         _enableVertexAttributes(gl, attributes);
