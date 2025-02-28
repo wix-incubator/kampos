@@ -1,11 +1,14 @@
 (function () {
     'use strict';
 
-    function updatePreview(iframe, example, videos) {
-        iframe.setAttribute('srcdoc', getIFrameHTML({ example, videos }));
+    function updatePreview(iframe, example, videos, needButton) {
+        iframe.setAttribute(
+            'srcdoc',
+            getIFrameHTML({ example, videos, needButton })
+        );
     }
 
-    function getIFrameHTML({ example, videos }) {
+    function getIFrameHTML({ example, videos, needButton }) {
         return `<!DOCTYPE html>
 <html>
     <head>
@@ -14,6 +17,16 @@
             canvas {width: auto; height: 100%; place-self: center;}
             video, img {display: none;}
             .clickable {cursor: pointer;}
+            .button {
+                position: absolute;
+                padding: 10px 20px;
+                bottom: 40px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: #333;
+                color: white;
+                cursor: pointer;
+            }
         </style>
         <script type="module" src="../index.js"></script>
         <script src="./utils.js"></script>
@@ -21,9 +34,18 @@
     <body>
         ${videos}
         <canvas id="target"></canvas>
+        ${
+            needButton
+                ? '<div id="button" class="button">Click to transition</div>'
+                : ''
+        }
         <script type="module">
             ${example}
         </script>
+        <!-- Temp: library to add control -->
+        <script src="https://cdn.jsdelivr.net/npm/lil-gui@0.20"></script>
+        <!-- Temp: library for smooth easing -->
+        <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.7/dist/gsap.min.js"></script>
     </body>
 </html>`;
     }
@@ -68,7 +90,8 @@
                     updatePreview(
                         preview,
                         doc.getValue(),
-                        video ? video.innerHTML : ''
+                        video ? video.innerHTML : '',
+                        ids.needButton
                     );
 
                 refresh.addEventListener('click', update);
@@ -178,6 +201,16 @@
                 code: 'code12',
                 preview: 'preview',
                 refresh: 'refresh12',
+            });
+        },
+
+        section13() {
+            startDemo('./shape-transition.js', {
+                code: 'code13',
+                preview: 'preview',
+                video: 'videos2',
+                refresh: 'refresh13',
+                needButton: true,
             });
         },
 
