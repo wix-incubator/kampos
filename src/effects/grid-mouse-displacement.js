@@ -53,20 +53,20 @@ export default function ({
             uniform: {
                 u_image: 'sampler2D',
                 u_flowMap: 'sampler2D',
-                uContainerResolution: 'vec2',
-                uAspectRatio: 'float',
-                uDisplacementForce: 'float',
-                uRGBShift: 'bool',
+                u_containerResolution: 'vec2',
+                u_aspectRatio: 'float',
+                u_displacementForce: 'float',
+                u_RGBShift: 'bool',
             },
             main: `
-            vec2 griUvs = coverUvs(uAspectRatio, uContainerResolution);
+            vec2 griUvs = coverUvs(u_aspectRatio, u_containerResolution);
             vec4 displacement = texture2D(u_flowMap, griUvs);
 
-            vec2 finalUvs = v_uv - displacement.rg * uDisplacementForce * 1.5;
+            vec2 finalUvs = v_uv - displacement.rg * u_displacementForce * 1.5;
             vec4 finalImage = texture2D(u_image, finalUvs);
 
             //rgb shift
-            if (uRGBShift) {
+            if (u_RGBShift) {
                 vec2 redUvs = finalUvs;
                 vec2 blueUvs = finalUvs;
                 vec2 greenUvs = finalUvs;
@@ -126,22 +126,22 @@ export default function ({
                 data: [1],
             },
             {
-                name: 'uContainerResolution',
+                name: 'u_containerResolution',
                 type: 'f',
                 data: [0, 0],
             },
             {
-                name: 'uAspectRatio',
+                name: 'u_aspectRatio',
                 type: 'f',
                 data: [aspectRatio],
             },
             {
-                name: 'uDisplacementForce',
+                name: 'u_displacementForce',
                 type: 'f',
                 data: [displacementForce],
             },
             {
-                name: 'uRGBShift',
+                name: 'u_RGBShift',
                 type: 'i',
                 data: [+rgbShift],
             },

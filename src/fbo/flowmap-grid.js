@@ -55,25 +55,25 @@ export default function ({
             `,
             uniform: {
                 u_flowMap: 'sampler2D',
-                uMouse: 'vec2',
-                uDeltaMouse: 'vec2',
-                uMovement: 'float',
-                uRelaxation: 'float',
-                uRadius: 'float',
-                uContainerResolution: 'vec2',
-                uAspectRatio: 'float',
+                u_mouse: 'vec2',
+                u_deltaMouse: 'vec2',
+                u_movement: 'float',
+                u_relaxation: 'float',
+                u_radius: 'float',
+                u_containerResolution: 'vec2',
+                u_aspectRatio: 'float',
             },
             main: `
                     vec4 colorMap = texture2D(u_flowMap, v_uv);
 
                     // Adjust values for square / rectangle ratio
-                    float dist = getDistance(v_uv, uMouse, uContainerResolution, uAspectRatio);
-                    dist = 1.0 - (smoothstep(0.0, uRadius / 1000., dist));
+                    float dist = getDistance(v_uv, u_mouse, u_containerResolution, u_aspectRatio);
+                    dist = 1.0 - (smoothstep(0.0, u_radius / 1000., dist));
 
-                    vec2 delta = uDeltaMouse;
+                    vec2 delta = u_deltaMouse;
 
                     colorMap.rg += delta * dist;
-                    colorMap.rg *= min(uRelaxation, uMovement);
+                    colorMap.rg *= min(u_relaxation, u_movement);
 
                     color = colorMap.rgb;
                     alpha = 1.0;
@@ -113,37 +113,37 @@ export default function ({
                 data: [0],
             },
             {
-                name: 'uMouse',
+                name: 'u_mouse',
                 type: 'f',
                 data: [0, 0],
             },
             {
-                name: 'uDeltaMouse',
+                name: 'u_deltaMouse',
                 type: 'f',
                 data: [0, 0],
             },
             {
-                name: 'uMovement',
+                name: 'u_movement',
                 type: 'f',
                 data: [1],
             },
             {
-                name: 'uRelaxation',
+                name: 'u_relaxation',
                 type: 'f',
                 data: [relaxation],
             },
             {
-                name: 'uRadius',
+                name: 'u_radius',
                 type: 'f',
                 data: [radius],
             },
             {
-                name: 'uContainerResolution',
+                name: 'u_containerResolution',
                 type: 'f',
                 data: [0, 0],
             },
             {
-                name: 'uAspectRatio',
+                name: 'u_aspectRatio',
                 type: 'f',
                 data: [aspectRatio],
             },
