@@ -3,12 +3,12 @@ import { Kampos, fbos, effects } from '../index.js';
 const GUI = lil.GUI;
 
 const media1 = document.querySelector('#video3');
-const media2 = document.querySelector('#video4');
 const target = document.querySelector('#target');
 
 // create the effects/transitions we need
-const gridMouseDisplacement = effects.gridMouseDisplacement({ aspectRatio: 1 });
-const flowmapGrid = fbos.flowmapGrid({ aspectRatio: 1 });
+let gridMouseDisplacement;
+let flowmapGrid;
+let instance;
 
 const guiObj = {
     radius: 130,
@@ -20,31 +20,41 @@ const guiObj = {
     ratio: 'square', // using String here to simplify choices, but in the end it's a Number used for aspectRatio
 };
 
-// init kampos
-const instance = new Kampos({
-    target,
-    effects: [gridMouseDisplacement],
-    fbo: {
-        size: Math.ceil(Math.sqrt(guiObj.gridSize)),
-        effects: [flowmapGrid],
-    },
+// make sure videos are loaded and playing
+prepareVideos([media1]).then(() => {
+    generateInstance({ aspectRatio: 1 });
 });
 
-// make sure videos are loaded and playing
-prepareVideos([media1, media2]).then(() => {
-    const width = media1.videoWidth;
-    const height = media1.videoHeight;
+function generateInstance({ aspectRatio }) {
+    if (instance) {
+        instance.destroy();
+    }
+
+    // create the effects/transitions we need
+    gridMouseDisplacement = effects.gridMouseDisplacement({ aspectRatio });
+    flowmapGrid = fbos.flowmapGrid({ aspectRatio: 1 });
+
+    // init kampos
+    instance = new Kampos({
+        target,
+        effects: [gridMouseDisplacement],
+        fbo: {
+            size: Math.ceil(Math.sqrt(guiObj.gridSize)),
+            effects: [flowmapGrid],
+        },
+    });
 
     // set media source
+    const width = media1.videoWidth;
+    const height = media1.videoHeight;
     instance.setSource({ media: media1, width, height });
 
     // start kampos
     resizeHandler(target);
     instance.play();
-});
+}
 
-let x, y, rect;
-let drawing = false;
+let rect;
 let movement = 1;
 let mousePos = [0, 0];
 let deltaMouse = [0, 0];
@@ -53,30 +63,31 @@ let mouse = {
     y: 0,
 };
 
-// this is invoked once in every animation frame, while there's a mouse move over the canvas
-function tick() {
-    // gridMouseDisplacement.progress = Math.max(0, Math.min(1, (x - rect.x) / rect.width));
-    // hueSat.hue = Math.max(0, Math.min(1, (x - rect.x) / rect.width)) * 360 - 180;
+let lastTime = 0;
 
-    // movement -= (gui.resetForce * 0.01 * deltaTime) / 8
-    movement -= guiObj.resetForce * 0.01;
+// this is invoked once in every animation frame, while there's a mouse move over the canvas
+function tick(time) {
+    const deltaTime = (time - lastTime) / 1000;
+    lastTime = time;
+
+    movement -= (guiObj.resetForce * 0.01 * deltaTime) / 8;
     movement = Math.max(0, movement);
     // drawing = false;
 
-    flowmapGrid.mouse = mousePos;
-    flowmapGrid.deltaMouse = deltaMouse;
-    flowmapGrid.movement = movement;
+    if (flowmapGrid) {
+        flowmapGrid.mouse = mousePos;
+        flowmapGrid.deltaMouse = deltaMouse;
+        flowmapGrid.movement = movement;
+    }
 
     requestAnimationFrame(tick);
 }
 
-tick();
+tick(0);
 
 // handler for detecting mouse move
 const moveHandler = (e) => {
     const { clientX, clientY } = e;
-
-    // cache mouse location
 
     rect = target.getBoundingClientRect();
 
@@ -88,16 +99,9 @@ const moveHandler = (e) => {
 
     movement = 1;
 
-    flowmapGrid.containerResolution = [rect.width, rect.height];
-
-    // // only once! a frame
-    // if (!drawing) {
-    //     drawing = true;
-    //     // read here
-    //     rect = target.getBoundingClientRect();
-    //     // write on next frame
-    //     requestAnimationFrame(tick);
-    // }
+    if (flowmapGrid) {
+        flowmapGrid.containerResolution = [rect.width, rect.height];
+    }
 };
 
 /*
@@ -129,8 +133,10 @@ const setGUI = () => {
         flowmapGrid.radius = value;
     });
     gui.add(guiObj, 'gridSize', 100, 8000).onChange((value) => {
-        this.size = Math.ceil(Math.sqrt(value));
-        this.handleResize(target);
+        // have to recreate whole instance because fboSize needs to change
+        const ratioUniform = guiObj.ratio === 'square' ? 1 : 16 / 9;
+        generateInstance({ aspectRatio: ratioUniform });
+        resizeHandler(target);
     });
     gui.add(guiObj, 'displacementForce', 0, 0.1).onChange((value) => {
         gridMouseDisplacement.displacementForce = value;

@@ -303,7 +303,6 @@ function drawFBO(gl, fboData) {
     _setUniforms(gl, uniforms);
 
     gl.uniform1i(gl.getUniformLocation(program, 'u_flowMap'), 0);
-    // gl.uniform2fv(gl.getUniformLocation(program, 'uContainerResolution'), [gl.drawingBufferWidth, gl.drawingBufferHeight]);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -829,64 +828,6 @@ function _enableVertexAttributes(gl, attributes) {
 function _getTextureWrap(key) {
     return TEXTURE_WRAP[key] || TEXTURE_WRAP['stretch'];
 }
-
-const FLOWMAP_GRID_VERTEX = `
-    attribute vec2 position;
-    varying vec2 vUv;
-
-    void main() {
-        vUv = position * 0.5 + 0.5; // Convert to [0, 1] range
-        gl_Position = vec4(position, 0, 1);
-    }
-`
-
-const FLOWMAP_GRID_FRAGMENT = `
-precision mediump float;
-varying vec2 vUv;
-uniform sampler2D u_flowMap;
-uniform vec2 uMouse;
-uniform vec2 uDeltaMouse;
-uniform float uMovement;
-uniform float uRelaxation;
-uniform float uRadius;
-uniform vec2 uResolution;
-uniform vec2 uContainerResolution;
-uniform float uAspectRatio;
-
-float getDistance(vec2 uv, vec2 mouse, vec2 containerRes, float aspectRatio) {
-    // adjust mouse ratio based on the grid aspectRatio wanted
-    vec2 newMouse = mouse;
-    newMouse -= 0.5;
-    if (containerRes.x < containerRes.y) {
-        newMouse.x *= (containerRes.x / containerRes.y) / aspectRatio;
-    } else {
-        newMouse.y *= (containerRes.y / containerRes.x) * aspectRatio;
-    }
-    newMouse += 0.5;
-
-    // adjust circle based on the grid aspectRatio wanted
-    vec2 diff = uv - newMouse;
-    diff.y /= aspectRatio;
-    return length(diff);
-}
-
-void main() {
-    vec2 uv = gl_FragCoord.xy / uResolution.xy;
-
-    vec4 color = texture2D(u_flowMap, uv);
-
-    // Adjust values for square / rectangle ratio
-    float dist = getDistance(uv, uMouse, uContainerResolution, uAspectRatio);
-    dist = 1.0 - (smoothstep(0.0, uRadius / 1000., dist));
-
-    vec2 delta = uDeltaMouse;
-
-    color.rg += delta * dist;
-    color.rg *= min(uRelaxation, uMovement);
-
-    gl_FragColor = color;
-    gl_FragColor.a = 1.0;
-}`
 
 function createFloatTexture(gl, data, width, height) {
     // Enable OES_texture_float extension
