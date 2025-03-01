@@ -36,10 +36,8 @@ prepareVideos([media1, media2]).then(() => {
     // set media source
     instance.setSource({ media: media1, width, height });
 
-    // set media to transition into
-    gridMouseDisplacement.to = media2;
-
     // start kampos
+    resizeHandler(target);
     instance.play();
 });
 
@@ -88,8 +86,7 @@ const moveHandler = (e) => {
 
     movement = 1;
 
-
-    flowmapGrid.containerResolution = [rect.width, rect.height]
+    flowmapGrid.containerResolution = [rect.width, rect.height];
 
     // // only once! a frame
     // if (!drawing) {
@@ -106,4 +103,11 @@ const moveHandler = (e) => {
  */
 target.addEventListener('mousemove', moveHandler);
 
-// target.removeEventListener('mousemove', moveHandler);
+const resizeHandler = (target) => {
+    console.log('ici')
+    const rect = target.getBoundingClientRect();
+    flowmapGrid.containerResolution = [rect.width, rect.height];
+    gridMouseDisplacement.containerResolution = [rect.width, rect.height];
+};
+
+window.addEventListener('resize', resizeHandler.bind(null, target));

@@ -927,8 +927,6 @@ function _initFBOProgram(gl, plane, fbo) {
         fragmentSimpleTemplate,
     );
 
-    console.log(vertexSrc)
-    console.log(fragmentSrc)
     const { program } = _getWebGLProgram(gl, vertexSrc, fragmentSrc);
     const uniforms = _initUniforms(gl, program, data.uniforms);
 
