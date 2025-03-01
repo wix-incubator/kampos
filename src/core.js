@@ -121,10 +121,7 @@ export function init({ gl, plane, effects, dimensions, noSource, fbo }) {
     const programData = _initProgram(gl, plane, effects, noSource);
 
     let fboData
-
-    if (fbo) {
-        fboData = _initFBOProgram(gl, plane, fbo);
-    }
+    if (fbo) fboData = _initFBOProgram(gl, plane, fbo);
 
     return { gl, data: programData, dimensions: dimensions || {}, fboData };
 }
@@ -290,29 +287,28 @@ function drawFBO(gl, fboData) {
     const { buffer, size, program, uniforms } = fboData;
     // FBO :: Update
     gl.useProgram(program);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newInfo.fb);
+    // set size
     gl.viewport(0, 0, size, size);
+    // write in new fb
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newInfo.fb);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    // const positionLocation = gl.getAttribLocation(program, 'position');
-    // gl.enableVertexAttribArray(positionLocation);
-    // gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+    // read old texture
     gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
 
     // // Set uniforms
     _setUniforms(gl, uniforms);
-
     gl.uniform1i(gl.getUniformLocation(program, 'u_flowMap'), 0);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-    // Swap textures
+    // Swap textures and framebuffers
     {
         const temp = fboData.oldInfo;
         fboData.oldInfo = fboData.newInfo;
         fboData.newInfo = temp;
     }
-
+    // clear framebuffer
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
@@ -878,11 +874,6 @@ function _initFBOProgram(gl, plane, fbo) {
         new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
         gl.STATIC_DRAW
     );
-
-    // const positionLocation = gl.getAttribLocation(program, 'position')
-    // gl.enableVertexAttribArray(positionLocation)
-    // gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
-
     const tex1 = createFloatTexture(gl, null, fbo.size, fbo.size)
     const tex2 = createFloatTexture(gl, null, fbo.size, fbo.size)
 
