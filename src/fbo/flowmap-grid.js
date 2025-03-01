@@ -1,14 +1,26 @@
 /**
  * @function fboFlowmapGrid
+ * @param {number} [options.aspectRatio=16 / 9] Aspect ratio of the grid
+ * @param {number} [options.radius=130] Radius of the effect
+ * @param {number} [options.relaxation=0.93] Relaxation factor
  * @returns {fboFlowmapGridEffect}
  * @example fboFlowmapGrid()
  */
-export default function () {
+export default function ({
+    aspectRatio = 16 / 9,
+    radius = 130,
+    relaxation = 0.93,
+} = {}) {
     /**
      * @typedef {Object} fboFlowmapGridEffect
-     * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
-     * @property {number} progress number between 0.0 and 1.0
-     * @property {boolean} disabled
+     * @property {ArrayBufferView|ImageData|ImageBitmap} u_flowMap map generated and used
+     * @property {Array<number>} mouse Mouse position
+     * @property {Array<number>} deltaMouse Delta mouse position
+     * @property {number} movement Movement value
+     * @property {number} relaxation Relaxation value
+     * @property {number} radius Radius value
+     * @property {Array<number>} containerResolution Container resolution
+     * @property {number} aspectRatio Aspect ratio
      *
      * @example
      * effect.to = document.querySelector('#video-to');
@@ -118,12 +130,12 @@ export default function () {
             {
                 name: 'uRelaxation',
                 type: 'f',
-                data: [0.93],
+                data: [relaxation],
             },
             {
                 name: 'uRadius',
                 type: 'f',
-                data: [130],
+                data: [radius],
             },
             {
                 name: 'uContainerResolution',
@@ -133,8 +145,8 @@ export default function () {
             {
                 name: 'uAspectRatio',
                 type: 'f',
-                data: [1],
-            }
+                data: [aspectRatio],
+            },
         ],
         attributes: [
             {

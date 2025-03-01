@@ -1,21 +1,23 @@
 import { Kampos, fbos, effects } from '../index.js';
 
+const GUI = lil.GUI;
+
 const media1 = document.querySelector('#video3');
 const media2 = document.querySelector('#video4');
 const target = document.querySelector('#target');
 
 // create the effects/transitions we need
-const gridMouseDisplacement = effects.gridMouseDisplacement();
-const flowmapGrid = fbos.flowmapGrid();
+const gridMouseDisplacement = effects.gridMouseDisplacement({ aspectRatio: 1 });
+const flowmapGrid = fbos.flowmapGrid({ aspectRatio: 1 });
 
-const gui = {
+const guiObj = {
     radius: 130,
     gridSize: 1000,
     relaxation: 0.93,
     resetForce: 0.3,
     displacementForce: 0.01,
     rgbShift: true,
-    ratio: 'rectangle',
+    ratio: 'square', // using String here to simplify choices, but in the end it's a Number used for aspectRatio
 };
 
 // init kampos
@@ -23,7 +25,7 @@ const instance = new Kampos({
     target,
     effects: [gridMouseDisplacement],
     fbo: {
-        size: Math.ceil(Math.sqrt(gui.gridSize)),
+        size: Math.ceil(Math.sqrt(guiObj.gridSize)),
         effects: [flowmapGrid],
     },
 });
@@ -57,7 +59,7 @@ function tick() {
     // hueSat.hue = Math.max(0, Math.min(1, (x - rect.x) / rect.width)) * 360 - 180;
 
     // movement -= (gui.resetForce * 0.01 * deltaTime) / 8
-    movement -= gui.resetForce * 0.01;
+    movement -= guiObj.resetForce * 0.01;
     movement = Math.max(0, movement);
     // drawing = false;
 
@@ -104,10 +106,39 @@ const moveHandler = (e) => {
 target.addEventListener('mousemove', moveHandler);
 
 const resizeHandler = (target) => {
-    console.log('ici')
     const rect = target.getBoundingClientRect();
     flowmapGrid.containerResolution = [rect.width, rect.height];
     gridMouseDisplacement.containerResolution = [rect.width, rect.height];
 };
 
 window.addEventListener('resize', resizeHandler.bind(null, target));
+
+const setGUI = () => {
+    const gui = new GUI();
+
+    gui.add(guiObj, 'ratio', ['rectangle', 'square']).onChange((value) => {
+        const ratioUniform = value === 'square' ? 1 : 16 / 9;
+        flowmapGrid.aspectRatio = ratioUniform;
+        gridMouseDisplacement.aspectRatio = ratioUniform;
+        resizeHandler(target);
+    });
+    gui.add(guiObj, 'rgbShift').onChange((value) => {
+        gridMouseDisplacement.rgbShift = value;
+    });
+    gui.add(guiObj, 'radius', 1, 300).onChange((value) => {
+        flowmapGrid.radius = value;
+    });
+    gui.add(guiObj, 'gridSize', 100, 8000).onChange((value) => {
+        this.size = Math.ceil(Math.sqrt(value));
+        this.handleResize(target);
+    });
+    gui.add(guiObj, 'displacementForce', 0, 0.1).onChange((value) => {
+        gridMouseDisplacement.displacementForce = value;
+    });
+    gui.add(guiObj, 'resetForce', 0.08, 1);
+    gui.add(guiObj, 'relaxation', 0.8, 0.99).onChange((value) => {
+        flowmapGrid.relaxation = value;
+    });
+};
+
+setGUI();

@@ -1,14 +1,24 @@
 /**
  * @function gridMouseDisplacement
+ * @param {number} [options.aspectRatio=16 / 9] Aspect ratio of the grid
+ * @param {number} [options.displacementForce=0.01] Force of displacement
+ * @param {boolean} [options.rgbShift=true] Apply RGBShift or not
  * @returns {gridMouseDisplacementEffect}
  * @example gridMouseDisplacement()
  */
-export default function () {
+export default function ({
+    aspectRatio = 16 / 9,
+    displacementForce = 0.01,
+    rgbShift = true,
+} = {}) {
     /**
      * @typedef {Object} gridMouseDisplacementEffect
-     * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} to media source to transition into
-     * @property {number} progress number between 0.0 and 1.0
-     * @property {boolean} disabled
+     * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} u_image media source to transition into
+     * @property {ArrayBufferView|ImageData|ImageBitmap} u_flowMap map generated from FBO
+     * @property {Array<number>} containerResolution Container resolution
+     * @property {number} aspectRatio Aspect ratio
+     * @property {number} displacementForce Displacement force
+     * @property {boolean} rgbShift Apply RGB shift
      *
      * @example
      * effect.to = document.querySelector('#video-to');
@@ -46,7 +56,7 @@ export default function () {
                 uContainerResolution: 'vec2',
                 uAspectRatio: 'float',
                 uDisplacementForce: 'float',
-                uRGBShift: 'float',
+                uRGBShift: 'bool',
             },
             main: `
             vec2 griUvs = coverUvs(uAspectRatio, uContainerResolution);
@@ -55,11 +65,34 @@ export default function () {
             vec2 finalUvs = v_uv - displacement.rg * uDisplacementForce * 1.5;
             vec4 finalImage = texture2D(u_image, finalUvs);
 
-            vec4 visualDisplacement = displacement;
-            visualDisplacement *= 0.5;
-            visualDisplacement += 0.5;
+            //rgb shift
+            if (uRGBShift) {
+                vec2 redUvs = finalUvs;
+                vec2 blueUvs = finalUvs;
+                vec2 greenUvs = finalUvs;
 
-            vec4 final = step(0.5, 1.) * visualDisplacement + (1. - step(0.5, 1.));
+                vec2 shift = displacement.rg * 0.001;
+
+                float displacementStrengh = length(displacement.rg);
+                displacementStrengh = clamp(displacementStrengh, 0., 2.);
+
+                float redStrengh = 1. + displacementStrengh * 0.25;
+                redUvs += shift * redStrengh;
+
+                float blueStrengh = 1. + displacementStrengh * 1.5;
+                blueUvs += shift * blueStrengh;
+
+                float greenStrengh = 1. + displacementStrengh * 2.;
+                greenUvs += shift * greenStrengh;
+
+                float red = texture2D(u_image, redUvs).r;
+                float blue = texture2D(u_image, blueUvs).b;
+                float green = texture2D(u_image, greenUvs).g;
+
+                finalImage.r = red;
+                finalImage.g = green;
+                finalImage.b = blue;
+            }
 
             color.rgb = finalImage.rgb;
             alpha = 1.;
@@ -100,17 +133,17 @@ export default function () {
             {
                 name: 'uAspectRatio',
                 type: 'f',
-                data: [1],
+                data: [aspectRatio],
             },
             {
                 name: 'uDisplacementForce',
                 type: 'f',
-                data: [0.01],
+                data: [displacementForce],
             },
             {
                 name: 'uRGBShift',
-                type: 'f',
-                data: [0],
+                type: 'i',
+                data: [+rgbShift],
             },
         ],
         attributes: [
