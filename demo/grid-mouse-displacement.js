@@ -32,7 +32,7 @@ function generateInstance({ aspectRatio }) {
 
     // create the effects/transitions we need
     gridMouseDisplacement = effects.gridMouseDisplacement({ aspectRatio });
-    flowmapGrid = fbos.flowmapGrid({ aspectRatio: 1 });
+    flowmapGrid = fbos.flowmapGrid({ aspectRatio });
 
     // init kampos
     instance = new Kampos({
