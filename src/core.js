@@ -871,7 +871,9 @@ function _initFBOProgram(gl, plane, fbo) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
     gl.bufferData(
         gl.ARRAY_BUFFER,
-        new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+         new Float32Array(
+            _getPlaneCoords({ xEnd: 2, yEnd: 2, factor: 1 }, plane),
+        ),
         gl.STATIC_DRAW
     );
     const tex1 = _createFloatTexture(gl, null, fbo.size, fbo.size)
