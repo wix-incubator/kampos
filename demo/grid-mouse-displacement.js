@@ -67,7 +67,7 @@ let lastTime = 0;
 
 // this is invoked once in every animation frame, while there's a mouse move over the canvas
 function tick(time) {
-    const deltaTime = (time - lastTime) / 1000;
+    const deltaTime = (time - lastTime);
     lastTime = time;
 
     movement -= (guiObj.resetForce * 0.01 * deltaTime) / 8;
