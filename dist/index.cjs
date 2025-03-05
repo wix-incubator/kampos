@@ -2569,7 +2569,7 @@ function flowmapGrid ({
 } = {}) {
     /**
      * @typedef {Object} fboFlowmapGridEffect
-     * @property {ArrayBufferView|ImageData|ImageBitmap} u_flowMap map generated and used
+     * @property {ArrayBufferView|ImageData|ImageBitmap} u_FBOMap map generated and used
      * @property {Array<number>} mouse Mouse position
      * @property {Array<number>} deltaMouse Delta mouse position
      * @property {number} movement Movement value
@@ -2610,7 +2610,7 @@ function flowmapGrid ({
                 }
             `,
             uniform: {
-                u_flowMap: 'sampler2D',
+                u_FBOMap: 'sampler2D',
                 u_mouse: 'vec2',
                 u_deltaMouse: 'vec2',
                 u_movement: 'float',
@@ -2620,7 +2620,7 @@ function flowmapGrid ({
                 u_aspectRatio: 'float',
             },
             main: `
-                    vec4 colorMap = texture2D(u_flowMap, v_uv);
+                    vec4 colorMap = texture2D(u_FBOMap, v_uv);
 
                     // Adjust values for square / rectangle ratio
                     float dist = getDistance(v_uv, u_mouse, u_containerResolution, u_aspectRatio);
@@ -2664,7 +2664,7 @@ function flowmapGrid ({
         },
         uniforms: [
             {
-                name: 'u_flowMap',
+                name: 'u_FBOMap',
                 type: 'i',
                 data: [0],
             },
@@ -2728,7 +2728,7 @@ function gridMouseDisplacement ({
     /**
      * @typedef {Object} gridMouseDisplacementEffect
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} u_image media source to transition into
-     * @property {ArrayBufferView|ImageData|ImageBitmap} u_flowMap map generated from FBO
+     * @property {ArrayBufferView|ImageData|ImageBitmap} u_FBOMap map generated from FBO
      * @property {Array<number>} containerResolution Container resolution
      * @property {number} aspectRatio Aspect ratio
      * @property {number} displacementForce Displacement force
@@ -2766,7 +2766,7 @@ function gridMouseDisplacement ({
         `,
             uniform: {
                 u_image: 'sampler2D',
-                u_flowMap: 'sampler2D',
+                u_FBOMap: 'sampler2D',
                 u_containerResolution: 'vec2',
                 u_aspectRatio: 'float',
                 u_displacementForce: 'float',
@@ -2774,7 +2774,7 @@ function gridMouseDisplacement ({
             },
             main: `
             vec2 griUvs = coverUvs(u_aspectRatio, u_containerResolution);
-            vec4 displacement = texture2D(u_flowMap, griUvs);
+            vec4 displacement = texture2D(u_FBOMap, griUvs);
 
             vec2 finalUvs = v_uv - displacement.rg * u_displacementForce * 1.5;
             vec4 finalImage = texture2D(u_image, finalUvs);
@@ -2835,7 +2835,7 @@ function gridMouseDisplacement ({
                 data: [1],
             },
             {
-                name: 'u_flowMap',
+                name: 'u_FBOMap',
                 type: 'i',
                 data: [1],
             },
@@ -3514,7 +3514,7 @@ function draw(gl, plane = {}, media, data, fboData) {
         // bind fbo texture
         gl.activeTexture(startTex);
         gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
-        gl.uniform1i(gl.getUniformLocation(program, 'u_flowMap'), 0);
+        gl.uniform1i(gl.getUniformLocation(program, 'u_FBOMap'), 0);
         startTex++;
     }
 
@@ -3562,7 +3562,7 @@ function drawFBO(gl, fboData) {
 
     // // Set uniforms
     _setUniforms(gl, uniforms);
-    gl.uniform1i(gl.getUniformLocation(program, 'u_flowMap'), 0);
+    gl.uniform1i(gl.getUniformLocation(program, 'u_FBOMap'), 0);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 

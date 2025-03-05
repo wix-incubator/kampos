@@ -14,7 +14,7 @@ export default function ({
     /**
      * @typedef {Object} gridMouseDisplacementEffect
      * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} u_image media source to transition into
-     * @property {ArrayBufferView|ImageData|ImageBitmap} u_flowMap map generated from FBO
+     * @property {ArrayBufferView|ImageData|ImageBitmap} u_FBOMap map generated from FBO
      * @property {Array<number>} containerResolution Container resolution
      * @property {number} aspectRatio Aspect ratio
      * @property {number} displacementForce Displacement force
@@ -52,7 +52,7 @@ export default function ({
         `,
             uniform: {
                 u_image: 'sampler2D',
-                u_flowMap: 'sampler2D',
+                u_FBOMap: 'sampler2D',
                 u_containerResolution: 'vec2',
                 u_aspectRatio: 'float',
                 u_displacementForce: 'float',
@@ -60,7 +60,7 @@ export default function ({
             },
             main: `
             vec2 griUvs = coverUvs(u_aspectRatio, u_containerResolution);
-            vec4 displacement = texture2D(u_flowMap, griUvs);
+            vec4 displacement = texture2D(u_FBOMap, griUvs);
 
             vec2 finalUvs = v_uv - displacement.rg * u_displacementForce * 1.5;
             vec4 finalImage = texture2D(u_image, finalUvs);
@@ -121,7 +121,7 @@ export default function ({
                 data: [1],
             },
             {
-                name: 'u_flowMap',
+                name: 'u_FBOMap',
                 type: 'i',
                 data: [1],
             },

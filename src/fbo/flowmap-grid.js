@@ -13,7 +13,7 @@ export default function ({
 } = {}) {
     /**
      * @typedef {Object} fboFlowmapGridEffect
-     * @property {ArrayBufferView|ImageData|ImageBitmap} u_flowMap map generated and used
+     * @property {ArrayBufferView|ImageData|ImageBitmap} u_FBOMap map generated and used
      * @property {Array<number>} mouse Mouse position
      * @property {Array<number>} deltaMouse Delta mouse position
      * @property {number} movement Movement value
@@ -54,7 +54,7 @@ export default function ({
                 }
             `,
             uniform: {
-                u_flowMap: 'sampler2D',
+                u_FBOMap: 'sampler2D',
                 u_mouse: 'vec2',
                 u_deltaMouse: 'vec2',
                 u_movement: 'float',
@@ -64,7 +64,7 @@ export default function ({
                 u_aspectRatio: 'float',
             },
             main: `
-                    vec4 colorMap = texture2D(u_flowMap, v_uv);
+                    vec4 colorMap = texture2D(u_FBOMap, v_uv);
 
                     // Adjust values for square / rectangle ratio
                     float dist = getDistance(v_uv, u_mouse, u_containerResolution, u_aspectRatio);
@@ -108,7 +108,7 @@ export default function ({
         },
         uniforms: [
             {
-                name: 'u_flowMap',
+                name: 'u_FBOMap',
                 type: 'i',
                 data: [0],
             },

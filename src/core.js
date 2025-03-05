@@ -250,7 +250,7 @@ export function draw(gl, plane = {}, media, data, fboData) {
         // bind fbo texture
         gl.activeTexture(startTex);
         gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
-        gl.uniform1i(gl.getUniformLocation(program, 'u_flowMap'), 0);
+        gl.uniform1i(gl.getUniformLocation(program, 'u_FBOMap'), 0);
         startTex++;
     }
 
@@ -298,7 +298,7 @@ function drawFBO(gl, fboData) {
 
     // // Set uniforms
     _setUniforms(gl, uniforms);
-    gl.uniform1i(gl.getUniformLocation(program, 'u_flowMap'), 0);
+    gl.uniform1i(gl.getUniformLocation(program, 'u_FBOMap'), 0);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
