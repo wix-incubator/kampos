@@ -4089,7 +4089,7 @@ function _getTextureWrap(key) {
     return TEXTURE_WRAP[key] || TEXTURE_WRAP['stretch'];
 }
 
-function createFloatTexture(gl, data, width, height) {
+function _createFloatTexture(gl, data, width, height) {
     // Enable OES_texture_float extension
     const ext = gl.getExtension('OES_texture_float');
     if (!ext) {
@@ -4138,8 +4138,8 @@ function _initFBOProgram(gl, plane, fbo) {
         new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
         gl.STATIC_DRAW
     );
-    const tex1 = createFloatTexture(gl, null, fbo.size, fbo.size);
-    const tex2 = createFloatTexture(gl, null, fbo.size, fbo.size);
+    const tex1 = _createFloatTexture(gl, null, fbo.size, fbo.size);
+    const tex2 = _createFloatTexture(gl, null, fbo.size, fbo.size);
 
     const frameBuffer1 = _createFramebuffer(gl, tex1);
     const frameBuffer2 = _createFramebuffer(gl, tex2);
