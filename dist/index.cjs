@@ -3557,6 +3557,9 @@ function drawFBO(gl, fboData) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newInfo.fb);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    const positionLocation = gl.getAttribLocation(program, 'a_position');
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
     // read old texture
     gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
 
