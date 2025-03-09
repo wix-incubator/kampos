@@ -117,10 +117,13 @@ const SHADER_ERROR_TYPES = {
  * @param {boolean} [config.noSource]
  * @return {{gl: WebGLRenderingContext, data: kamposSceneData, [dimensions]: {width: number, height: number}}}
  */
-export function init({ gl, plane, effects, dimensions, noSource }) {
+export function init({ gl, plane, effects, dimensions, noSource, fbo }) {
     const programData = _initProgram(gl, plane, effects, noSource);
 
-    return { gl, data: programData, dimensions: dimensions || {} };
+    let fboData
+    if (fbo) fboData = _initFBOProgram(gl, plane, fbo);
+
+    return { gl, data: programData, dimensions: dimensions || {}, fboData };
 }
 
 let WEBGL_CONTEXT_SUPPORTED = false;
@@ -199,7 +202,10 @@ export function resize(gl, dimensions) {
  * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} media
  * @param {kamposSceneData} data
  */
-export function draw(gl, plane = {}, media, data) {
+export function draw(gl, plane = {}, media, data, fboData) {
+
+    if (fboData) drawFBO(gl, fboData);
+
     const {
         program,
         source,
@@ -226,9 +232,12 @@ export function draw(gl, plane = {}, media, data) {
     }
 
     gl.useProgram(program);
+    // resize to default viewport
+    if (fboData) gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
     if (vao) {
         extensions.vao.bindVertexArrayOES(vao);
+        if (fboData) _enableVertexAttributes(gl, attributes);
     } else {
         _enableVertexAttributes(gl, attributes);
     }
@@ -237,10 +246,18 @@ export function draw(gl, plane = {}, media, data) {
 
     let startTex = gl.TEXTURE0;
 
+    if (fboData) {
+        // bind fbo texture
+        gl.activeTexture(startTex);
+        gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
+        gl.uniform1i(gl.getUniformLocation(program, 'u_FBOMap'), 0);
+        startTex++;
+    }
+
     if (source) {
         gl.activeTexture(startTex);
         gl.bindTexture(gl.TEXTURE_2D, source.texture);
-        startTex = gl.TEXTURE1;
+        startTex++;
     }
 
     if (textures) {
@@ -264,6 +281,38 @@ export function draw(gl, plane = {}, media, data) {
     }
 
     gl.drawArrays(gl.TRIANGLES, 0, 6 * xSegments * ySegments);
+}
+
+function drawFBO(gl, fboData) {
+    const { buffer, size, program, uniforms } = fboData;
+    // FBO :: Update
+    gl.useProgram(program);
+    // set size
+    gl.viewport(0, 0, size, size);
+    // write in new fb
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newInfo.fb);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    const positionLocation = gl.getAttribLocation(program, 'a_position')
+    gl.enableVertexAttribArray(positionLocation)
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
+    // read old texture
+    gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
+
+    // // Set uniforms
+    _setUniforms(gl, uniforms);
+    gl.uniform1i(gl.getUniformLocation(program, 'u_FBOMap'), 0);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+    // Swap textures and framebuffers
+    {
+        const temp = fboData.oldInfo;
+        fboData.oldInfo = fboData.newInfo;
+        fboData.newInfo = temp;
+    }
+    // clear framebuffer
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
 /**
@@ -708,6 +757,19 @@ function _createBuffer(gl, program, name, data) {
     return { location, buffer };
 }
 
+function _createFramebuffer(gl, tex) {
+    const fb = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    gl.framebufferTexture2D(
+        gl.FRAMEBUFFER,
+        gl.COLOR_ATTACHMENT0,
+        gl.TEXTURE_2D,
+        tex,
+        0
+    );
+    return fb;
+}
+
 function _initVertexAttributes(gl, program, data) {
     return (data || []).map((attr) => {
         const { location, buffer } = _createBuffer(
@@ -764,6 +826,76 @@ function _enableVertexAttributes(gl, attributes) {
 
 function _getTextureWrap(key) {
     return TEXTURE_WRAP[key] || TEXTURE_WRAP['stretch'];
+}
+
+function _createFloatTexture(gl, data, width, height) {
+    // Enable OES_texture_float extension
+    const ext = gl.getExtension('OES_texture_float');
+    if (!ext) {
+        throw new Error('OES_texture_float not supported');
+    }
+
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(
+        gl.TEXTURE_2D,
+        0, // mip level
+        gl.RGBA, // internal format
+        width,
+        height,
+        0, // border
+        gl.RGBA, // format
+        gl.FLOAT, // type
+        data
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return tex;
+}
+
+function _initFBOProgram(gl, plane, fbo) {
+
+    const data = _mergeEffectsData(plane, fbo.effects, true);
+    const vertexSrc = _stringifyShaderSrc(
+        data.vertex,
+        vertexSimpleTemplate,
+    );
+    const fragmentSrc = _stringifyShaderSrc(
+        data.fragment,
+        fragmentSimpleTemplate,
+    );
+
+    const { program } = _getWebGLProgram(gl, vertexSrc, fragmentSrc);
+    const uniforms = _initUniforms(gl, program, data.uniforms);
+
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(
+        gl.ARRAY_BUFFER,
+         new Float32Array(
+            _getPlaneCoords({ xEnd: 2, yEnd: 2, factor: 1 }, plane),
+        ),
+        gl.STATIC_DRAW
+    );
+    const tex1 = _createFloatTexture(gl, null, fbo.size, fbo.size)
+    const tex2 = _createFloatTexture(gl, null, fbo.size, fbo.size)
+
+    const frameBuffer1 = _createFramebuffer(gl, tex1);
+    const frameBuffer2 = _createFramebuffer(gl, tex2);
+
+    const oldInfo = {
+        fb: frameBuffer1,
+        tex: tex1,
+    };
+
+    const newInfo = {
+        fb: frameBuffer2,
+        tex: tex2,
+    };
+
+    return { buffer, program, uniforms, oldInfo, newInfo, size: fbo.size }
 }
 
 /**

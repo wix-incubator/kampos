@@ -2554,6 +2554,321 @@ function dissolve ({
     };
 }
 
+/**
+ * @function fboFlowmapGrid
+ * @param {number} [options.aspectRatio=16 / 9] Aspect ratio of the grid
+ * @param {number} [options.radius=130] Radius of the effect
+ * @param {number} [options.relaxation=0.93] Relaxation factor
+ * @returns {fboFlowmapGridEffect}
+ * @example fboFlowmapGrid()
+ */
+function flowmapGrid ({
+    aspectRatio = 16 / 9,
+    radius = 130,
+    relaxation = 0.93,
+} = {}) {
+    /**
+     * @typedef {Object} fboFlowmapGridEffect
+     * @property {ArrayBufferView|ImageData|ImageBitmap} u_FBOMap map generated and used
+     * @property {Array<number>} mouse Mouse position
+     * @property {Array<number>} deltaMouse Delta mouse position
+     * @property {number} movement Movement value
+     * @property {number} relaxation Relaxation value
+     * @property {number} radius Radius value
+     * @property {Array<number>} containerResolution Container resolution
+     * @property {number} aspectRatio Aspect ratio
+     *
+     * @example
+     * effect.to = document.querySelector('#video-to');
+     * effect.progress = 0.5;
+     */
+    return {
+        vertex: {
+            attribute: {
+                a_uv: 'vec2',
+            },
+            main: `
+               v_uv = a_uv;// Convert to [0, 1] range`,
+        },
+        fragment: {
+            constant: `
+                float getDistance(vec2 uv, vec2 mouse, vec2 containerRes, float aspectRatio) {
+                    // adjust mouse ratio based on the grid aspectRatio wanted
+                    vec2 newMouse = mouse;
+                    newMouse -= 0.5;
+                    if (containerRes.x < containerRes.y) {
+                        newMouse.x *= (containerRes.x / containerRes.y) / aspectRatio;
+                    } else {
+                        newMouse.y *= (containerRes.y / containerRes.x) * aspectRatio;
+                    }
+                    newMouse += 0.5;
+
+                    // adjust circle based on the grid aspectRatio wanted
+                    vec2 diff = uv - newMouse;
+                    diff.y /= aspectRatio;
+                    return length(diff);
+                }
+            `,
+            uniform: {
+                u_FBOMap: 'sampler2D',
+                u_mouse: 'vec2',
+                u_deltaMouse: 'vec2',
+                u_movement: 'float',
+                u_relaxation: 'float',
+                u_radius: 'float',
+                u_containerResolution: 'vec2',
+                u_aspectRatio: 'float',
+            },
+            main: `
+                    vec4 colorMap = texture2D(u_FBOMap, v_uv);
+
+                    // Adjust values for square / rectangle ratio
+                    float dist = getDistance(v_uv, u_mouse, u_containerResolution, u_aspectRatio);
+                    dist = 1.0 - (smoothstep(0.0, u_radius / 1000., dist));
+
+                    vec2 delta = u_deltaMouse;
+
+                    colorMap.rg += delta * dist;
+                    colorMap.rg *= min(u_relaxation, u_movement);
+
+                    color = colorMap.rgb;
+                    alpha = 1.0;
+                `,
+        },
+        set mouse(pos) {
+            this.uniforms[1].data[0] = pos[0];
+            this.uniforms[1].data[1] = pos[1];
+        },
+        set deltaMouse(pos) {
+            this.uniforms[2].data[0] = pos[0];
+            this.uniforms[2].data[1] = pos[1];
+        },
+        set movement(value) {
+            this.uniforms[3].data[0] = value;
+        },
+        set relaxation(value) {
+            this.uniforms[4].data[0] = value;
+        },
+        set radius(value) {
+            this.uniforms[5].data[0] = value;
+        },
+        set containerResolution(value) {
+            this.uniforms[6].data[0] = value[0];
+            this.uniforms[6].data[1] = value[1];
+        },
+        set aspectRatio(value) {
+            this.uniforms[7].data[0] = value;
+        },
+        varying: {
+            v_uv: 'vec2',
+        },
+        uniforms: [
+            {
+                name: 'u_FBOMap',
+                type: 'i',
+                data: [0],
+            },
+            {
+                name: 'u_mouse',
+                type: 'f',
+                data: [0, 0],
+            },
+            {
+                name: 'u_deltaMouse',
+                type: 'f',
+                data: [0, 0],
+            },
+            {
+                name: 'u_movement',
+                type: 'f',
+                data: [1],
+            },
+            {
+                name: 'u_relaxation',
+                type: 'f',
+                data: [relaxation],
+            },
+            {
+                name: 'u_radius',
+                type: 'f',
+                data: [radius],
+            },
+            {
+                name: 'u_containerResolution',
+                type: 'f',
+                data: [0, 0],
+            },
+            {
+                name: 'u_aspectRatio',
+                type: 'f',
+                data: [aspectRatio],
+            },
+        ],
+        attributes: [
+            {
+                name: 'a_uv',
+            },
+        ],
+    };
+}
+
+/**
+ * @function gridMouseDisplacement
+ * @param {number} [options.aspectRatio=16 / 9] Aspect ratio of the grid
+ * @param {number} [options.displacementForce=0.01] Force of displacement
+ * @param {boolean} [options.rgbShift=true] Apply RGBShift or not
+ * @returns {gridMouseDisplacementEffect}
+ * @example gridMouseDisplacement()
+ */
+function gridMouseDisplacement ({
+    aspectRatio = 16 / 9,
+    displacementForce = 0.01,
+    rgbShift = true,
+} = {}) {
+    /**
+     * @typedef {Object} gridMouseDisplacementEffect
+     * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} u_image media source to transition into
+     * @property {ArrayBufferView|ImageData|ImageBitmap} u_FBOMap map generated from FBO
+     * @property {Array<number>} containerResolution Container resolution
+     * @property {number} aspectRatio Aspect ratio
+     * @property {number} displacementForce Displacement force
+     * @property {boolean} rgbShift Apply RGB shift
+     *
+     * @example
+     * effect.to = document.querySelector('#video-to');
+     * effect.progress = 0.5;
+     */
+    return {
+        vertex: {
+            attribute: {
+                a_uv: 'vec2',
+            },
+            main: `v_uv = a_uv;`,
+        },
+        fragment: {
+            constant: `
+            vec2 coverUvs(float aspectRatio, vec2 containerRes) {
+                float containerAspectX = containerRes.x/containerRes.y;
+                float containerAspectY = containerRes.y/containerRes.x;
+
+                vec2 ratio = vec2(
+                    min(containerAspectX / aspectRatio, 1.0),
+                    min(containerAspectY * aspectRatio, 1.0)
+                );
+
+                vec2 newUvs = vec2(
+                    v_uv.x * ratio.x + (1.0 - ratio.x) * 0.5,
+                    v_uv.y * ratio.y + (1.0 - ratio.y) * 0.5
+                );
+
+                return newUvs;
+            }
+        `,
+            uniform: {
+                u_image: 'sampler2D',
+                u_FBOMap: 'sampler2D',
+                u_containerResolution: 'vec2',
+                u_aspectRatio: 'float',
+                u_displacementForce: 'float',
+                u_RGBShift: 'bool',
+            },
+            main: `
+            vec2 griUvs = coverUvs(u_aspectRatio, u_containerResolution);
+            vec4 displacement = texture2D(u_FBOMap, griUvs);
+
+            vec2 finalUvs = v_uv - displacement.rg * u_displacementForce * 1.5;
+            vec4 finalImage = texture2D(u_image, finalUvs);
+
+            //rgb shift
+            if (u_RGBShift) {
+                vec2 redUvs = finalUvs;
+                vec2 blueUvs = finalUvs;
+                vec2 greenUvs = finalUvs;
+
+                vec2 shift = displacement.rg * 0.001;
+
+                float displacementStrengh = length(displacement.rg);
+                displacementStrengh = clamp(displacementStrengh, 0., 2.);
+
+                float redStrengh = 1. + displacementStrengh * 0.25;
+                redUvs += shift * redStrengh;
+
+                float blueStrengh = 1. + displacementStrengh * 1.5;
+                blueUvs += shift * blueStrengh;
+
+                float greenStrengh = 1. + displacementStrengh * 2.;
+                greenUvs += shift * greenStrengh;
+
+                float red = texture2D(u_image, redUvs).r;
+                float blue = texture2D(u_image, blueUvs).b;
+                float green = texture2D(u_image, greenUvs).g;
+
+                finalImage.r = red;
+                finalImage.g = green;
+                finalImage.b = blue;
+            }
+
+            color.rgb = finalImage.rgb;
+            alpha = 1.;
+        `,
+        },
+        set containerResolution(value) {
+            this.uniforms[2].data[0] = value[0];
+            this.uniforms[2].data[1] = value[1];
+        },
+        set aspectRatio(value) {
+            this.uniforms[3].data[0] = value;
+        },
+        set displacementForce(value) {
+            this.uniforms[4].data[0] = value;
+        },
+        set rgbShift(value) {
+            this.uniforms[5].data[0] = value;
+        },
+        varying: {
+            v_uv: 'vec2',
+        },
+        uniforms: [
+            {
+                name: 'u_image',
+                type: 'i',
+                data: [1],
+            },
+            {
+                name: 'u_FBOMap',
+                type: 'i',
+                data: [1],
+            },
+            {
+                name: 'u_containerResolution',
+                type: 'f',
+                data: [0, 0],
+            },
+            {
+                name: 'u_aspectRatio',
+                type: 'f',
+                data: [aspectRatio],
+            },
+            {
+                name: 'u_displacementForce',
+                type: 'f',
+                data: [displacementForce],
+            },
+            {
+                name: 'u_RGBShift',
+                type: 'i',
+                data: [+rgbShift],
+            },
+        ],
+        attributes: [
+            {
+                name: 'a_uv',
+                extends: 'a_texCoord',
+            },
+        ],
+    };
+}
+
 const COlOR_TRANSITION = 'transitionColor';
 const ALPHA_TRANSITION = 'transitionAlpha';
 const APPEAR_ALPHA = 'appearAlpha';
@@ -3066,10 +3381,13 @@ const SHADER_ERROR_TYPES = {
  * @param {boolean} [config.noSource]
  * @return {{gl: WebGLRenderingContext, data: kamposSceneData, [dimensions]: {width: number, height: number}}}
  */
-function init({ gl, plane, effects, dimensions, noSource }) {
+function init({ gl, plane, effects, dimensions, noSource, fbo }) {
     const programData = _initProgram(gl, plane, effects, noSource);
 
-    return { gl, data: programData, dimensions: dimensions || {} };
+    let fboData;
+    if (fbo) fboData = _initFBOProgram(gl, plane, fbo);
+
+    return { gl, data: programData, dimensions: dimensions || {}, fboData };
 }
 
 let WEBGL_CONTEXT_SUPPORTED = false;
@@ -3148,7 +3466,10 @@ function resize(gl, dimensions) {
  * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} media
  * @param {kamposSceneData} data
  */
-function draw(gl, plane = {}, media, data) {
+function draw(gl, plane = {}, media, data, fboData) {
+
+    if (fboData) drawFBO(gl, fboData);
+
     const {
         program,
         source,
@@ -3175,9 +3496,12 @@ function draw(gl, plane = {}, media, data) {
     }
 
     gl.useProgram(program);
+    // resize to default viewport
+    if (fboData) gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
     if (vao) {
         extensions.vao.bindVertexArrayOES(vao);
+        if (fboData) _enableVertexAttributes(gl, attributes);
     } else {
         _enableVertexAttributes(gl, attributes);
     }
@@ -3186,10 +3510,18 @@ function draw(gl, plane = {}, media, data) {
 
     let startTex = gl.TEXTURE0;
 
+    if (fboData) {
+        // bind fbo texture
+        gl.activeTexture(startTex);
+        gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
+        gl.uniform1i(gl.getUniformLocation(program, 'u_FBOMap'), 0);
+        startTex++;
+    }
+
     if (source) {
         gl.activeTexture(startTex);
         gl.bindTexture(gl.TEXTURE_2D, source.texture);
-        startTex = gl.TEXTURE1;
+        startTex++;
     }
 
     if (textures) {
@@ -3213,6 +3545,38 @@ function draw(gl, plane = {}, media, data) {
     }
 
     gl.drawArrays(gl.TRIANGLES, 0, 6 * xSegments * ySegments);
+}
+
+function drawFBO(gl, fboData) {
+    const { buffer, size, program, uniforms } = fboData;
+    // FBO :: Update
+    gl.useProgram(program);
+    // set size
+    gl.viewport(0, 0, size, size);
+    // write in new fb
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newInfo.fb);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    const positionLocation = gl.getAttribLocation(program, 'a_position');
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+    // read old texture
+    gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
+
+    // // Set uniforms
+    _setUniforms(gl, uniforms);
+    gl.uniform1i(gl.getUniformLocation(program, 'u_FBOMap'), 0);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+    // Swap textures and framebuffers
+    {
+        const temp = fboData.oldInfo;
+        fboData.oldInfo = fboData.newInfo;
+        fboData.newInfo = temp;
+    }
+    // clear framebuffer
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
 /**
@@ -3657,6 +4021,19 @@ function _createBuffer(gl, program, name, data) {
     return { location, buffer };
 }
 
+function _createFramebuffer(gl, tex) {
+    const fb = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    gl.framebufferTexture2D(
+        gl.FRAMEBUFFER,
+        gl.COLOR_ATTACHMENT0,
+        gl.TEXTURE_2D,
+        tex,
+        0
+    );
+    return fb;
+}
+
 function _initVertexAttributes(gl, program, data) {
     return (data || []).map((attr) => {
         const { location, buffer } = _createBuffer(
@@ -3713,6 +4090,76 @@ function _enableVertexAttributes(gl, attributes) {
 
 function _getTextureWrap(key) {
     return TEXTURE_WRAP[key] || TEXTURE_WRAP['stretch'];
+}
+
+function _createFloatTexture(gl, data, width, height) {
+    // Enable OES_texture_float extension
+    const ext = gl.getExtension('OES_texture_float');
+    if (!ext) {
+        throw new Error('OES_texture_float not supported');
+    }
+
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(
+        gl.TEXTURE_2D,
+        0, // mip level
+        gl.RGBA, // internal format
+        width,
+        height,
+        0, // border
+        gl.RGBA, // format
+        gl.FLOAT, // type
+        data
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return tex;
+}
+
+function _initFBOProgram(gl, plane, fbo) {
+
+    const data = _mergeEffectsData(plane, fbo.effects, true);
+    const vertexSrc = _stringifyShaderSrc(
+        data.vertex,
+        vertexSimpleTemplate,
+    );
+    const fragmentSrc = _stringifyShaderSrc(
+        data.fragment,
+        fragmentSimpleTemplate,
+    );
+
+    const { program } = _getWebGLProgram(gl, vertexSrc, fragmentSrc);
+    const uniforms = _initUniforms(gl, program, data.uniforms);
+
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(
+        gl.ARRAY_BUFFER,
+         new Float32Array(
+            _getPlaneCoords({ xEnd: 2, yEnd: 2, factor: 1 }, plane),
+        ),
+        gl.STATIC_DRAW
+    );
+    const tex1 = _createFloatTexture(gl, null, fbo.size, fbo.size);
+    const tex2 = _createFloatTexture(gl, null, fbo.size, fbo.size);
+
+    const frameBuffer1 = _createFramebuffer(gl, tex1);
+    const frameBuffer2 = _createFramebuffer(gl, tex2);
+
+    const oldInfo = {
+        fb: frameBuffer1,
+        tex: tex1,
+    };
+
+    const newInfo = {
+        fb: frameBuffer2,
+        tex: tex2,
+    };
+
+    return { buffer, program, uniforms, oldInfo, newInfo, size: fbo.size }
 }
 
 /**
@@ -3846,7 +4293,7 @@ class Kampos {
      */
     init(config) {
         config = config || this.config;
-        let { target, plane, effects, ticker, noSource } = config;
+        let { target, plane, effects, ticker, noSource, fbo } = config;
 
         if (Kampos.preventContextCreation) return false;
 
@@ -3878,16 +4325,18 @@ class Kampos {
             ySegments,
         };
 
-        const { data } = init({
+        const { data, fboData } = init({
             gl,
             plane: this.plane,
             effects,
             dimensions: this.dimensions,
             noSource,
+            fbo
         });
 
         this.gl = gl;
         this.data = data;
+        this.fboData = fboData;
 
         // cache for restoring context
         this.config = config;
@@ -3978,7 +4427,7 @@ class Kampos {
 
         if (cb && cb(time) === false) return;
 
-        draw(this.gl, this.plane, this.media, this.data);
+        draw(this.gl, this.plane, this.media, this.data, this.fboData);
 
         if (this.config.afterDraw) {
             this.config.afterDraw(time);
@@ -4296,6 +4745,7 @@ const effects = {
     kaleidoscope,
     turbulence,
     slitScan,
+    gridMouseDisplacement
 };
 
 const transitions = {
@@ -4319,9 +4769,14 @@ const utilities = {
     circle,
 };
 
+const fbos = {
+    flowmapGrid,
+};
+
 exports.Kampos = Kampos;
 exports.Ticker = Ticker;
 exports.effects = effects;
+exports.fbos = fbos;
 exports.noise = noise;
 exports.transitions = transitions;
 exports.utilities = utilities;
