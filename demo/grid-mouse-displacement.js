@@ -103,7 +103,7 @@ const resizeHandler = (target) => {
     rect.width = target.offsetWidth;
     rect.height = target.offsetHeight;
     flowmapGrid.resolution = { x: rect.width,  y: rect.height };
-    resolution.resolutoin = { x: rect.width, y: rect.height };
+    resolution.resolution = { x: rect.width, y: rect.height };
 };
 
 window.addEventListener('resize', resizeHandler.bind(null, target));
