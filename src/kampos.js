@@ -309,6 +309,10 @@ export class Kampos {
 
         if (this.gl && this.data) {
             core.destroy(this.gl, this.data);
+
+            if (this.fboData) {
+                core.destroy(this.gl, this.fboData);
+            }
         }
 
         if (keepState) {

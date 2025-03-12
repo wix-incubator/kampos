@@ -1,4 +1,4 @@
-import { Kampos, fbos, effects } from '../index.js';
+import { Kampos, fbos, effects, utilities } from '../index.js';
 
 const GUI = lil.GUI;
 
@@ -8,6 +8,7 @@ const target = document.querySelector('#target');
 // create the effects/transitions we need
 let gridMouseDisplacement;
 let flowmapGrid;
+let resolution;
 let instance;
 
 const guiObj = {
@@ -15,8 +16,8 @@ const guiObj = {
     gridSize: 1000,
     relaxation: 0.93,
     resetForce: 0.3,
-    displacementForce: 0.01,
-    rgbShift: true,
+    intensity: 0.01,
+    channelSplit: true,
     ratio: 'square', // using String here to simplify choices, but in the end it's a Number used for aspectRatio
 };
 
@@ -25,21 +26,35 @@ prepareVideos([media1]).then(() => {
     generateInstance({ aspectRatio: 1 });
 });
 
+
+const rect = target.getBoundingClientRect();
+let movement = 1;
+let mousePos = [0, 0];
+let deltaMouse = [0, 0];
+const mouse = {
+    x: 0,
+    y: 0,
+};
+
+let lastTime = 0;
+
 function generateInstance({ aspectRatio }) {
     if (instance) {
         instance.destroy();
     }
 
     // create the effects/transitions we need
+    resolution = utilities.resolution({ width: rect.width, height: rect.height });
     gridMouseDisplacement = effects.gridMouseDisplacement({ aspectRatio });
-    flowmapGrid = fbos.flowmapGrid({ aspectRatio });
+    flowmapGrid = fbos.flowmapGrid({ aspectRatio, width: rect.width, height: rect.height });
 
     // init kampos
     instance = new Kampos({
         target,
-        effects: [gridMouseDisplacement],
+        effects: [resolution, gridMouseDisplacement],
         fbo: {
             size: Math.ceil(Math.sqrt(guiObj.gridSize)),
+            //size: rect.height,
             effects: [flowmapGrid],
         },
     });
@@ -49,70 +64,46 @@ function generateInstance({ aspectRatio }) {
     const height = media1.videoHeight;
     instance.setSource({ media: media1, width, height });
 
-    // start kampos
     resizeHandler(target);
-    instance.play();
+
+    instance.play(function (time) {
+        const deltaTime = (time - lastTime);
+        lastTime = time;
+
+        movement -= (guiObj.resetForce * 0.01 * deltaTime) / 8;
+        movement = Math.max(0, movement);
+
+        if (flowmapGrid) {
+            flowmapGrid.mouse = { x: mousePos[0], y: mousePos[1] };
+            flowmapGrid.deltaMouse = { x: deltaMouse[0], y: deltaMouse[1] };
+            flowmapGrid.movement = movement;
+        }
+    });
 }
 
-let rect;
-let movement = 1;
-let mousePos = [0, 0];
-let deltaMouse = [0, 0];
-let mouse = {
-    x: 0,
-    y: 0,
-};
-
-let lastTime = 0;
-
-// this is invoked once in every animation frame, while there's a mouse move over the canvas
-function tick(time) {
-    const deltaTime = (time - lastTime);
-    lastTime = time;
-
-    movement -= (guiObj.resetForce * 0.01 * deltaTime) / 8;
-    movement = Math.max(0, movement);
-    // drawing = false;
-
-    if (flowmapGrid) {
-        flowmapGrid.mouse = mousePos;
-        flowmapGrid.deltaMouse = deltaMouse;
-        flowmapGrid.movement = movement;
-    }
-
-    requestAnimationFrame(tick);
-}
-
-tick(0);
-
-// handler for detecting mouse move
+// handler for detecting pointer move
 const moveHandler = (e) => {
-    const { clientX, clientY } = e;
+    const { offsetX, offsetY } = e;
 
-    rect = target.getBoundingClientRect();
-
-    mouse.x = (clientX - rect.x) / rect.width;
-    mouse.y = 1 - clientY / rect.height;
+    mouse.x = (offsetX - rect.x) / rect.width;
+    mouse.y = 1 - offsetY / rect.height;
 
     deltaMouse = [(mouse.x - mousePos[0]) * 80, (mouse.y - mousePos[1]) * 80];
     mousePos = [mouse.x, mouse.y];
 
     movement = 1;
-
-    if (flowmapGrid) {
-        flowmapGrid.containerResolution = [rect.width, rect.height];
-    }
 };
 
 /*
  * register event handlers for interaction
  */
-target.addEventListener('mousemove', moveHandler);
+target.addEventListener('pointermove', moveHandler);
 
 const resizeHandler = (target) => {
-    const rect = target.getBoundingClientRect();
-    flowmapGrid.containerResolution = [rect.width, rect.height];
-    gridMouseDisplacement.containerResolution = [rect.width, rect.height];
+    rect.width = target.offsetWidth;
+    rect.height = target.offsetHeight;
+    flowmapGrid.resolution = { x: rect.width,  y: rect.height };
+    resolution.resolutoin = { x: rect.width, y: rect.height };
 };
 
 window.addEventListener('resize', resizeHandler.bind(null, target));
@@ -126,8 +117,8 @@ const setGUI = () => {
         gridMouseDisplacement.aspectRatio = ratioUniform;
         resizeHandler(target);
     });
-    gui.add(guiObj, 'rgbShift').onChange((value) => {
-        gridMouseDisplacement.rgbShift = value;
+    gui.add(guiObj, 'channelSplit').onChange((value) => {
+        gridMouseDisplacement.enableChannelSplit = value;
     });
     gui.add(guiObj, 'radius', 1, 300).onChange((value) => {
         flowmapGrid.radius = value;
@@ -138,8 +129,8 @@ const setGUI = () => {
         generateInstance({ aspectRatio: ratioUniform });
         resizeHandler(target);
     });
-    gui.add(guiObj, 'displacementForce', 0, 0.1).onChange((value) => {
-        gridMouseDisplacement.displacementForce = value;
+    gui.add(guiObj, 'intensity', 0, 0.1).onChange((value) => {
+        gridMouseDisplacement.intensity = value;
     });
     gui.add(guiObj, 'resetForce', 0.08, 1);
     gui.add(guiObj, 'relaxation', 0.8, 0.99).onChange((value) => {

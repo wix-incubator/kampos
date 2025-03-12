@@ -1,5 +1,6 @@
 const LUMA_COEFFICIENT = 'const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);';
 const MATH_PI = `const float PI = ${Math.PI};`;
+const DEBUG = false;
 
 const vertexSimpleTemplate = ({
     uniform = '',
@@ -118,10 +119,13 @@ const SHADER_ERROR_TYPES = {
  * @return {{gl: WebGLRenderingContext, data: kamposSceneData, [dimensions]: {width: number, height: number}}}
  */
 export function init({ gl, plane, effects, dimensions, noSource, fbo }) {
-    const programData = _initProgram(gl, plane, effects, noSource);
+    const hasFBO = !!fbo;
+    const programData = _initProgram(gl, plane, effects, hasFBO, noSource);
 
     let fboData
-    if (fbo) fboData = _initFBOProgram(gl, plane, fbo);
+    if (hasFBO) {
+        fboData = _initFBOProgram(gl, plane, fbo);
+    }
 
     return { gl, data: programData, dimensions: dimensions || {}, fboData };
 }
@@ -204,7 +208,9 @@ export function resize(gl, dimensions) {
  */
 export function draw(gl, plane = {}, media, data, fboData) {
 
-    if (fboData) drawFBO(gl, fboData);
+    if (fboData) {
+        drawFBO(gl, fboData);
+    }
 
     const {
         program,
@@ -232,12 +238,14 @@ export function draw(gl, plane = {}, media, data, fboData) {
     }
 
     gl.useProgram(program);
-    // resize to default viewport
-    if (fboData) gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+
+    // resize back to default viewport
+    if (fboData) {
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    }
 
     if (vao) {
         extensions.vao.bindVertexArrayOES(vao);
-        if (fboData) _enableVertexAttributes(gl, attributes);
     } else {
         _enableVertexAttributes(gl, attributes);
     }
@@ -284,24 +292,17 @@ export function draw(gl, plane = {}, media, data, fboData) {
 }
 
 function drawFBO(gl, fboData) {
-    const { buffer, size, program, uniforms } = fboData;
-    // FBO :: Update
+    const { size, program, uniforms } = fboData;
+
     gl.useProgram(program);
-    // set size
+
     gl.viewport(0, 0, size, size);
     // write in new fb
     gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newInfo.fb);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    const positionLocation = gl.getAttribLocation(program, 'a_position')
-    gl.enableVertexAttribArray(positionLocation)
-    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
     // read old texture
     gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
-
     // // Set uniforms
     _setUniforms(gl, uniforms);
-    gl.uniform1i(gl.getUniformLocation(program, 'u_FBOMap'), 0);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -349,7 +350,7 @@ export function destroy(gl, data) {
     gl.deleteShader(fragmentShader);
 }
 
-function _initProgram(gl, plane, effects, noSource = false) {
+function _initProgram(gl, plane, effects, hasFBO = false, noSource = false) {
     const source = noSource
         ? null
         : {
@@ -363,7 +364,7 @@ function _initProgram(gl, plane, effects, noSource = false) {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     }
 
-    const data = _mergeEffectsData(plane, effects, noSource);
+    const data = _mergeEffectsData(plane, effects, hasFBO, noSource);
     const vertexSrc = _stringifyShaderSrc(
         data.vertex,
         noSource ? vertexSimpleTemplate : vertexMediaTemplate,
@@ -377,13 +378,8 @@ function _initProgram(gl, plane, effects, noSource = false) {
     const { program, vertexShader, fragmentShader, error, type } =
         _getWebGLProgram(gl, vertexSrc, fragmentSrc);
 
-    if (error) {
-        function addLineNumbers(str) {
-            return str.split('\n').map((line, i) => `${i + 1}: ${line}`).join('\n');
-        }
-        throw new Error(
-            `${type} error:: ${error}\n${addLineNumbers(type === SHADER_ERROR_TYPES.fragment ? fragmentSrc : vertexSrc)}`,
-        );
+    if (error || DEBUG) {
+        logShaders(type, error, vertexSrc, fragmentSrc);
     }
 
     let vaoExt, vao;
@@ -395,7 +391,7 @@ function _initProgram(gl, plane, effects, noSource = false) {
         // ignore
     }
 
-    // setup the vertex data
+    // set up the vertex data
     const attributes = _initVertexAttributes(gl, program, data.attributes);
 
     if (vao) {
@@ -421,7 +417,54 @@ function _initProgram(gl, plane, effects, noSource = false) {
     };
 }
 
-function _mergeEffectsData(plane, effects, noSource = false) {
+function _initFBOProgram(gl, plane, fbo) {
+    const data = _mergeEffectsData(plane, fbo.effects, false, true);
+    const vertexSrc = _stringifyShaderSrc(
+        data.vertex,
+        vertexSimpleTemplate,
+    );
+    const fragmentSrc = _stringifyShaderSrc(
+        data.fragment,
+        fragmentSimpleTemplate,
+    );
+
+    const { program, vertexShader, fragmentShader, error, type } =
+        _getWebGLProgram(gl, vertexSrc, fragmentSrc);
+
+    if (error || DEBUG) {
+        logShaders(type, error, vertexSrc, fragmentSrc);
+    }
+
+    const uniforms = _initUniforms(gl, program, data.uniforms);
+
+    const tex1 = _createFloatTexture(gl, null, fbo.size, fbo.size)
+    const tex2 = _createFloatTexture(gl, null, fbo.size, fbo.size)
+
+    const frameBuffer1 = _createFramebuffer(gl, tex1);
+    const frameBuffer2 = _createFramebuffer(gl, tex2);
+
+    const oldInfo = {
+        fb: frameBuffer1,
+        tex: tex1,
+    };
+
+    const newInfo = {
+        fb: frameBuffer2,
+        tex: tex2,
+    };
+
+    return {
+        program,
+        vertexShader,
+        fragmentShader,
+        uniforms,
+        oldInfo,
+        newInfo,
+        size: fbo.size,
+    };
+}
+
+function _mergeEffectsData(plane, effects, hasFBO = false, noSource = false) {
     return effects.reduce(
         (result, config) => {
             const {
@@ -489,7 +532,8 @@ function _mergeEffectsData(plane, effects, noSource = false) {
 
             return result;
         },
-        getEffectDefaults(plane, noSource),
+
+        getEffectDefaults(plane, hasFBO, noSource),
     );
 }
 
@@ -535,7 +579,7 @@ function _getPlaneCoords({ xEnd, yEnd, factor }, plane = {}) {
     return result;
 }
 
-function getEffectDefaults(plane, noSource) {
+function getEffectDefaults(plane, hasFBO, noSource) {
     /*
      * Default uniforms
      */
@@ -545,7 +589,7 @@ function getEffectDefaults(plane, noSource) {
               {
                   name: 'u_source',
                   type: 'i',
-                  data: [0],
+                  data: [hasFBO ? 1 : 0],
               },
           ];
 
@@ -855,47 +899,21 @@ function _createFloatTexture(gl, data, width, height) {
     return tex;
 }
 
-function _initFBOProgram(gl, plane, fbo) {
+function logShaders(type, error, vertexSrc, fragmentSrc) {
+    function addLineNumbers(str) {
+        return str.split('\n').map((line, i) => `${i + 1}: ${line}`).join('\n');
+    }
 
-    const data = _mergeEffectsData(plane, fbo.effects, true);
-    const vertexSrc = _stringifyShaderSrc(
-        data.vertex,
-        vertexSimpleTemplate,
-    );
-    const fragmentSrc = _stringifyShaderSrc(
-        data.fragment,
-        fragmentSimpleTemplate,
-    );
+    if (error) {
+        throw new Error(
+            `${type} error:: ${error}\n${addLineNumbers(type === SHADER_ERROR_TYPES.fragment ? fragmentSrc : vertexSrc)}`,
+        );
+    }
 
-    const { program } = _getWebGLProgram(gl, vertexSrc, fragmentSrc);
-    const uniforms = _initUniforms(gl, program, data.uniforms);
-
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(
-        gl.ARRAY_BUFFER,
-         new Float32Array(
-            _getPlaneCoords({ xEnd: 2, yEnd: 2, factor: 1 }, plane),
-        ),
-        gl.STATIC_DRAW
-    );
-    const tex1 = _createFloatTexture(gl, null, fbo.size, fbo.size)
-    const tex2 = _createFloatTexture(gl, null, fbo.size, fbo.size)
-
-    const frameBuffer1 = _createFramebuffer(gl, tex1);
-    const frameBuffer2 = _createFramebuffer(gl, tex2);
-
-    const oldInfo = {
-        fb: frameBuffer1,
-        tex: tex1,
-    };
-
-    const newInfo = {
-        fb: frameBuffer2,
-        tex: tex2,
-    };
-
-    return { buffer, program, uniforms, oldInfo, newInfo, size: fbo.size }
+    if (DEBUG) {
+        console.log(addLineNumbers(vertexSrc));
+        console.log(addLineNumbers(fragmentSrc));
+    }
 }
 
 /**

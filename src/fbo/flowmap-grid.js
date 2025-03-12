@@ -1,13 +1,18 @@
 /**
  * @function fboFlowmapGrid
+ * @param {Object} [options={}]
  * @param {number} [options.aspectRatio=16 / 9] Aspect ratio of the grid
  * @param {number} [options.radius=130] Radius of the effect
  * @param {number} [options.relaxation=0.93] Relaxation factor
+ * @param {number} [options.width=window.innerWidth] Width of the container
+ * @param {number} [options.height=window.innerHeight] Height of the container
  * @returns {fboFlowmapGridEffect}
  * @example fboFlowmapGrid()
  */
 export default function ({
     aspectRatio = 16 / 9,
+    width = window.innerWidth,
+    height = window.innerHeight,
     radius = 130,
     relaxation = 0.93,
 } = {}) {
@@ -19,12 +24,11 @@ export default function ({
      * @property {number} movement Movement value
      * @property {number} relaxation Relaxation value
      * @property {number} radius Radius value
-     * @property {Array<number>} containerResolution Container resolution
+     * @property {Array<number>} resolution Container resolution
      * @property {number} aspectRatio Aspect ratio
      *
      * @example
-     * effect.to = document.querySelector('#video-to');
-     * effect.progress = 0.5;
+     *
      */
     return {
         vertex: {
@@ -32,27 +36,26 @@ export default function ({
                 a_uv: 'vec2',
             },
             main: `
-               v_uv = a_uv;// Convert to [0, 1] range`,
+       v_uv = a_uv;// Convert to [0, 1] range`,
         },
         fragment: {
             constant: `
-                float getDistance(vec2 uv, vec2 mouse, vec2 containerRes, float aspectRatio) {
-                    // adjust mouse ratio based on the grid aspectRatio wanted
-                    vec2 newMouse = mouse;
-                    newMouse -= 0.5;
-                    if (containerRes.x < containerRes.y) {
-                        newMouse.x *= (containerRes.x / containerRes.y) / aspectRatio;
-                    } else {
-                        newMouse.y *= (containerRes.y / containerRes.x) * aspectRatio;
-                    }
-                    newMouse += 0.5;
+        float getDistance(vec2 uv, vec2 mouse, vec2 containerRes, float aspectRatio) {
+            // adjust mouse ratio based on the grid aspectRatio wanted
+            vec2 newMouse = mouse;
+            newMouse -= 0.5;
+            if (containerRes.x < containerRes.y) {
+                newMouse.x *= (containerRes.x / containerRes.y) / aspectRatio;
+            } else {
+                newMouse.y *= (containerRes.y / containerRes.x) * aspectRatio;
+            }
+            newMouse += 0.5;
 
-                    // adjust circle based on the grid aspectRatio wanted
-                    vec2 diff = uv - newMouse;
-                    diff.y /= aspectRatio;
-                    return length(diff);
-                }
-            `,
+            // adjust circle based on the grid aspectRatio wanted
+            vec2 diff = uv - newMouse;
+            diff.y /= aspectRatio;
+            return length(diff);
+        }`,
             uniform: {
                 u_FBOMap: 'sampler2D',
                 u_mouse: 'vec2',
@@ -60,48 +63,47 @@ export default function ({
                 u_movement: 'float',
                 u_relaxation: 'float',
                 u_radius: 'float',
-                u_containerResolution: 'vec2',
+                u_resolution: 'vec2',
                 u_aspectRatio: 'float',
             },
             main: `
-                    vec4 colorMap = texture2D(u_FBOMap, v_uv);
+        vec4 colorMap = texture2D(u_FBOMap, v_uv);
 
-                    // Adjust values for square / rectangle ratio
-                    float dist = getDistance(v_uv, u_mouse, u_containerResolution, u_aspectRatio);
-                    dist = 1.0 - (smoothstep(0.0, u_radius / 1000., dist));
+        // Adjust values for square / rectangle ratio
+        float dist = getDistance(v_uv, u_mouse, u_resolution, u_aspectRatio);
+        dist = 1.0 - smoothstep(0.0, u_radius / 1000., dist);
 
-                    vec2 delta = u_deltaMouse;
+        vec2 delta = u_deltaMouse;
 
-                    colorMap.rg += delta * dist;
-                    colorMap.rg *= min(u_relaxation, u_movement);
+        colorMap.rg += delta * dist;
+        colorMap.rg *= min(u_relaxation, u_movement);
 
-                    color = colorMap.rgb;
-                    alpha = 1.0;
-                `,
+        color = colorMap.rgb;
+        alpha = 1.0;`,
         },
-        set mouse(pos) {
-            this.uniforms[1].data[0] = pos[0];
-            this.uniforms[1].data[1] = pos[1];
+        set mouse({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[1].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[1].data[1] = y;
         },
-        set deltaMouse(pos) {
-            this.uniforms[2].data[0] = pos[0];
-            this.uniforms[2].data[1] = pos[1];
+        set deltaMouse({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[2].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[2].data[1] = y;
         },
-        set movement(value) {
-            this.uniforms[3].data[0] = value;
+        set movement(m) {
+            this.uniforms[3].data[0] = m;
         },
-        set relaxation(value) {
-            this.uniforms[4].data[0] = value;
+        set relaxation(r) {
+            this.uniforms[4].data[0] = r;
         },
-        set radius(value) {
-            this.uniforms[5].data[0] = value;
+        set radius(r) {
+            this.uniforms[5].data[0] = r;
         },
-        set containerResolution(value) {
-            this.uniforms[6].data[0] = value[0];
-            this.uniforms[6].data[1] = value[1];
+        set resolution({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[6].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[6].data[1] = y;
         },
-        set aspectRatio(value) {
-            this.uniforms[7].data[0] = value;
+        set aspectRatio(ar) {
+            this.uniforms[7].data[0] = ar;
         },
         varying: {
             v_uv: 'vec2',
@@ -125,7 +127,7 @@ export default function ({
             {
                 name: 'u_movement',
                 type: 'f',
-                data: [1],
+                data: [0],
             },
             {
                 name: 'u_relaxation',
@@ -138,9 +140,9 @@ export default function ({
                 data: [radius],
             },
             {
-                name: 'u_containerResolution',
+                name: 'u_resolution',
                 type: 'f',
-                data: [0, 0],
+                data: [width, height],
             },
             {
                 name: 'u_aspectRatio',

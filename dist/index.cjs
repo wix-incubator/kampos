@@ -2556,14 +2556,19 @@ function dissolve ({
 
 /**
  * @function fboFlowmapGrid
+ * @param {Object} [options={}]
  * @param {number} [options.aspectRatio=16 / 9] Aspect ratio of the grid
  * @param {number} [options.radius=130] Radius of the effect
  * @param {number} [options.relaxation=0.93] Relaxation factor
+ * @param {number} [options.width=window.innerWidth] Width of the container
+ * @param {number} [options.height=window.innerHeight] Height of the container
  * @returns {fboFlowmapGridEffect}
  * @example fboFlowmapGrid()
  */
 function flowmapGrid ({
     aspectRatio = 16 / 9,
+    width = window.innerWidth,
+    height = window.innerHeight,
     radius = 130,
     relaxation = 0.93,
 } = {}) {
@@ -2575,12 +2580,11 @@ function flowmapGrid ({
      * @property {number} movement Movement value
      * @property {number} relaxation Relaxation value
      * @property {number} radius Radius value
-     * @property {Array<number>} containerResolution Container resolution
+     * @property {Array<number>} resolution Container resolution
      * @property {number} aspectRatio Aspect ratio
      *
      * @example
-     * effect.to = document.querySelector('#video-to');
-     * effect.progress = 0.5;
+     *
      */
     return {
         vertex: {
@@ -2588,27 +2592,26 @@ function flowmapGrid ({
                 a_uv: 'vec2',
             },
             main: `
-               v_uv = a_uv;// Convert to [0, 1] range`,
+       v_uv = a_uv;// Convert to [0, 1] range`,
         },
         fragment: {
             constant: `
-                float getDistance(vec2 uv, vec2 mouse, vec2 containerRes, float aspectRatio) {
-                    // adjust mouse ratio based on the grid aspectRatio wanted
-                    vec2 newMouse = mouse;
-                    newMouse -= 0.5;
-                    if (containerRes.x < containerRes.y) {
-                        newMouse.x *= (containerRes.x / containerRes.y) / aspectRatio;
-                    } else {
-                        newMouse.y *= (containerRes.y / containerRes.x) * aspectRatio;
-                    }
-                    newMouse += 0.5;
+        float getDistance(vec2 uv, vec2 mouse, vec2 containerRes, float aspectRatio) {
+            // adjust mouse ratio based on the grid aspectRatio wanted
+            vec2 newMouse = mouse;
+            newMouse -= 0.5;
+            if (containerRes.x < containerRes.y) {
+                newMouse.x *= (containerRes.x / containerRes.y) / aspectRatio;
+            } else {
+                newMouse.y *= (containerRes.y / containerRes.x) * aspectRatio;
+            }
+            newMouse += 0.5;
 
-                    // adjust circle based on the grid aspectRatio wanted
-                    vec2 diff = uv - newMouse;
-                    diff.y /= aspectRatio;
-                    return length(diff);
-                }
-            `,
+            // adjust circle based on the grid aspectRatio wanted
+            vec2 diff = uv - newMouse;
+            diff.y /= aspectRatio;
+            return length(diff);
+        }`,
             uniform: {
                 u_FBOMap: 'sampler2D',
                 u_mouse: 'vec2',
@@ -2616,48 +2619,47 @@ function flowmapGrid ({
                 u_movement: 'float',
                 u_relaxation: 'float',
                 u_radius: 'float',
-                u_containerResolution: 'vec2',
+                u_resolution: 'vec2',
                 u_aspectRatio: 'float',
             },
             main: `
-                    vec4 colorMap = texture2D(u_FBOMap, v_uv);
+        vec4 colorMap = texture2D(u_FBOMap, v_uv);
 
-                    // Adjust values for square / rectangle ratio
-                    float dist = getDistance(v_uv, u_mouse, u_containerResolution, u_aspectRatio);
-                    dist = 1.0 - (smoothstep(0.0, u_radius / 1000., dist));
+        // Adjust values for square / rectangle ratio
+        float dist = getDistance(v_uv, u_mouse, u_resolution, u_aspectRatio);
+        dist = 1.0 - smoothstep(0.0, u_radius / 1000., dist);
 
-                    vec2 delta = u_deltaMouse;
+        vec2 delta = u_deltaMouse;
 
-                    colorMap.rg += delta * dist;
-                    colorMap.rg *= min(u_relaxation, u_movement);
+        colorMap.rg += delta * dist;
+        colorMap.rg *= min(u_relaxation, u_movement);
 
-                    color = colorMap.rgb;
-                    alpha = 1.0;
-                `,
+        color = colorMap.rgb;
+        alpha = 1.0;`,
         },
-        set mouse(pos) {
-            this.uniforms[1].data[0] = pos[0];
-            this.uniforms[1].data[1] = pos[1];
+        set mouse({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[1].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[1].data[1] = y;
         },
-        set deltaMouse(pos) {
-            this.uniforms[2].data[0] = pos[0];
-            this.uniforms[2].data[1] = pos[1];
+        set deltaMouse({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[2].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[2].data[1] = y;
         },
-        set movement(value) {
-            this.uniforms[3].data[0] = value;
+        set movement(m) {
+            this.uniforms[3].data[0] = m;
         },
-        set relaxation(value) {
-            this.uniforms[4].data[0] = value;
+        set relaxation(r) {
+            this.uniforms[4].data[0] = r;
         },
-        set radius(value) {
-            this.uniforms[5].data[0] = value;
+        set radius(r) {
+            this.uniforms[5].data[0] = r;
         },
-        set containerResolution(value) {
-            this.uniforms[6].data[0] = value[0];
-            this.uniforms[6].data[1] = value[1];
+        set resolution({ x, y }) {
+            if (typeof x !== 'undefined') this.uniforms[6].data[0] = x;
+            if (typeof y !== 'undefined') this.uniforms[6].data[1] = y;
         },
-        set aspectRatio(value) {
-            this.uniforms[7].data[0] = value;
+        set aspectRatio(ar) {
+            this.uniforms[7].data[0] = ar;
         },
         varying: {
             v_uv: 'vec2',
@@ -2681,7 +2683,7 @@ function flowmapGrid ({
             {
                 name: 'u_movement',
                 type: 'f',
-                data: [1],
+                data: [0],
             },
             {
                 name: 'u_relaxation',
@@ -2694,9 +2696,9 @@ function flowmapGrid ({
                 data: [radius],
             },
             {
-                name: 'u_containerResolution',
+                name: 'u_resolution',
                 type: 'f',
-                data: [0, 0],
+                data: [width, height],
             },
             {
                 name: 'u_aspectRatio',
@@ -2713,136 +2715,100 @@ function flowmapGrid ({
 }
 
 /**
- * @function gridMouseDisplacement
- * @param {number} [options.aspectRatio=16 / 9] Aspect ratio of the grid
- * @param {number} [options.displacementForce=0.01] Force of displacement
- * @param {boolean} [options.rgbShift=true] Apply RGBShift or not
- * @returns {gridMouseDisplacementEffect}
- * @example gridMouseDisplacement()
+ * @function flowmapGridDisplacement
+ * @param {Object} [params]
+ * @param {number} [params.aspectRatio=16 / 9] Aspect ratio of the grid
+ * @param {number} [params.intensity=0.01] Intensity of displacement
+ * @param {boolean} [params.enableChannelSplit=true] Apply RGBShift or not
+ * @returns {flowmapGridDisplacementEffect}
+ * @example flowmapGridDisplacement()
  */
 function gridMouseDisplacement ({
     aspectRatio = 16 / 9,
-    displacementForce = 0.01,
-    rgbShift = true,
+    intensity = 0.01,
+    enableChannelSplit = true,
 } = {}) {
     /**
-     * @typedef {Object} gridMouseDisplacementEffect
-     * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} u_image media source to transition into
+     * @typedef {Object} flowmapGridDisplacementEffect
      * @property {ArrayBufferView|ImageData|ImageBitmap} u_FBOMap map generated from FBO
-     * @property {Array<number>} containerResolution Container resolution
      * @property {number} aspectRatio Aspect ratio
-     * @property {number} displacementForce Displacement force
-     * @property {boolean} rgbShift Apply RGB shift
+     * @property {number} intensity Displacement intensity
+     * @property {boolean} enableChannelSplit Whether to apply RGB channel split
      *
      * @example
-     * effect.to = document.querySelector('#video-to');
-     * effect.progress = 0.5;
+     * const flowmapDisp = effects.flowmapGridDisplacement({ intenisity: 0.1 });
      */
     return {
-        vertex: {
-            attribute: {
-                a_uv: 'vec2',
-            },
-            main: `v_uv = a_uv;`,
-        },
         fragment: {
             constant: `
-            vec2 coverUvs(float aspectRatio, vec2 containerRes) {
-                float containerAspectX = containerRes.x/containerRes.y;
-                float containerAspectY = containerRes.y/containerRes.x;
+        vec2 coverUvs(float aspectRatio, vec2 containerRes) {
+            float containerAspectX = containerRes.x/containerRes.y;
+            float containerAspectY = containerRes.y/containerRes.x;
 
-                vec2 ratio = vec2(
-                    min(containerAspectX / aspectRatio, 1.0),
-                    min(containerAspectY * aspectRatio, 1.0)
-                );
+            vec2 ratio = vec2(
+                min(containerAspectX / aspectRatio, 1.0),
+                min(containerAspectY * aspectRatio, 1.0)
+            );
 
-                vec2 newUvs = vec2(
-                    v_uv.x * ratio.x + (1.0 - ratio.x) * 0.5,
-                    v_uv.y * ratio.y + (1.0 - ratio.y) * 0.5
-                );
+            vec2 newUvs = vec2(
+                v_texCoord.x * ratio.x + (1.0 - ratio.x) * 0.5,
+                v_texCoord.y * ratio.y + (1.0 - ratio.y) * 0.5
+            );
 
-                return newUvs;
-            }
-        `,
+            return newUvs;
+        }`,
             uniform: {
-                u_image: 'sampler2D',
                 u_FBOMap: 'sampler2D',
-                u_containerResolution: 'vec2',
                 u_aspectRatio: 'float',
-                u_displacementForce: 'float',
-                u_RGBShift: 'bool',
+                u_displacementIntensity: 'float',
+                u_enableChannelSplit: 'bool',
             },
+            source: `
+        vec2 griUvs = coverUvs(u_aspectRatio, u_resolution);
+        vec4 displacement = texture2D(u_FBOMap, griUvs);
+
+        sourceCoord -= displacement.rg * u_displacementIntensity * 1.5;`,
             main: `
-            vec2 griUvs = coverUvs(u_aspectRatio, u_containerResolution);
-            vec4 displacement = texture2D(u_FBOMap, griUvs);
+        if (u_enableChannelSplit) {
+            vec2 redUvs = sourceCoord;
+            vec2 blueUvs = sourceCoord;
+            vec2 greenUvs = sourceCoord;
 
-            vec2 finalUvs = v_uv - displacement.rg * u_displacementForce * 1.5;
-            vec4 finalImage = texture2D(u_image, finalUvs);
+            vec2 shift = displacement.rg * 0.001;
 
-            //rgb shift
-            if (u_RGBShift) {
-                vec2 redUvs = finalUvs;
-                vec2 blueUvs = finalUvs;
-                vec2 greenUvs = finalUvs;
+            float displacementScale = length(displacement.rg);
+            displacementScale = clamp(displacementScale, 0., 2.);
 
-                vec2 shift = displacement.rg * 0.001;
+            float redScale = 1. + displacementScale * 0.25;
+            redUvs += shift * redScale;
 
-                float displacementStrengh = length(displacement.rg);
-                displacementStrengh = clamp(displacementStrengh, 0., 2.);
+            float greenScale = 1. + displacementScale * 2.;
+            greenUvs += shift * greenScale;
 
-                float redStrengh = 1. + displacementStrengh * 0.25;
-                redUvs += shift * redStrengh;
+            float blueScale = 1. + displacementScale * 1.5;
+            blueUvs += shift * blueScale;
 
-                float blueStrengh = 1. + displacementStrengh * 1.5;
-                blueUvs += shift * blueStrengh;
+            float red = texture2D(u_source, redUvs).r;
+            float blue = texture2D(u_source, blueUvs).b;
+            float green = texture2D(u_source, greenUvs).g;
 
-                float greenStrengh = 1. + displacementStrengh * 2.;
-                greenUvs += shift * greenStrengh;
-
-                float red = texture2D(u_image, redUvs).r;
-                float blue = texture2D(u_image, blueUvs).b;
-                float green = texture2D(u_image, greenUvs).g;
-
-                finalImage.r = red;
-                finalImage.g = green;
-                finalImage.b = blue;
-            }
-
-            color.rgb = finalImage.rgb;
-            alpha = 1.;
-        `,
+            color = vec3(red, green, blue);
+        }`,
         },
-        set containerResolution(value) {
-            this.uniforms[2].data[0] = value[0];
-            this.uniforms[2].data[1] = value[1];
+        set aspectRatio(ar) {
+            this.uniforms[1].data[0] = ar;
         },
-        set aspectRatio(value) {
-            this.uniforms[3].data[0] = value;
+        set intensity(i) {
+            this.uniforms[2].data[0] = i;
         },
-        set displacementForce(value) {
-            this.uniforms[4].data[0] = value;
-        },
-        set rgbShift(value) {
-            this.uniforms[5].data[0] = value;
-        },
-        varying: {
-            v_uv: 'vec2',
+        set enableChannelSplit(b) {
+            this.uniforms[3].data[0] = b;
         },
         uniforms: [
-            {
-                name: 'u_image',
-                type: 'i',
-                data: [1],
-            },
             {
                 name: 'u_FBOMap',
                 type: 'i',
                 data: [1],
-            },
-            {
-                name: 'u_containerResolution',
-                type: 'f',
-                data: [0, 0],
             },
             {
                 name: 'u_aspectRatio',
@@ -2850,20 +2816,14 @@ function gridMouseDisplacement ({
                 data: [aspectRatio],
             },
             {
-                name: 'u_displacementForce',
+                name: 'u_displacementIntensity',
                 type: 'f',
-                data: [displacementForce],
+                data: [intensity],
             },
             {
-                name: 'u_RGBShift',
+                name: 'u_enableChannelSplit',
                 type: 'i',
-                data: [+rgbShift],
-            },
-        ],
-        attributes: [
-            {
-                name: 'a_uv',
-                extends: 'a_texCoord',
+                data: [+enableChannelSplit],
             },
         ],
     };
@@ -3264,6 +3224,7 @@ shapeTransition.DIRECTION_CONSTANT = DIRECTION_CONSTANT;
 
 const LUMA_COEFFICIENT = 'const vec3 lumcoeff = vec3(0.2125, 0.7154, 0.0721);';
 const MATH_PI = `const float PI = ${Math.PI};`;
+const DEBUG = false;
 
 const vertexSimpleTemplate = ({
     uniform = '',
@@ -3382,10 +3343,13 @@ const SHADER_ERROR_TYPES = {
  * @return {{gl: WebGLRenderingContext, data: kamposSceneData, [dimensions]: {width: number, height: number}}}
  */
 function init({ gl, plane, effects, dimensions, noSource, fbo }) {
-    const programData = _initProgram(gl, plane, effects, noSource);
+    const hasFBO = !!fbo;
+    const programData = _initProgram(gl, plane, effects, hasFBO, noSource);
 
     let fboData;
-    if (fbo) fboData = _initFBOProgram(gl, plane, fbo);
+    if (hasFBO) {
+        fboData = _initFBOProgram(gl, plane, fbo);
+    }
 
     return { gl, data: programData, dimensions: dimensions || {}, fboData };
 }
@@ -3468,7 +3432,9 @@ function resize(gl, dimensions) {
  */
 function draw(gl, plane = {}, media, data, fboData) {
 
-    if (fboData) drawFBO(gl, fboData);
+    if (fboData) {
+        drawFBO(gl, fboData);
+    }
 
     const {
         program,
@@ -3496,12 +3462,14 @@ function draw(gl, plane = {}, media, data, fboData) {
     }
 
     gl.useProgram(program);
-    // resize to default viewport
-    if (fboData) gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+
+    // resize back to default viewport
+    if (fboData) {
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+    }
 
     if (vao) {
         extensions.vao.bindVertexArrayOES(vao);
-        if (fboData) _enableVertexAttributes(gl, attributes);
     } else {
         _enableVertexAttributes(gl, attributes);
     }
@@ -3548,24 +3516,17 @@ function draw(gl, plane = {}, media, data, fboData) {
 }
 
 function drawFBO(gl, fboData) {
-    const { buffer, size, program, uniforms } = fboData;
-    // FBO :: Update
+    const { size, program, uniforms } = fboData;
+
     gl.useProgram(program);
-    // set size
+
     gl.viewport(0, 0, size, size);
     // write in new fb
     gl.bindFramebuffer(gl.FRAMEBUFFER, fboData.newInfo.fb);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    const positionLocation = gl.getAttribLocation(program, 'a_position');
-    gl.enableVertexAttribArray(positionLocation);
-    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
     // read old texture
     gl.bindTexture(gl.TEXTURE_2D, fboData.oldInfo.tex);
-
     // // Set uniforms
     _setUniforms(gl, uniforms);
-    gl.uniform1i(gl.getUniformLocation(program, 'u_FBOMap'), 0);
 
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
@@ -3613,7 +3574,7 @@ function destroy(gl, data) {
     gl.deleteShader(fragmentShader);
 }
 
-function _initProgram(gl, plane, effects, noSource = false) {
+function _initProgram(gl, plane, effects, hasFBO = false, noSource = false) {
     const source = noSource
         ? null
         : {
@@ -3627,7 +3588,7 @@ function _initProgram(gl, plane, effects, noSource = false) {
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     }
 
-    const data = _mergeEffectsData(plane, effects, noSource);
+    const data = _mergeEffectsData(plane, effects, hasFBO, noSource);
     const vertexSrc = _stringifyShaderSrc(
         data.vertex,
         noSource ? vertexSimpleTemplate : vertexMediaTemplate,
@@ -3641,13 +3602,8 @@ function _initProgram(gl, plane, effects, noSource = false) {
     const { program, vertexShader, fragmentShader, error, type } =
         _getWebGLProgram(gl, vertexSrc, fragmentSrc);
 
-    if (error) {
-        function addLineNumbers(str) {
-            return str.split('\n').map((line, i) => `${i + 1}: ${line}`).join('\n');
-        }
-        throw new Error(
-            `${type} error:: ${error}\n${addLineNumbers(type === SHADER_ERROR_TYPES.fragment ? fragmentSrc : vertexSrc)}`,
-        );
+    if (error || DEBUG) {
+        logShaders(type, error, vertexSrc, fragmentSrc);
     }
 
     let vaoExt, vao;
@@ -3659,7 +3615,7 @@ function _initProgram(gl, plane, effects, noSource = false) {
         // ignore
     }
 
-    // setup the vertex data
+    // set up the vertex data
     const attributes = _initVertexAttributes(gl, program, data.attributes);
 
     if (vao) {
@@ -3685,7 +3641,54 @@ function _initProgram(gl, plane, effects, noSource = false) {
     };
 }
 
-function _mergeEffectsData(plane, effects, noSource = false) {
+function _initFBOProgram(gl, plane, fbo) {
+    const data = _mergeEffectsData(plane, fbo.effects, false, true);
+    const vertexSrc = _stringifyShaderSrc(
+        data.vertex,
+        vertexSimpleTemplate,
+    );
+    const fragmentSrc = _stringifyShaderSrc(
+        data.fragment,
+        fragmentSimpleTemplate,
+    );
+
+    const { program, vertexShader, fragmentShader, error, type } =
+        _getWebGLProgram(gl, vertexSrc, fragmentSrc);
+
+    if (error || DEBUG) {
+        logShaders(type, error, vertexSrc, fragmentSrc);
+    }
+
+    const uniforms = _initUniforms(gl, program, data.uniforms);
+
+    const tex1 = _createFloatTexture(gl, null, fbo.size, fbo.size);
+    const tex2 = _createFloatTexture(gl, null, fbo.size, fbo.size);
+
+    const frameBuffer1 = _createFramebuffer(gl, tex1);
+    const frameBuffer2 = _createFramebuffer(gl, tex2);
+
+    const oldInfo = {
+        fb: frameBuffer1,
+        tex: tex1,
+    };
+
+    const newInfo = {
+        fb: frameBuffer2,
+        tex: tex2,
+    };
+
+    return {
+        program,
+        vertexShader,
+        fragmentShader,
+        uniforms,
+        oldInfo,
+        newInfo,
+        size: fbo.size,
+    };
+}
+
+function _mergeEffectsData(plane, effects, hasFBO = false, noSource = false) {
     return effects.reduce(
         (result, config) => {
             const {
@@ -3753,7 +3756,8 @@ function _mergeEffectsData(plane, effects, noSource = false) {
 
             return result;
         },
-        getEffectDefaults(plane, noSource),
+
+        getEffectDefaults(plane, hasFBO, noSource),
     );
 }
 
@@ -3799,7 +3803,7 @@ function _getPlaneCoords({ xEnd, yEnd, factor }, plane = {}) {
     return result;
 }
 
-function getEffectDefaults(plane, noSource) {
+function getEffectDefaults(plane, hasFBO, noSource) {
     /*
      * Default uniforms
      */
@@ -3809,7 +3813,7 @@ function getEffectDefaults(plane, noSource) {
               {
                   name: 'u_source',
                   type: 'i',
-                  data: [0],
+                  data: [hasFBO ? 1 : 0],
               },
           ];
 
@@ -4119,47 +4123,16 @@ function _createFloatTexture(gl, data, width, height) {
     return tex;
 }
 
-function _initFBOProgram(gl, plane, fbo) {
+function logShaders(type, error, vertexSrc, fragmentSrc) {
+    function addLineNumbers(str) {
+        return str.split('\n').map((line, i) => `${i + 1}: ${line}`).join('\n');
+    }
 
-    const data = _mergeEffectsData(plane, fbo.effects, true);
-    const vertexSrc = _stringifyShaderSrc(
-        data.vertex,
-        vertexSimpleTemplate,
-    );
-    const fragmentSrc = _stringifyShaderSrc(
-        data.fragment,
-        fragmentSimpleTemplate,
-    );
-
-    const { program } = _getWebGLProgram(gl, vertexSrc, fragmentSrc);
-    const uniforms = _initUniforms(gl, program, data.uniforms);
-
-    const buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-    gl.bufferData(
-        gl.ARRAY_BUFFER,
-         new Float32Array(
-            _getPlaneCoords({ xEnd: 2, yEnd: 2, factor: 1 }, plane),
-        ),
-        gl.STATIC_DRAW
-    );
-    const tex1 = _createFloatTexture(gl, null, fbo.size, fbo.size);
-    const tex2 = _createFloatTexture(gl, null, fbo.size, fbo.size);
-
-    const frameBuffer1 = _createFramebuffer(gl, tex1);
-    const frameBuffer2 = _createFramebuffer(gl, tex2);
-
-    const oldInfo = {
-        fb: frameBuffer1,
-        tex: tex1,
-    };
-
-    const newInfo = {
-        fb: frameBuffer2,
-        tex: tex2,
-    };
-
-    return { buffer, program, uniforms, oldInfo, newInfo, size: fbo.size }
+    if (error) {
+        throw new Error(
+            `${type} error:: ${error}\n${addLineNumbers(type === SHADER_ERROR_TYPES.fragment ? fragmentSrc : vertexSrc)}`,
+        );
+    }
 }
 
 /**
@@ -4496,6 +4469,10 @@ class Kampos {
 
         if (this.gl && this.data) {
             destroy(this.gl, this.data);
+
+            if (this.fboData) {
+                destroy(this.gl, this.fboData);
+            }
         }
 
         if (keepState) {
