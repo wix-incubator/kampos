@@ -6,7 +6,7 @@ const media1 = document.querySelector('#video3');
 const target = document.querySelector('#target');
 
 // create the effects/transitions we need
-let gridMouseDisplacement;
+let flowmapGridDisplace;
 let flowmapGrid;
 let resolution;
 let instance;
@@ -45,13 +45,13 @@ function generateInstance({ aspectRatio }) {
 
     // create the effects/transitions we need
     resolution = utilities.resolution({ width: rect.width, height: rect.height });
-    gridMouseDisplacement = effects.gridMouseDisplacement({ aspectRatio });
+    flowmapGridDisplace = effects.flowmapGridDisplacement({ aspectRatio });
     flowmapGrid = fbos.flowmapGrid({ aspectRatio, width: rect.width, height: rect.height });
 
     // init kampos
     instance = new Kampos({
         target,
-        effects: [resolution, gridMouseDisplacement],
+        effects: [resolution, flowmapGridDisplace],
         fbo: {
             size: Math.ceil(Math.sqrt(guiObj.gridSize)),
             //size: rect.height,
@@ -114,11 +114,11 @@ const setGUI = () => {
     gui.add(guiObj, 'ratio', ['rectangle', 'square']).onChange((value) => {
         const ratioUniform = value === 'square' ? 1 : 16 / 9;
         flowmapGrid.aspectRatio = ratioUniform;
-        gridMouseDisplacement.aspectRatio = ratioUniform;
+        flowmapGridDisplace.aspectRatio = ratioUniform;
         resizeHandler(target);
     });
     gui.add(guiObj, 'channelSplit').onChange((value) => {
-        gridMouseDisplacement.enableChannelSplit = value;
+        flowmapGridDisplace.enableChannelSplit = value;
     });
     gui.add(guiObj, 'radius', 1, 300).onChange((value) => {
         flowmapGrid.radius = value;
@@ -130,7 +130,7 @@ const setGUI = () => {
         resizeHandler(target);
     });
     gui.add(guiObj, 'intensity', 0, 0.1).onChange((value) => {
-        gridMouseDisplacement.intensity = value;
+        flowmapGridDisplace.intensity = value;
     });
     gui.add(guiObj, 'resetForce', 0.08, 1);
     gui.add(guiObj, 'relaxation', 0.8, 0.99).onChange((value) => {
