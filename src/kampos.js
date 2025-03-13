@@ -414,6 +414,7 @@ export class Kampos {
  * @property {HTMLCanvasElement} target
  * @property {effectConfig[]} effects
  * @property {planeConfig} plane
+ * @property {fboConfig} fbo
  * @property {Ticker} [ticker]
  * @property {boolean} [noSource]
  * @property {function} [beforeDraw] function to run before each draw call. If it returns `false` {@link kampos#draw} will not be called.
@@ -442,6 +443,12 @@ export class Kampos {
  */
 
 /**
+ * @typedef {Object} fboConfig
+ * @property {number} size
+ * @property {effectConfig[]} effects
+ */
+
+/**
  * @typedef {Object} planeConfig
  * @property {number|{x: number: y: number}} segments
  */
@@ -461,6 +468,13 @@ export class Kampos {
  * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} [data]
  * @property {boolean} [update] defaults to `false`
  * @property {string|{x: string, y: string}} [wrap] with values `'stretch'|'repeat'|'mirror'`, defaults to `'stretch'`
+ */
+
+/**
+ * @typedef {Object} Texture
+ * @extends {textureConfig}
+ * @property {WebGLTexture} texture
+ * @property {WebGLFramebuffer} [buffer]
  */
 
 /**

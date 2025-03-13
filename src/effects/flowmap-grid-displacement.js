@@ -7,7 +7,7 @@
  * @returns {flowmapGridDisplacementEffect}
  * @example flowmapGridDisplacement()
  */
-export default function ({
+export default function flowmapGridDisplacement ({
     aspectRatio = 16 / 9,
     intensity = 0.01,
     enableChannelSplit = true,
@@ -20,7 +20,16 @@ export default function ({
      * @property {boolean} enableChannelSplit Whether to apply RGB channel split
      *
      * @example
+     * const flowmapGrid = fbo.flowmapGrid();
      * const flowmapDisp = effects.flowmapGridDisplacement({ intenisity: 0.1 });
+     * const instance = new Kampos({
+     *      target,
+     *      effects: [flowmapDisp],
+     *      fbo: {
+     *          size: 64,
+     *          effects: [flowmapGrid]
+     *      }
+     *  });
      */
     return {
         fragment: {

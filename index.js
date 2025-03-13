@@ -21,7 +21,7 @@ import fade from './src/transitions/fade.js';
 import displacementTransition from './src/transitions/displacement.js';
 import dissolve from './src/transitions/dissolve.js';
 import flowmapGrid from './src/fbo/flowmap-grid.js';
-import gridMouseDisplacement from './src/effects/flowmap-grid-displacement.js';
+import flowmapGridDisplacement from './src/effects/flowmap-grid-displacement.js';
 import shapeTransition from './src/transitions/shape.js';
 
 export { Kampos } from './src/kampos.js';
@@ -40,7 +40,7 @@ export const effects = {
     kaleidoscope,
     turbulence,
     slitScan,
-    gridMouseDisplacement
+    flowmapGridDisplacement,
 };
 
 export const transitions = {

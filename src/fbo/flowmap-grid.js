@@ -1,15 +1,17 @@
 /**
- * @function fboFlowmapGrid
+ * @function flowmapGrid
  * @param {Object} [options={}]
  * @param {number} [options.aspectRatio=16 / 9] Aspect ratio of the grid
  * @param {number} [options.radius=130] Radius of the effect
  * @param {number} [options.relaxation=0.93] Relaxation factor
  * @param {number} [options.width=window.innerWidth] Width of the container
  * @param {number} [options.height=window.innerHeight] Height of the container
- * @returns {fboFlowmapGridEffect}
- * @example fboFlowmapGrid()
+ * @returns {flowmapGridFBO}
+ *
+ * @example
+ * flowmapGrid()
  */
-export default function ({
+export default function flowmapGrid ({
     aspectRatio = 16 / 9,
     width = window.innerWidth,
     height = window.innerHeight,
@@ -17,7 +19,7 @@ export default function ({
     relaxation = 0.93,
 } = {}) {
     /**
-     * @typedef {Object} fboFlowmapGridEffect
+     * @typedef {Object} flowmapGridFBO
      * @property {ArrayBufferView|ImageData|ImageBitmap} u_FBOMap map generated and used
      * @property {Array<number>} mouse Mouse position
      * @property {Array<number>} deltaMouse Delta mouse position
@@ -28,7 +30,9 @@ export default function ({
      * @property {number} aspectRatio Aspect ratio
      *
      * @example
-     *
+     * flowmapGrid.mouse = { x: 0.4, y: 0.2 };
+     * flowmapGrid.deltaMouse = { x: 0.1, y: 0.1 };
+     * flowmapGrid.movement = 0.1;
      */
     return {
         vertex: {

@@ -5,7 +5,8 @@
  * @function circle
  * @returns {circleUtility}
  *
- * @example circle()
+ * @example
+ * circle()
  */
 function circle() {
     /**

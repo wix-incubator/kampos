@@ -7,7 +7,8 @@
  * @param {number} [params.height] initial canvas height. Defaults to `window.innerHeight`.
  * @returns {resolutionUtility}
  *
- * @example resolution({width: 1600, height: 900})
+ * @example
+ * resolution({width: 1600, height: 900})
  */
 function resolution({
     width = window.innerWidth,
