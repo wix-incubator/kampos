@@ -1,3 +1,12 @@
+### 0.16.0 (2025-03-13)
+
+_New:_
+
+-   Added support for using FBOs for pingpong rendering.
+-   Added `flowmapGrid` effect to the new fbo folder.
+-   Added `flowmapGridDisplacement` effect that uses `flowmapGrid`.
+-   Added `grid-mouse-displacement` demo.
+
 ### 0.15.0 (2025-02-26)
 
 _New:_
