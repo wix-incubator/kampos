@@ -106,7 +106,7 @@ export class Kampos {
      */
     init(config) {
         config = config || this.config;
-        let { target, plane, effects, ticker, noSource } = config;
+        let { target, plane, effects, ticker, noSource, fbo } = config;
 
         if (Kampos.preventContextCreation) return false;
 
@@ -138,16 +138,18 @@ export class Kampos {
             ySegments,
         };
 
-        const { data } = core.init({
+        const { data, fboData } = core.init({
             gl,
             plane: this.plane,
             effects,
             dimensions: this.dimensions,
             noSource,
+            fbo
         });
 
         this.gl = gl;
         this.data = data;
+        this.fboData = fboData;
 
         // cache for restoring context
         this.config = config;
@@ -238,7 +240,7 @@ export class Kampos {
 
         if (cb && cb(time) === false) return;
 
-        core.draw(this.gl, this.plane, this.media, this.data);
+        core.draw(this.gl, this.plane, this.media, this.data, this.fboData);
 
         if (this.config.afterDraw) {
             this.config.afterDraw(time);
@@ -307,6 +309,10 @@ export class Kampos {
 
         if (this.gl && this.data) {
             core.destroy(this.gl, this.data);
+
+            if (this.fboData) {
+                core.destroy(this.gl, this.fboData);
+            }
         }
 
         if (keepState) {
@@ -408,6 +414,7 @@ export class Kampos {
  * @property {HTMLCanvasElement} target
  * @property {effectConfig[]} effects
  * @property {planeConfig} plane
+ * @property {fboConfig} fbo
  * @property {Ticker} [ticker]
  * @property {boolean} [noSource]
  * @property {function} [beforeDraw] function to run before each draw call. If it returns `false` {@link kampos#draw} will not be called.
@@ -436,6 +443,12 @@ export class Kampos {
  */
 
 /**
+ * @typedef {Object} fboConfig
+ * @property {number} size
+ * @property {effectConfig[]} effects
+ */
+
+/**
  * @typedef {Object} planeConfig
  * @property {number|{x: number: y: number}} segments
  */
@@ -455,6 +468,13 @@ export class Kampos {
  * @property {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} [data]
  * @property {boolean} [update] defaults to `false`
  * @property {string|{x: string, y: string}} [wrap] with values `'stretch'|'repeat'|'mirror'`, defaults to `'stretch'`
+ */
+
+/**
+ * @typedef {Object} Texture
+ * @extends {textureConfig}
+ * @property {WebGLTexture} texture
+ * @property {WebGLFramebuffer} [buffer]
  */
 
 /**

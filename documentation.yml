@@ -16,6 +16,10 @@ toc:
   - resolutionUtility
   - mouseUtility
   - circleUtility
+  - name: FBO
+    children:
+      - flowmapGrid
+  - flowmapGridFBO
   - name: effects
     children:
       - brightnessContrast
@@ -29,6 +33,7 @@ toc:
       - deformation
       - channelSplit
       - slitScan
+      - flowmapGridDisplacement
   - brightnessContrastEffect
   - hueSaturationEffect
   - blendEffect
@@ -40,6 +45,7 @@ toc:
   - deformationEffect
   - channelSplitEffect
   - slitScanEffect
+  - flowmapGridDisplacementEffect
   - name: transitions
     children:
       - fadeTransition

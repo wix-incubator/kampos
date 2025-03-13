@@ -1,6 +1,6 @@
 {
     "name": "kampos",
-    "version": "0.15.0",
+    "version": "0.16.0",
     "description": "Tiny and fast effects compositor on WebGL",
     "registry": "https://registry.npmjs.org/",
     "main": "dist/index.cjs",
