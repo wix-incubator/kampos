@@ -55,6 +55,6 @@
         "rollup-plugin-filesize": "^10.0.0",
         "rollup-plugin-progress": "^1.1.2",
         "serve-static": "^1.16.2",
-        "vitest": "^2.1.7"
+        "vitest": "^3.2.0"
     }
 }
