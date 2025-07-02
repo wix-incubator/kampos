@@ -1,0 +1,273 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Kampos New Effects Creation Guide
+
+## Overview
+This guide explains how to create new composed effects for the Kampos WebGL library and integrate them into the demo system. Based on real implementation experience, this includes common pitfalls and their solutions.
+
+## ⚠️ CRITICAL: Build System Awareness
+**ALWAYS edit source files, not generated files!**
+- ✅ Edit [demo/demo.js](mdc:demo/demo.js) for demo configuration
+- ❌ Never edit [demo/index.js](mdc:demo/index.js) - it's generated from demo.js
+- After changes, run `npm run demo` to rebuild (or `cp demo/demo.js demo/index.js` if build fails)
+- See [kampos-build-system.mdc](mdc:.cursor/rules/kampos-build-system.mdc) for complete build workflow
+
+## Effect Composition Strategy
+- **Prefer composition over creation**: Use existing effects from [src/effects](mdc:src/effects) rather than writing new shaders
+- **Available base effects**: displacement, turbulence, alpha-mask, blend, duotone, kaleidoscope, channel-split, brightness-contrast, deformation, slit-scan, hue-saturation
+- **Available noise functions**: Found in [src/noise](mdc:src/noise) - cellular, simplex, perlin, white noise
+
+## Demo Integration Process
+
+### 1. Create the Main Demo File
+Create a new demo file in the `demo/` directory (e.g., `demo/bubble-displacement.js`):
+- Import from [index.js](mdc:index.js): `import { Kampos, effects, noise } from '../index.js'`
+- **CRITICAL**: Use `loadImage()` utility from [demo/utils.js](mdc:demo/utils.js) to avoid CORS issues
+- Compose effects using existing ones from the effects object
+- Set up mouse/interaction handlers as needed
+- **IMPORTANT**: Wrap all initialization in `loadImage().then()` promise
+
+### 2. Effect Parameter Validation
+**Common Issues to Avoid**:
+- ❌ Don't use `effects.turbulence.FRAGCOORD_XY_MOUSE_TIME` (requires missing uniforms)
+- ✅ Use `effects.turbulence.FRAGCOORD_XY_TIME` instead
+- ❌ Don't use invalid properties like `iridescence` on turbulence
+- ✅ Check [src/effects/turbulence.js](mdc:src/effects/turbulence.js) for valid parameters
+
+### 3. Media Loading Pattern
+**CRITICAL**: Always use this pattern to avoid CORS and initialization errors:
+
+```javascript
+// Load image and start effect
+loadImage(
+    'https://static.wixstatic.com/media/cec2b6_36e46176b7e54b678e4c6d39d36452e5~mv2.jpg'
+).then((img) => {
+    const height = window.document.documentElement.clientHeight;
+    const width = (height * img.naturalWidth) / img.naturalHeight;
+
+    // Set media source
+    instance.setSource({ media: img, width, height });
+
+    // Set up dynamic textures AFTER media is loaded
+    if (displacement) {
+        displacement.map = canvas;
+        displacement.textures[0].update = true;
+    }
+
+    // Add event listeners INSIDE the promise
+    target.addEventListener('pointermove', handleMouseMove);
+
+    // Start animations INSIDE the promise
+    animate();
+    instance.play();
+});
+```
+
+### 4. Add HTML Section Template
+In [demo/index.html](mdc:demo/index.html):
+- Add new `<template id="sectionX">` with appropriate section ID
+- Include refresh button and textarea for code display
+- Add navigation link in the `<nav>` section
+- **Template Structure**:
+```html
+<template id="section16">
+    <section id="effect-name">
+        <div class="code-container">
+            <button class="refresh-button" id="refresh16">
+                Refresh
+            </button>
+            <textarea id="code16"></textarea>
+        </div>
+    </section>
+</template>
+```
+
+### 5. Register Demo Script
+In [demo/demo.js](mdc:demo/demo.js) (**NOT** [demo/index.js](mdc:demo/index.js) - that's generated!):
+- **CRITICAL**: Add new function to `sectionScripts` object (e.g., `section16()`)
+- Use `startDemo()` function with appropriate parameters:
+  - `script`: path to your demo file
+  - `code`: textarea ID for code display
+  - `preview`: iframe ID (usually 'preview')
+  - `video`: video template ID if needed
+  - `refresh`: refresh button ID
+- **IMPORTANT**: After editing [demo/demo.js](mdc:demo/demo.js), run `npm run demo` to rebuild
+
+**Example Registration**:
+```javascript
+section16() {
+    startDemo('./psychedelic-ripple.js', {
+        code: 'code16',
+        preview: 'preview',
+        video: 'videos4',
+        refresh: 'refresh16',
+    });
+},
+```
+
+## Effect Composition Patterns
+
+### Displacement Effects
+```javascript
+const displacement = effects.displacement({
+    scale: { x: 0.1, y: 0.1 },
+    enableBlueChannel: true, // Use blue channel for intensity
+});
+// Set AFTER media loading
+displacement.map = dynamicCanvas;
+displacement.textures[0].update = true;
+```
+
+### Turbulence Effects (CORRECTED)
+```javascript
+const turbulence = effects.turbulence({
+    noise: noise.cellular, // or simplex, perlin, etc.
+    frequency: { x: 0.008, y: 0.008 },
+    octaves: 2,
+    input: effects.turbulence.FRAGCOORD_XY_TIME, // NOT FRAGCOORD_XY_MOUSE_TIME
+});
+```
+
+### Alpha Masking
+```javascript
+const alphaMask = effects.alphaMask({
+    isLuminance: true,
+});
+// Set AFTER media loading
+alphaMask.mask = maskTexture;
+alphaMask.textures[0].update = true;
+```
+
+## Dynamic Texture Generation
+
+### Canvas-Based Displacement Maps
+- Use neutral gray (127, 127, 127) as base color (no displacement)
+- Red channel: X-axis displacement (-127 to +127 from neutral)
+- Green channel: Y-axis displacement (-127 to +127 from neutral)  
+- Blue channel: Displacement intensity (0-255)
+
+### Worker Communication Pattern (Optional)
+```javascript
+// Main thread
+worker.postMessage({
+    type: 'init',
+    canvas: offscreenCanvas,
+    width, height,
+});
+
+worker.postMessage({
+    type: 'addEffect',
+    event: { offsetX, offsetY, speed }
+});
+```
+
+## Mouse Interaction Patterns
+
+### Speed Calculation
+```javascript
+let lastMousePos = { x: 0.5, y: 0.5 };
+target.addEventListener('pointermove', ({ offsetX, offsetY }) => {
+    const rect = target.getBoundingClientRect();
+    const x = offsetX / rect.width;
+    const y = offsetY / rect.height;
+    
+    const deltaX = x - lastMousePos.x;
+    const deltaY = y - lastMousePos.y;
+    const speed = Math.sqrt(deltaX * deltaX + deltaY * deltaY) * scaleFactor;
+    
+    lastMousePos = { x, y };
+    // Use speed for effect intensity
+});
+```
+
+## File Structure for New Effects
+```
+demo/
+├── your-effect.js           # Main demo file
+├── your-effect-worker.js    # Web Worker (if needed)
+├── index.html              # Add section template + nav
+└── index.js                # Register in sectionScripts
+```
+
+## Testing and Debugging
+
+### Server Setup
+- Use `npx http-server -p 8080` (or available port)
+- Navigate to `http://127.0.0.1:8080/demo/#sectionX`
+- **IMPORTANT**: Hard refresh (Ctrl+F5 / Cmd+Shift+R) to clear cache
+
+### Common Errors and Solutions
+
+#### 1. `sectionScripts[id] is not a function`
+**Cause**: Missing section function in [demo/demo.js](mdc:demo/demo.js) (source file)
+**Solution**: Add the section function to `sectionScripts` object in [demo/demo.js](mdc:demo/demo.js), then run `npm run demo`
+
+#### 2. `u_mouse/u_resolution undeclared identifier`
+**Cause**: Using `FRAGCOORD_XY_MOUSE_TIME` input type
+**Solution**: Use `FRAGCOORD_XY_TIME` instead
+
+#### 3. `Failed to execute 'texImage2D' - cross-origin data`
+**Cause**: Direct image element access without CORS headers
+**Solution**: Use `loadImage()` utility function
+
+#### 4. `Cannot read properties of null`
+**Cause**: Accessing DOM elements before media is loaded
+**Solution**: Move all initialization inside `loadImage().then()`
+
+### Error Handling Pattern
+```javascript
+function insertSection(id) {
+    const section = document.querySelector(`#${id}`);
+    if (!section) {
+        console.warn(`Section template #${id} not found`);
+        return;
+    }
+    
+    if (!sectionScripts[id]) {
+        console.warn(`Section script for ${id} not found`);
+        return;
+    }
+    
+    // Proceed with section loading
+}
+```
+
+## Successful Effect Examples
+
+### 1. Psychedelic Ripple
+- **Composition**: Turbulence + Kaleidoscope + Hue-Saturation + Blend
+- **Features**: Mouse-reactive cellular noise, dynamic kaleidoscope segments, color shifting
+- **File**: [demo/psychedelic-ripple.js](mdc:demo/psychedelic-ripple.js)
+
+### 2. Liquid Metal
+- **Composition**: Displacement + Channel-Split + Brightness-Contrast + Blend
+- **Features**: Dynamic liquid drop simulation, metallic chromatic aberration
+- **File**: [demo/liquid-metal.js](mdc:demo/liquid-metal.js)
+
+### 3. Glitch Portal
+- **Composition**: Slit-Scan + Deformation + Duotone + Alpha-Mask + Blend
+- **Features**: Time-distortion portal, spiral deformation, glitch bursts
+- **File**: [demo/glitch-portal.js](mdc:demo/glitch-portal.js)
+
+## Critical Checklist
+
+Before testing new effects:
+- [ ] Used `loadImage()` for media loading
+- [ ] All initialization inside `loadImage().then()`
+- [ ] Valid effect parameters (no `iridescence` on turbulence)
+- [ ] Correct turbulence input type (`FRAGCOORD_XY_TIME`)
+- [ ] Added section template to [demo/index.html](mdc:demo/index.html)
+- [ ] Added section function to [demo/demo.js](mdc:demo/demo.js) (source file)
+- [ ] Run `npm run demo` to rebuild after editing [demo/demo.js](mdc:demo/demo.js)
+- [ ] Added navigation link in HTML
+- [ ] Dynamic textures set AFTER media loading
+- [ ] Hard refresh browser to clear cache
+
+## Performance Notes
+- Limit canvas size for displacement maps (512x512 is usually sufficient)
+- Use `requestAnimationFrame` for smooth animations
+- Implement proper cleanup for intervals and event listeners
+- Consider using Web Workers for heavy computations

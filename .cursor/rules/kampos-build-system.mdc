@@ -1,0 +1,147 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Kampos Build System and Demo Integration Guide
+
+## Overview
+The Kampos project has a two-stage build system that separates the main library build from the demo build. Understanding this is crucial to avoid overwriting changes when adding new effects.
+
+## Build System Architecture
+
+### Main Library Build
+- **Source**: [src/](mdc:src/) directory contains all effect source files
+- **Build Script**: `npm run build` - builds the main library
+- **Output**: [index.js](mdc:index.js), [index.umd.js](mdc:index.umd.js), and [dist/](mdc:dist/) files
+- **Configuration**: [rollup.build.js](mdc:rollup.build.js) and [rollup.umd.js](mdc:rollup.umd.js)
+
+### Demo Build System
+- **Source File**: [demo/demo.js](mdc:demo/demo.js) - THIS IS THE SOURCE OF TRUTH for demo configuration
+- **Build Script**: `npm run demo` - builds the demo system
+- **Output**: [demo/index.js](mdc:demo/index.js) - GENERATED FILE, DO NOT EDIT DIRECTLY
+- **Configuration**: [demo/rollup.config.js](mdc:demo/rollup.config.js)
+
+## Critical Rule: Never Edit Generated Files
+
+### ❌ DO NOT EDIT THESE FILES DIRECTLY:
+- [demo/index.js](mdc:demo/index.js) - This is generated from [demo/demo.js](mdc:demo/demo.js)
+- Any files in [dist/](mdc:dist/) - These are generated from [src/](mdc:src/)
+
+### ✅ ALWAYS EDIT THESE SOURCE FILES:
+- [demo/demo.js](mdc:demo/demo.js) - For demo configuration and section scripts
+- [demo/index.html](mdc:demo/index.html) - For HTML templates and navigation
+- Individual effect files in [demo/](mdc:demo/) (e.g., `psychedelic-ripple.js`)
+
+## Proper Workflow for Adding New Demo Effects
+
+### 1. Create Effect Files
+Create your effect files directly in the [demo/](mdc:demo/) directory:
+- `demo/your-effect.js` - Main effect implementation
+- `demo/your-effect-worker.js` - Web Worker if needed
+
+### 2. Update HTML Templates
+Add section templates and navigation in [demo/index.html](mdc:demo/index.html):
+```html
+<template id="sectionX">
+    <section id="effect-name">
+        <div class="code-container">
+            <button class="refresh-button" id="refreshX">Refresh</button>
+            <textarea id="codeX"></textarea>
+        </div>
+    </section>
+</template>
+```
+
+### 3. Update Source Demo Configuration
+**CRITICAL**: Edit [demo/demo.js](mdc:demo/demo.js), NOT [demo/index.js](mdc:demo/index.js)
+
+Add your section to the `sectionScripts` object:
+```javascript
+sectionX() {
+    startDemo('./your-effect.js', {
+        code: 'codeX',
+        preview: 'preview',
+        video: 'videosX',
+        refresh: 'refreshX',
+    });
+},
+```
+
+### 4. Build Demo
+Run the demo build to generate the final files:
+```bash
+npm run demo
+```
+
+### 5. Test
+Start the server and test your effects:
+```bash
+npx http-server demo -p 8080
+```
+
+## Build Scripts Reference
+
+### Available Scripts from [package.json](mdc:package.json):
+- `npm run build` - Build main library
+- `npm run demo` - Build demo system
+- `npm run watch` - Watch main library for changes
+- `npm run watch:demo` - Watch demo for changes
+- `npm run start` - Build everything and start server
+- `npm run dev` - Watch both library and demo, start server
+
+## Current Demo Sections
+
+### Existing Sections (in [demo/demo.js](mdc:demo/demo.js)):
+- section1-15: Original effects
+- section16: [demo/psychedelic-ripple.js](mdc:demo/psychedelic-ripple.js) - Psychedelic Ripple
+- section17: [demo/liquid-metal.js](mdc:demo/liquid-metal.js) - Liquid Metal  
+- section18: [demo/glitch-portal.js](mdc:demo/glitch-portal.js) - Glitch Portal
+
+## Troubleshooting
+
+### "sectionScripts[id] is not a function" Error
+**Cause**: Missing section function in [demo/demo.js](mdc:demo/demo.js)
+**Solution**: Add the section function to `sectionScripts` object in SOURCE file, then rebuild
+
+### Changes Disappear After Build
+**Cause**: Editing generated [demo/index.js](mdc:demo/index.js) instead of source [demo/demo.js](mdc:demo/demo.js)
+**Solution**: Make changes in [demo/demo.js](mdc:demo/demo.js), then run `npm run demo`
+
+### Build Fails with Node.js Errors
+**Cause**: Node.js version compatibility issues with rollup
+**Solution**: 
+1. Check Node.js version: `node --version`
+2. Use Node.js 16+ or try with different version
+3. Alternative: Edit files directly and skip build (for development only)
+
+## File Structure Summary
+```
+kampos/
+├── src/                     # Main library source
+├── demo/
+│   ├── demo.js             # ✅ EDIT THIS - Demo source
+│   ├── index.js            # ❌ GENERATED - Don't edit
+│   ├── index.html          # ✅ EDIT THIS - Templates & nav
+│   ├── your-effect.js      # ✅ EDIT THIS - Effect files
+│   └── rollup.config.js    # Demo build config
+├── dist/                   # ❌ GENERATED - Library output
+├── index.js               # ❌ GENERATED - Library entry
+└── package.json           # Build scripts
+```
+
+## Best Practices
+
+1. **Always check source vs generated**: Before editing any file, verify if it's a source file or generated
+2. **Use proper build workflow**: Source → Build → Test
+3. **Version control source only**: Don't commit generated files unless necessary
+4. **Test after building**: Always test effects after running build process
+5. **Document new effects**: Update this rule when adding new effect patterns
+
+## Integration with Effect Creation
+
+When following the [kampos-new-effects.mdc](mdc:.cursor/rules/kampos-new-effects.mdc) guide:
+1. Create effect files as documented
+2. **Remember**: Update [demo/demo.js](mdc:demo/demo.js) not [demo/index.js](mdc:demo/index.js)
+3. Run `npm run demo` before testing
+4. Use `npm run dev` for continuous development with auto-rebuild

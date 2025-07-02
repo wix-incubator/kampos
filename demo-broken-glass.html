@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Kampos - Broken Glass Effect Demo</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background: #1a1a1a;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                overflow: hidden;
+            }
+
+            #canvas {
+                display: block;
+                width: 100vw;
+                height: 100vh;
+                object-fit: cover;
+            }
+
+            .controls {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0, 0, 0, 0.8);
+                padding: 20px;
+                border-radius: 10px;
+                color: white;
+                min-width: 280px;
+                max-height: 90vh;
+                overflow-y: auto;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .control-group {
+                margin-bottom: 15px;
+            }
+
+            .control-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-size: 12px;
+                color: #ccc;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .control-group input[type='range'] {
+                width: 100%;
+                margin-bottom: 5px;
+                accent-color: #4a9eff;
+            }
+
+            .control-group .value {
+                font-size: 11px;
+                color: #888;
+                text-align: right;
+            }
+
+            .pattern-buttons {
+                display: flex;
+                gap: 5px;
+                margin-bottom: 15px;
+            }
+
+            .pattern-btn {
+                flex: 1;
+                padding: 8px 12px;
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: white;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 11px;
+                transition: all 0.2s;
+            }
+
+            .pattern-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+            .pattern-btn.active {
+                background: #4a9eff;
+                border-color: #4a9eff;
+            }
+
+            .toggle-btn {
+                width: 100%;
+                padding: 10px;
+                background: rgba(74, 158, 255, 0.2);
+                border: 1px solid #4a9eff;
+                color: white;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 12px;
+                transition: all 0.2s;
+            }
+
+            .toggle-btn:hover {
+                background: rgba(74, 158, 255, 0.3);
+            }
+
+            .toggle-btn.active {
+                background: #4a9eff;
+            }
+
+            h1 {
+                margin: 0 0 20px 0;
+                font-size: 18px;
+                color: #4a9eff;
+                text-align: center;
+            }
+
+            .info {
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background: rgba(0, 0, 0, 0.8);
+                padding: 15px;
+                border-radius: 10px;
+                color: #ccc;
+                font-size: 12px;
+                max-width: 300px;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas"></canvas>
+
+        <div class="controls">
+            <h1>Broken Glass Effect</h1>
+
+            <div class="control-group">
+                <label>Pattern</label>
+                <div class="pattern-buttons">
+                    <button class="pattern-btn active" data-pattern="VORONOI">
+                        Voronoi
+                    </button>
+                    <button class="pattern-btn" data-pattern="RADIAL">
+                        Radial
+                    </button>
+                    <button class="pattern-btn" data-pattern="GRID">
+                        Grid
+                    </button>
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label>Intensity</label>
+                <input
+                    type="range"
+                    id="intensity"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value="0.3"
+                />
+                <div class="value" id="intensityValue">0.30</div>
+            </div>
+
+            <div class="control-group">
+                <label>Scale X</label>
+                <input
+                    type="range"
+                    id="scaleX"
+                    min="1"
+                    max="20"
+                    step="0.1"
+                    value="8"
+                />
+                <div class="value" id="scaleXValue">8.0</div>
+            </div>
+
+            <div class="control-group">
+                <label>Scale Y</label>
+                <input
+                    type="range"
+                    id="scaleY"
+                    min="1"
+                    max="20"
+                    step="0.1"
+                    value="8"
+                />
+                <div class="value" id="scaleYValue">8.0</div>
+            </div>
+
+            <div class="control-group">
+                <label>Refraction</label>
+                <input
+                    type="range"
+                    id="refraction"
+                    min="0"
+                    max="0.5"
+                    step="0.01"
+                    value="0.15"
+                />
+                <div class="value" id="refractionValue">0.15</div>
+            </div>
+
+            <div class="control-group">
+                <label>Chromatic Aberration</label>
+                <input
+                    type="range"
+                    id="chromaticAberration"
+                    min="0"
+                    max="0.1"
+                    step="0.001"
+                    value="0.02"
+                />
+                <div class="value" id="chromaticAberrationValue">0.020</div>
+            </div>
+
+            <div class="control-group">
+                <label>Impact Point X</label>
+                <input
+                    type="range"
+                    id="impactX"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value="0.5"
+                />
+                <div class="value" id="impactXValue">0.50</div>
+            </div>
+
+            <div class="control-group">
+                <label>Impact Point Y</label>
+                <input
+                    type="range"
+                    id="impactY"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value="0.5"
+                />
+                <div class="value" id="impactYValue">0.50</div>
+            </div>
+
+            <div class="control-group">
+                <label>Shard Count</label>
+                <input
+                    type="range"
+                    id="shardCount"
+                    min="4"
+                    max="24"
+                    step="1"
+                    value="12"
+                />
+                <div class="value" id="shardCountValue">12</div>
+            </div>
+
+            <div class="control-group">
+                <button class="toggle-btn" id="animationToggle">
+                    Enable Animation
+                </button>
+            </div>
+        </div>
+
+        <div class="info">
+            <strong>Broken Glass Effect Demo</strong><br />
+            Simulates viewing media through broken glass with realistic
+            refraction, chromatic aberration, and three different fracture
+            patterns.
+        </div>
+
+        <script type="module">
+            import { Kampos, effects } from './index.js';
+
+            const canvas = document.getElementById('canvas');
+            let instance;
+            let currentEffect;
+            let isAnimating = false;
+            let animationTime = 0;
+            let animationId;
+
+            // Load image
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.src =
+                'https://static.wixstatic.com/media/cec2b6_36e46176b7e54b678e4c6d39d36452e5~mv2.jpg';
+
+            img.onload = () => {
+                // Set canvas size to match viewport
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+
+                // Create initial effect and instance
+                currentEffect = getEffectConfig();
+
+                // Initialize Kampos with the image
+                instance = new Kampos({
+                    target: canvas,
+                    effects: [currentEffect],
+                });
+
+                instance.setSource({
+                    media: img,
+                    width: img.width,
+                    height: img.height,
+                });
+                instance.play();
+
+                // Start animation loop
+                animate();
+            };
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (instance) {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                    instance.resize();
+                }
+            });
+
+            function getEffectConfig() {
+                const pattern = document.querySelector('.pattern-btn.active')
+                    .dataset.pattern;
+
+                if (pattern === 'VORONOI') {
+                    return effects.brokenGlass({
+                        pattern: effects.brokenGlass.VORONOI,
+                        intensity: parseFloat(
+                            document.getElementById('intensity').value
+                        ),
+                        refraction: parseFloat(
+                            document.getElementById('refraction').value
+                        ),
+                        chromaticAberration: parseFloat(
+                            document.getElementById('chromaticAberration').value
+                        ),
+                        scale: {
+                            x: parseFloat(
+                                document.getElementById('scaleX').value
+                            ),
+                            y: parseFloat(
+                                document.getElementById('scaleY').value
+                            ),
+                        },
+                        shardCount: parseInt(
+                            document.getElementById('shardCount').value
+                        ),
+                        time: animationTime,
+                    });
+                } else if (pattern === 'RADIAL') {
+                    return effects.brokenGlass({
+                        pattern: effects.brokenGlass.RADIAL,
+                        intensity: parseFloat(
+                            document.getElementById('intensity').value
+                        ),
+                        refraction: parseFloat(
+                            document.getElementById('refraction').value
+                        ),
+                        chromaticAberration: parseFloat(
+                            document.getElementById('chromaticAberration').value
+                        ),
+                        scale: {
+                            x: parseFloat(
+                                document.getElementById('scaleX').value
+                            ),
+                            y: parseFloat(
+                                document.getElementById('scaleY').value
+                            ),
+                        },
+                        impactPoint: {
+                            x: parseFloat(
+                                document.getElementById('impactX').value
+                            ),
+                            y: parseFloat(
+                                document.getElementById('impactY').value
+                            ),
+                        },
+                        time: animationTime,
+                    });
+                } else {
+                    // GRID
+                    return effects.brokenGlass({
+                        pattern: effects.brokenGlass.GRID,
+                        intensity: parseFloat(
+                            document.getElementById('intensity').value
+                        ),
+                        refraction: parseFloat(
+                            document.getElementById('refraction').value
+                        ),
+                        chromaticAberration: parseFloat(
+                            document.getElementById('chromaticAberration').value
+                        ),
+                        scale: {
+                            x: parseFloat(
+                                document.getElementById('scaleX').value
+                            ),
+                            y: parseFloat(
+                                document.getElementById('scaleY').value
+                            ),
+                        },
+                        time: animationTime,
+                    });
+                }
+            }
+
+            function recreateInstance() {
+                if (instance) {
+                    instance.destroy();
+                }
+
+                currentEffect = getEffectConfig();
+
+                instance = new Kampos({
+                    target: canvas,
+                    effects: [currentEffect],
+                });
+
+                instance.setSource({
+                    media: img,
+                    width: img.width,
+                    height: img.height,
+                });
+                instance.play();
+            }
+
+            function animate() {
+                if (isAnimating) {
+                    animationTime += 0.016; // ~60fps
+                    if (currentEffect) {
+                        currentEffect.time = animationTime;
+                    }
+                }
+                animationId = requestAnimationFrame(animate);
+            }
+
+            // Pattern switching
+            document.querySelectorAll('.pattern-btn').forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.pattern-btn').forEach((b) => {
+                        b.classList.remove('active');
+                    });
+                    btn.classList.add('active');
+
+                    recreateInstance();
+                });
+            });
+
+            // Control setup
+            function setupControl(id, property, callback) {
+                const input = document.getElementById(id);
+                const display = document.getElementById(id + 'Value');
+
+                input.addEventListener('input', () => {
+                    const value = parseFloat(input.value);
+                    display.textContent = value.toFixed(
+                        id === 'shardCount' ? 0 : 2
+                    );
+
+                    if (callback) {
+                        callback(value);
+                    } else if (currentEffect && property) {
+                        currentEffect[property] = value;
+                    }
+                });
+            }
+
+            setupControl('intensity', 'intensity');
+            setupControl('refraction', 'refraction');
+            setupControl('chromaticAberration', 'chromaticAberration');
+            setupControl('shardCount', 'shardCount');
+
+            setupControl('scaleX', null, (value) => {
+                if (currentEffect) {
+                    const currentScale = currentEffect.scale;
+                    currentEffect.scale = {
+                        x: value,
+                        y: currentScale.y,
+                    };
+                }
+            });
+
+            setupControl('scaleY', null, (value) => {
+                if (currentEffect) {
+                    const currentScale = currentEffect.scale;
+                    currentEffect.scale = {
+                        x: currentScale.x,
+                        y: value,
+                    };
+                }
+            });
+
+            setupControl('impactX', null, (value) => {
+                if (currentEffect) {
+                    const currentImpact = currentEffect.impactPoint;
+                    currentEffect.impactPoint = {
+                        x: value,
+                        y: currentImpact.y,
+                    };
+                }
+            });
+
+            setupControl('impactY', null, (value) => {
+                if (currentEffect) {
+                    const currentImpact = currentEffect.impactPoint;
+                    currentEffect.impactPoint = {
+                        x: currentImpact.x,
+                        y: value,
+                    };
+                }
+            });
+
+            // Animation toggle
+            document
+                .getElementById('animationToggle')
+                .addEventListener('click', (e) => {
+                    isAnimating = !isAnimating;
+                    e.target.textContent = isAnimating
+                        ? 'Disable Animation'
+                        : 'Enable Animation';
+                    e.target.classList.toggle('active', isAnimating);
+                });
+        </script>
+    </body>
+</html>

@@ -11,6 +11,7 @@ import displacement from './src/effects/displacement.js';
 import channelSplit from './src/effects/channel-split.js';
 import kaleidoscope from './src/effects/kaleidoscope.js';
 import slitScan from './src/effects/slit-scan.js';
+import brokenGlass from './src/effects/broken-glass.js';
 import perlinNoise from './src/noise/perlin-noise-3d.js';
 import cellular from './src/noise/cellular-noise-3d.js';
 import simplex from './src/noise/simplex-3d.js';
@@ -32,6 +33,7 @@ export const effects = {
     alphaMask,
     blend,
     brightnessContrast,
+    brokenGlass,
     channelSplit,
     deformation,
     displacement,
