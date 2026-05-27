@@ -151,6 +151,10 @@ export class Kampos {
         this.data = data;
         this.fboData = fboData;
 
+        if (noSource && data.textures && data.textures.length) {
+            this._createTextures();
+        }
+
         // cache for restoring context
         this.config = config;
 
@@ -391,16 +395,21 @@ export class Kampos {
     }
 
     _createTextures() {
+        const dimensions = this.dimensions || {};
+
         this.data &&
             this.data.textures.forEach((texture, i) => {
                 const data = this.data.textures[i];
 
                 data.texture = core.createTexture(this.gl, {
-                    width: this.dimensions.width,
-                    height: this.dimensions.height,
+                    // Effect configs may declare their own explicit dimensions (e.g. float data textures)
+                    width: texture.width || dimensions.width,
+                    height: texture.height || dimensions.height,
                     format: texture.format,
                     data: texture.data,
                     wrap: texture.wrap,
+                    filter: texture.filter,
+                    textureType: texture.textureType,
                 }).texture;
 
                 data.format = texture.format;

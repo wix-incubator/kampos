@@ -8,6 +8,7 @@ const vertexSimpleTemplate = ({
     varying = '',
     constant = '',
     main = '',
+    position = 'vec4(a_position.xy, 0.0, 1.0)',
 }) => `
 precision highp float;
 ${uniform}
@@ -20,7 +21,7 @@ ${MATH_PI}
 ${constant}
 void main() {
     ${main}
-    gl_Position = vec4(a_position.xy, 0.0, 1.0);
+    gl_Position = ${position};
 }`;
 
 const vertexMediaTemplate = ({
@@ -29,6 +30,7 @@ const vertexMediaTemplate = ({
     varying = '',
     constant = '',
     main = '',
+    position = 'vec4(a_position.xy, 0.0, 1.0)',
 }) => `
 precision highp float;
 ${uniform}
@@ -44,7 +46,7 @@ ${constant}
 void main() {
     v_texCoord = a_texCoord;
     ${main}
-    gl_Position = vec4(a_position.xy, 0.0, 1.0);
+    gl_Position = ${position};
 }`;
 
 const fragmentSimpleTemplate = ({
@@ -221,7 +223,8 @@ export function draw(gl, plane = {}, media, data, fboData) {
         uniforms,
         textures,
         extensions,
-        vao
+        vao,
+        draw: drawConfig
     } = data;
     const { xSegments = 1, ySegments = 1 } = plane;
 
@@ -290,7 +293,12 @@ export function draw(gl, plane = {}, media, data, fboData) {
         }
     }
 
-    gl.drawArrays(gl.TRIANGLES, 0, 6 * xSegments * ySegments);
+    const mode = (drawConfig && drawConfig.mode) || 'TRIANGLES';
+    const count = typeof drawConfig?.count === 'number'
+        ? drawConfig.count
+        : 6 * xSegments * ySegments;
+
+    gl.drawArrays(gl[mode], 0, count);
 }
 
 function drawFBO(gl, fboData) {
@@ -426,6 +434,7 @@ function _initProgram(gl, plane, effects, hasFBO = false, noSource = false) {
         uniforms,
         textures: data.textures,
         vao,
+        draw: data.draw,
     };
 }
 
@@ -481,6 +490,7 @@ function _mergeEffectsData(plane, effects, hasFBO = false, noSource = false) {
                 uniforms = [],
                 textures = [],
                 varying = {},
+                draw,
             } = config;
             const merge = (shader) =>
                 Object.keys(config[shader] || {}).forEach((key) => {
@@ -490,6 +500,8 @@ function _mergeEffectsData(plane, effects, hasFBO = false, noSource = false) {
                         key === 'source'
                     ) {
                         result[shader][key] += config[shader][key] + '\n';
+                    } else if (key === 'position') {
+                        result[shader][key] = config[shader][key];
                     } else {
                         result[shader][key] = {
                             ...result[shader][key],
@@ -535,6 +547,10 @@ function _mergeEffectsData(plane, effects, hasFBO = false, noSource = false) {
 
             result.uniforms.push(...uniforms);
             result.textures.push(...textures);
+
+            if (draw) {
+                result.draw = draw;
+            }
 
             Object.assign(result.vertex.varying, varying);
             Object.assign(result.fragment.varying, varying);
@@ -634,6 +650,7 @@ function getEffectDefaults(plane, hasFBO, noSource) {
             varying: {},
             constant: '',
             main: '',
+            position: 'vec4(a_position.xy, 0.0, 1.0)',
         },
         fragment: {
             uniform: {},
@@ -648,6 +665,10 @@ function getEffectDefaults(plane, hasFBO, noSource) {
          * Default textures
          */
         textures: [],
+        draw: {
+            mode: 'TRIANGLES',
+            count: 6 * (plane.xSegments || 1) * (plane.ySegments || 1),
+        },
     };
 }
 
@@ -742,6 +763,8 @@ function _createShader(gl, type, source) {
  * @param {ArrayBufferView|ImageData|HTMLImageElement|HTMLCanvasElement|HTMLVideoElement|ImageBitmap} config.data
  * @param {string} config.format
  * @param {Object} config.wrap
+ * @param {string} [config.filter] defaults to 'LINEAR'
+ * @param {string} [config.textureType] defaults to 'UNSIGNED_BYTE'; use 'FLOAT' for float textures (requires OES_texture_float)
  * @return {{texture: WebGLTexture, width: number, height: number}}
  */
 export function createTexture(
@@ -756,6 +779,14 @@ export function createTexture(
         textureType = 'UNSIGNED_BYTE',
     } = {},
 ) {
+    if (textureType === 'FLOAT') {
+        const ext = gl.getExtension('OES_texture_float');
+
+        if (!ext) {
+            throw new Error('kampos: OES_texture_float is not supported on this device');
+        }
+    }
+
     const texture = gl.createTexture();
 
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -774,8 +805,21 @@ export function createTexture(
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl[filter]);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl[filter]);
 
-    if (data) {
-        // Upload the image into the texture
+    if (ArrayBuffer.isView(data)) {
+        // Typed array — WebGL requires explicit dimensions for this overload
+        gl.texImage2D(
+            gl.TEXTURE_2D,
+            0,
+            gl[format],
+            width,
+            height,
+            0,
+            gl[format],
+            gl[textureType],
+            data,
+        );
+    } else if (data) {
+        // HTMLCanvasElement, HTMLImageElement, ImageBitmap, etc. — dimensions are inferred
         gl.texImage2D(
             gl.TEXTURE_2D,
             0,
@@ -785,7 +829,7 @@ export function createTexture(
             data,
         );
     } else {
-        // Create empty texture
+        // Empty texture
         gl.texImage2D(
             gl.TEXTURE_2D,
             0,
@@ -804,6 +848,11 @@ export function createTexture(
 
 function _createBuffer(gl, program, name, data) {
     const location = gl.getAttribLocation(program, name);
+
+    if (location === -1) {
+        return { location, buffer: null };
+    }
+
     const buffer = gl.createBuffer();
 
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -872,6 +921,10 @@ function _setUniforms(gl, uniformData) {
 function _enableVertexAttributes(gl, attributes) {
     (attributes || []).forEach((attrib) => {
         const { location, buffer, size, type } = attrib;
+
+        if (location === -1 || !buffer) {
+            return;
+        }
 
         gl.enableVertexAttribArray(location);
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer);

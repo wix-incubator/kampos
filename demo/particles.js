@@ -1,4 +1,7 @@
+import { Kampos, Ticker, effects } from '../index.js';
+
 const target = document.querySelector('#target');
+const ticker = new Ticker();
 
 const MAX_CANVASES = 6;
 const DEFAULT_PRESET_INDEX = 3;
@@ -35,6 +38,7 @@ const PARTICLE_PRESETS = [
     { width: 1024, height: 576 },
 ];
 const DEFAULT_PRESET = PARTICLE_PRESETS[DEFAULT_PRESET_INDEX];
+const MAX_PRESET = PARTICLE_PRESETS[PARTICLE_PRESETS.length - 1];
 
 const urlParams = new URLSearchParams(window.location.search);
 const initialPhase = Number(urlParams.get('phase'));
@@ -197,146 +201,16 @@ applyStyles(replayButton, {
 });
 document.body.appendChild(replayButton);
 
-const vertexShaderSource = `#version 300 es
-precision highp float;
-precision highp sampler2D;
-
-uniform sampler2D u_source;
-uniform vec2 u_canvasSize;
-uniform vec2 u_imageSize;
-uniform float u_time;
-uniform float u_phase;
-uniform float u_motionDuration;
-uniform float u_delayWindow;
-uniform float u_pointScale;
-uniform float u_spread;
-uniform float u_windStrength;
-uniform float u_seed;
-uniform int u_easeMode;
-
-out vec4 v_color;
-
-const float TAU = 6.283185307179586;
-
-float hash11(float p) {
-    p = fract(p * 0.1031);
-    p *= p + 33.33;
-    p *= p + p;
-    return fract(p);
-}
-
-vec2 hash21(float p) {
-    vec3 q = fract(vec3(p) * vec3(0.1031, 0.1030, 0.0973));
-    q += dot(q, q.yzx + 33.33);
-    return fract((q.xx + q.yz) * q.zy);
-}
-
-float smoother(float t) {
-    return t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
-}
-
-float applyEasing(float t) {
-    if (u_easeMode == 1) {
-        return t;
-    }
-
-    if (u_easeMode == 2) {
-        return 1.0 - pow(1.0 - t, 2.0);
-    }
-
-    if (u_easeMode == 3) {
-        return 0.5 - 0.5 * cos(t * 3.141592653589793);
-    }
-
-    if (u_easeMode == 4) {
-        return t < 0.5
-            ? 4.0 * t * t * t
-            : 1.0 - pow(-2.0 * t + 2.0, 3.0) * 0.5;
-    }
-
-    return smoother(t);
-}
-
-vec2 screenToClip(vec2 pixelPosition) {
-    vec2 clip = pixelPosition / u_canvasSize * 2.0 - 1.0;
-    clip.y *= -1.0;
-    return clip;
-}
-
-void main() {
-    float particleId = float(gl_VertexID);
-    float x = mod(particleId, u_imageSize.x);
-    float y = floor(particleId / u_imageSize.x);
-    ivec2 samplePixel = ivec2(int(x), int(u_imageSize.y - 1.0 - y));
-
-    vec4 color = texelFetch(u_source, samplePixel, 0);
-    v_color = color;
-
-    vec2 imageFit = u_canvasSize * 0.58;
-    float cell = min(imageFit.x / u_imageSize.x, imageFit.y / u_imageSize.y);
-    vec2 targetPosition = (vec2(x + 0.5, y + 0.5) - u_imageSize * 0.5) * cell + u_canvasSize * 0.5;
-
-    vec2 randomBox = (hash21(particleId + 19.7 + u_seed) - 0.5) * u_canvasSize * (1.9 * u_spread);
-    float orbitAngle = hash11(particleId * 0.173 + 4.1 + u_seed) * TAU;
-    float orbitRadius = mix(0.24, 1.12, pow(hash11(particleId * 0.537 + 7.0 + u_seed), 0.65));
-    vec2 ring = vec2(cos(orbitAngle), sin(orbitAngle)) * orbitRadius * length(u_canvasSize) * 0.48 * u_spread;
-    vec2 startPosition = u_canvasSize * 0.5 + mix(randomBox, ring, 0.62);
-
-    float delay = hash11(particleId * 0.071 + u_seed) * u_delayWindow;
-    float t = clamp((u_phase - delay) / max(u_motionDuration - delay, 0.001), 0.0, 1.0);
-    float progress = applyEasing(t);
-
-    vec2 delta = targetPosition - startPosition;
-    float distanceToTarget = max(length(delta), 0.0001);
-    vec2 forward = delta / distanceToTarget;
-    vec2 side = vec2(-forward.y, forward.x);
-
-    float flowPhase = hash11(particleId * 1.91 + 13.0 + u_seed) * TAU;
-    float field = sin(u_time * 1.25 + flowPhase + targetPosition.y * 0.015)
-        + 0.5 * sin(u_time * 2.1 - flowPhase * 1.3 + targetPosition.x * 0.01);
-    vec2 gust = vec2(
-        sin(u_time * 0.92 + flowPhase + targetPosition.y * 0.018),
-        cos(u_time * 1.08 - flowPhase + targetPosition.x * 0.014)
-    );
-
-    float envelope = (1.0 - progress);
-    envelope *= envelope;
-    envelope *= smoothstep(0.0, 0.08, t);
-
-    float bend = min(distanceToTarget * 0.16, 56.0) * u_windStrength;
-    vec2 windOffset = side * field * bend * envelope;
-    windOffset += gust * (10.0 * u_windStrength) * envelope;
-    windOffset += forward * sin(u_time * 1.7 + flowPhase * 1.7) * (6.0 * u_windStrength) * envelope;
-
-    vec2 position = mix(startPosition, targetPosition, progress) + windOffset;
-
-    gl_Position = vec4(screenToClip(position), 0.0, 1.0);
-    gl_PointSize = max(1.0, cell * u_pointScale);
-}
-`;
-
-const fragmentShaderSource = `#version 300 es
-precision highp float;
-
-in vec4 v_color;
-out vec4 outColor;
-
-void main() {
-    vec2 centered = abs(gl_PointCoord - 0.5);
-    float edge = max(centered.x, centered.y);
-    float alpha = 1.0 - smoothstep(0.47, 0.5, edge);
-
-    outColor = vec4(v_color.rgb, v_color.a * alpha);
-}
-`;
-
 const instances = [];
 
 renderSourceCanvas(sourceCanvas, currentPreset.width, currentPreset.height, currentSourceMode);
+updateSourceCanvasPreview();
 applyCanvasCount(currentCanvasCount, { restartAnimation: false, syncUrl: false });
 applySourceMode(currentSourceMode, { restartAnimation: false, syncUrl: false });
 applyParticlePreset(currentPreset, { restartAnimation: false, syncUrl: false });
 applyAnimationSettings({}, { restartAnimation: false, syncUrl: false });
+
+ticker.start();
 
 replayButton.addEventListener('click', replay);
 sourceSelect.select.addEventListener('change', () => {
@@ -363,38 +237,6 @@ window.addEventListener('keydown', (event) => {
         replay();
     }
 });
-
-requestAnimationFrame(render);
-
-function render(nowMs) {
-    const now = nowMs * 0.001;
-    const phase = (now - cycleStart) % getCycleDuration();
-
-    instances.forEach((instance) => {
-        renderInstance(instance, now, phase);
-    });
-
-    requestAnimationFrame(render);
-}
-
-function renderInstance(instance, now, phase) {
-    if (!resizeInstance(instance)) {
-        return;
-    }
-
-    const { gl, uniforms } = instance;
-
-    gl.clearColor(0.02, 0.03, 0.06, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    gl.useProgram(instance.program);
-    gl.uniform2f(uniforms.canvasSize, instance.canvas.width, instance.canvas.height);
-    gl.uniform1f(uniforms.time, now);
-    gl.uniform1f(uniforms.phase, phase);
-    gl.uniform1f(uniforms.seed, globalSeed + instance.seedOffset);
-
-    gl.drawArrays(gl.POINTS, 0, currentParticleCount);
-}
 
 function replay() {
     cycleStart = performance.now() * 0.001;
@@ -531,66 +373,78 @@ function createDemoInstance(existingCanvas) {
     cell.appendChild(canvas);
     screenGrid.appendChild(cell);
 
-    const gl = canvas.getContext('webgl2', {
-        antialias: false,
-        alpha: false,
-        premultipliedAlpha: false,
+    const effect = effects.particlesGpt({
+        width: currentPreset.width,
+        height: currentPreset.height,
+        maxWidth: MAX_PRESET.width,
+        maxHeight: MAX_PRESET.height,
+        duration: settings.duration,
+        hold: settings.hold,
+        easing: settings.easing,
+        pointScale: settings.pointScale,
+        spread: settings.spread,
+        wind: settings.wind,
+        stagger: settings.stagger,
+        source: sourceCanvas,
     });
 
-    if (!gl) {
-        throw new Error('This demo requires WebGL2.');
+    const instanceState = {
+        cell,
+        canvas,
+        effect,
+        seedOffset: Math.random() * 4000,
+        kampos: null,
+    };
+
+    const kampos = new Kampos({
+        target: canvas,
+        effects: [effect],
+        noSource: true,
+        ticker,
+        beforeDraw: (time) => renderInstance(instanceState, time),
+        afterDraw: () => {
+            effect.textures[0].update = false;
+        },
+    });
+
+    const { gl } = kampos;
+    if (gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS) < 1) {
+        kampos.destroy();
+        cell.remove();
+        throw new Error('This demo requires vertex texture fetch support.');
     }
 
-    const program = createProgram(gl, vertexShaderSource, fragmentShaderSource);
-    const vao = gl.createVertexArray();
-    const uniforms = {
-        source: gl.getUniformLocation(program, 'u_source'),
-        canvasSize: gl.getUniformLocation(program, 'u_canvasSize'),
-        imageSize: gl.getUniformLocation(program, 'u_imageSize'),
-        time: gl.getUniformLocation(program, 'u_time'),
-        phase: gl.getUniformLocation(program, 'u_phase'),
-        motionDuration: gl.getUniformLocation(program, 'u_motionDuration'),
-        delayWindow: gl.getUniformLocation(program, 'u_delayWindow'),
-        pointScale: gl.getUniformLocation(program, 'u_pointScale'),
-        spread: gl.getUniformLocation(program, 'u_spread'),
-        windStrength: gl.getUniformLocation(program, 'u_windStrength'),
-        seed: gl.getUniformLocation(program, 'u_seed'),
-        easeMode: gl.getUniformLocation(program, 'u_easeMode'),
-    };
-    const sourceTexture = gl.createTexture();
-
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    gl.useProgram(program);
-    gl.uniform1i(uniforms.source, 0);
-    gl.uniform1f(uniforms.motionDuration, settings.duration);
-    gl.uniform1f(uniforms.delayWindow, settings.stagger);
-    gl.uniform1f(uniforms.pointScale, settings.pointScale);
-    gl.uniform1f(uniforms.spread, settings.spread);
-    gl.uniform1f(uniforms.windStrength, settings.wind);
-    gl.uniform1i(uniforms.easeMode, getEasingModeIndex(settings.easing));
-
-    gl.bindVertexArray(vao);
     gl.disable(gl.DEPTH_TEST);
     gl.enable(gl.BLEND);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 
-    return {
-        cell,
-        canvas,
-        gl,
-        program,
-        vao,
-        uniforms,
-        sourceTexture,
-        seedOffset: Math.random() * 4000,
+    instanceState.kampos = kampos;
+
+    return instanceState;
+}
+
+function renderInstance(instance, nowMs) {
+    if (!resizeInstance(instance)) {
+        return false;
+    }
+
+    const now = nowMs * 0.001;
+    const phase = getCyclePhase(now);
+    const { effect, kampos } = instance;
+    const { gl } = kampos;
+
+    gl.clearColor(0.02, 0.03, 0.06, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    effect.canvasSize = {
+        width: instance.canvas.width,
+        height: instance.canvas.height,
     };
+    effect.time = now;
+    effect.phase = phase;
+    effect.seed = globalSeed + instance.seedOffset;
+
+    return true;
 }
 
 function destroyDemoInstance(instance) {
@@ -598,25 +452,14 @@ function destroyDemoInstance(instance) {
         return;
     }
 
-    const { gl, sourceTexture, vao, program, cell } = instance;
-    gl.deleteTexture(sourceTexture);
-    gl.deleteVertexArray(vao);
-    gl.deleteProgram(program);
-    gl.getExtension('WEBGL_lose_context')?.loseContext();
-    cell.remove();
+    instance.kampos.destroy();
+    instance.cell.remove();
 }
 
 function syncInstancesSource() {
-    instances.forEach((instance) => {
-        const { gl, sourceTexture, uniforms } = instance;
-
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, sourceTexture);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, sourceCanvas);
-
-        gl.useProgram(instance.program);
-        gl.uniform2f(uniforms.imageSize, currentPreset.width, currentPreset.height);
+    instances.forEach(({ effect }) => {
+        effect.sourceSize = currentPreset;
+        effect.source = sourceCanvas;
     });
 }
 
@@ -633,7 +476,7 @@ function resizeInstance(instance) {
     if (instance.canvas.width !== width || instance.canvas.height !== height) {
         instance.canvas.width = width;
         instance.canvas.height = height;
-        instance.gl.viewport(0, 0, width, height);
+        instance.kampos.gl.viewport(0, 0, width, height);
     }
 
     return true;
@@ -675,6 +518,15 @@ function getCycleDuration() {
     return settings.duration + settings.hold;
 }
 
+function getCyclePhase(now) {
+    const duration = getCycleDuration();
+    if (!duration) {
+        return 0.0;
+    }
+
+    return ((now - cycleStart) % duration + duration) % duration;
+}
+
 function syncAnimationControls() {
     easingControl.select.value = settings.easing;
     durationControl.setValue(settings.duration);
@@ -686,17 +538,14 @@ function syncAnimationControls() {
 }
 
 function syncInstanceSettings() {
-    const easeMode = getEasingModeIndex(settings.easing);
-
-    instances.forEach((instance) => {
-        const { gl, uniforms } = instance;
-        gl.useProgram(instance.program);
-        gl.uniform1f(uniforms.motionDuration, settings.duration);
-        gl.uniform1f(uniforms.delayWindow, settings.stagger);
-        gl.uniform1f(uniforms.pointScale, settings.pointScale);
-        gl.uniform1f(uniforms.spread, settings.spread);
-        gl.uniform1f(uniforms.windStrength, settings.wind);
-        gl.uniform1i(uniforms.easeMode, easeMode);
+    instances.forEach(({ effect }) => {
+        effect.duration = settings.duration;
+        effect.hold = settings.hold;
+        effect.easing = settings.easing;
+        effect.pointScale = settings.pointScale;
+        effect.spread = settings.spread;
+        effect.wind = settings.wind;
+        effect.stagger = settings.stagger;
     });
 }
 
@@ -1015,37 +864,6 @@ function roundedRect(ctx, x, y, width, height, radius) {
     ctx.closePath();
 }
 
-function createProgram(glContext, vertexSource, fragmentSource) {
-    const vertexShader = createShader(glContext, glContext.VERTEX_SHADER, vertexSource);
-    const fragmentShader = createShader(glContext, glContext.FRAGMENT_SHADER, fragmentSource);
-    const program = glContext.createProgram();
-
-    glContext.attachShader(program, vertexShader);
-    glContext.attachShader(program, fragmentShader);
-    glContext.linkProgram(program);
-
-    if (!glContext.getProgramParameter(program, glContext.LINK_STATUS)) {
-        throw new Error(glContext.getProgramInfoLog(program) || 'Program failed to link.');
-    }
-
-    glContext.deleteShader(vertexShader);
-    glContext.deleteShader(fragmentShader);
-
-    return program;
-}
-
-function createShader(glContext, type, source) {
-    const shader = glContext.createShader(type);
-    glContext.shaderSource(shader, source);
-    glContext.compileShader(shader);
-
-    if (!glContext.getShaderParameter(shader, glContext.COMPILE_STATUS)) {
-        throw new Error(glContext.getShaderInfoLog(shader) || 'Shader failed to compile.');
-    }
-
-    return shader;
-}
-
 function applyStyles(element, styles) {
     Object.assign(element.style, styles);
 }
@@ -1102,6 +920,10 @@ function resolveEasing(value) {
 }
 
 function resolveNumberSetting(value, fallback, min, max) {
+    if (value === null || value === '') {
+        return fallback;
+    }
+
     const numericValue = Number(value);
 
     if (!Number.isFinite(numericValue)) {
@@ -1109,11 +931,6 @@ function resolveNumberSetting(value, fallback, min, max) {
     }
 
     return clamp(numericValue, min, max);
-}
-
-function getEasingModeIndex(value) {
-    const index = EASING_OPTIONS.findIndex((option) => option.value === value);
-    return index === -1 ? 0 : index;
 }
 
 function trimNumber(value, precision = 2) {
