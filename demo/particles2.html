@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Particle Assembler — kampos</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #090912;
+      color: #a8a8c0;
+      font: 12px/1 -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      gap: 20px;
+      padding: 24px;
+    }
+
+    h1 {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      opacity: 0.35;
+    }
+
+    /* ── canvas grid ─────────────────────────────────────────────────────── */
+    #grid {
+      display: grid;
+      gap: 10px;
+      width: 100%;
+      /* max-width and grid-template-columns are set by JS based on count */
+      max-width: min(520px, 96vw);
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .wrap {
+      position: relative;
+      line-height: 0;
+      width: 100%;
+    }
+
+    .wrap canvas {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1;
+      image-rendering: pixelated;
+      border-radius: 3px;
+    }
+
+    .thumb {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      width: clamp(36px, 12%, 56px);
+      aspect-ratio: 1;
+      border-radius: 2px;
+      opacity: 0.5;
+      image-rendering: pixelated;
+      pointer-events: none;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .tip {
+      position: absolute;
+      bottom: calc(clamp(36px, 12%, 56px) + 12px);
+      right: 6px;
+      font-size: 8px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0.22;
+    }
+
+    /* ── segmented canvas-count picker ───────────────────────────────────── */
+    .seg-btns {
+      display: flex;
+      gap: 3px;
+    }
+
+    .seg {
+      min-width: 34px;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: #a8a8c0;
+      border-radius: 4px;
+      cursor: pointer;
+      font: inherit;
+      text-align: center;
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+    }
+    .seg:hover  { background: rgba(255, 255, 255, 0.10); }
+    .seg.active {
+      background: rgba(108, 114, 255, 0.18);
+      border-color: rgba(108, 114, 255, 0.50);
+      color: #9098ff;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    button {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: #a8a8c0;
+      padding: 7px 18px;
+      border-radius: 5px;
+      cursor: pointer;
+      font: inherit;
+      min-width: 72px;
+      transition: background 0.15s;
+    }
+    button:hover { background: rgba(255, 255, 255, 0.10); }
+
+    input[type=range] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 220px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.10);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 13px; height: 13px;
+      border-radius: 50%;
+      background: #6c72ff;
+      cursor: pointer;
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 13px; height: 13px;
+      border-radius: 50%;
+      background: #6c72ff;
+      border: none;
+      cursor: pointer;
+    }
+
+    .meta {
+      display: flex;
+      gap: 24px;
+      font-size: 10px;
+      opacity: 0.26;
+      letter-spacing: 0.04em;
+    }
+
+    .phase-label {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      opacity: 0.35;
+      min-width: 90px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .ctrl-label {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      opacity: 0.35;
+    }
+
+    select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: #a8a8c0;
+      padding: 7px 28px 7px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font: inherit;
+      outline: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      transition: background-color 0.15s;
+    }
+    select:hover { background-color: rgba(255, 255, 255, 0.10); }
+    select option { background: #16162a; }
+
+    /* ── text-source controls ────────────────────────────────────────────── */
+    #textControls {
+      display: none;
+      align-items: center;
+      gap: 8px;
+    }
+    #textControls.visible { display: flex; }
+
+    #textInput {
+      appearance: none;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      color: #d0d0e8;
+      padding: 7px 12px;
+      border-radius: 5px;
+      font: 500 13px/1 monospace;
+      outline: none;
+      width: 130px;
+      letter-spacing: 0.06em;
+      transition: border-color 0.15s;
+    }
+    #textInput:focus { border-color: rgba(108, 114, 255, 0.50); }
+
+    #colorInput {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 34px;
+      height: 34px;
+      padding: 3px;
+      border-radius: 5px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      background: transparent;
+      cursor: pointer;
+    }
+    #colorInput::-webkit-color-swatch-wrapper { padding: 0; }
+    #colorInput::-webkit-color-swatch { border: none; border-radius: 3px; }
+
+    /* ── animation controls ──────────────────────────────────────────────── */
+    .val-label {
+      font-size: 10px;
+      opacity: 0.45;
+      min-width: 34px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.03em;
+    }
+
+    .ctrl-divider {
+      width: 1px;
+      height: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      margin: 0 6px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Particle Assembler</h1>
+
+<div id="grid">
+  <!-- canvas instances injected here by JS -->
+</div>
+
+<div class="controls">
+  <button id="btn">Pause</button>
+  <input id="bar" type="range" min="0" max="1000" value="0">
+  <button id="rst">Reset</button>
+</div>
+
+<div class="controls">
+  <span class="ctrl-label">source</span>
+  <div class="seg-btns" id="modeSel">
+    <button class="seg active" data-mode="plasma">Plasma</button>
+    <button class="seg"        data-mode="text">Text</button>
+  </div>
+  <div id="textControls">
+    <input id="textInput" type="text" value="KAMPOS" maxlength="24" spellcheck="false" autocomplete="off">
+    <input id="colorInput" type="color" value="#ffffff" title="text colour">
+  </div>
+</div>
+
+<div class="controls">
+  <span class="ctrl-label">canvases</span>
+  <div class="seg-btns" id="canvasSel">
+    <button class="seg active" data-n="1">1</button>
+    <button class="seg"        data-n="2">2</button>
+    <button class="seg"        data-n="3">3</button>
+    <button class="seg"        data-n="4">4</button>
+    <button class="seg"        data-n="5">5</button>
+    <button class="seg"        data-n="6">6</button>
+  </div>
+</div>
+
+<div class="controls">
+  <span class="ctrl-label">particles</span>
+  <select id="gridSel">
+    <option value="64">4 K &nbsp;(64×64)</option>
+    <option value="128">16 K &nbsp;(128×128)</option>
+    <option value="192">36 K &nbsp;(192×192)</option>
+    <option value="256" selected>65 K &nbsp;(256×256)</option>
+    <option value="384">147 K &nbsp;(384×384)</option>
+    <option value="512">262 K &nbsp;(512×512)</option>
+    <option value="768">589 K &nbsp;(768×768)</option>
+    <option value="1024">1 M &nbsp;(1024×1024)</option>
+  </select>
+</div>
+
+<!-- ── animation / timing ──────────────────────────────────────────────────── -->
+<div class="controls">
+  <span class="ctrl-label">duration</span>
+  <input id="durSlider" type="range" min="0.5" max="12" step="0.5" value="4.5" style="width:110px">
+  <span class="val-label" id="durVal">4.5 s</span>
+  <span class="ctrl-divider"></span>
+  <span class="ctrl-label">hold</span>
+  <input id="holdSlider" type="range" min="0" max="5" step="0.5" value="2" style="width:90px">
+  <span class="val-label" id="holdVal">2.0 s</span>
+</div>
+
+<div class="controls">
+  <span class="ctrl-label">easing</span>
+  <select id="easingSel">
+    <option value="smooth" selected>Smooth (default)</option>
+    <option value="linear">Linear</option>
+    <option value="ease-in">Ease in (cubic)</option>
+    <option value="ease-out">Ease out (cubic)</option>
+    <option value="ease-in-out">Ease in-out (cubic)</option>
+    <option value="sine">Sine in-out</option>
+    <option value="elastic">Elastic</option>
+    <option value="bounce">Bounce out</option>
+  </select>
+</div>
+
+<div class="controls">
+  <span class="ctrl-label">wind</span>
+  <span class="ctrl-label" style="opacity:0.4;margin-left:2px">strength</span>
+  <input id="windStrSlider" type="range" min="0" max="1.5" step="0.05" value="0.3" style="width:100px">
+  <span class="val-label" id="windStrVal">0.30</span>
+  <span class="ctrl-divider"></span>
+  <span class="ctrl-label" style="opacity:0.4">speed</span>
+  <input id="windSpdSlider" type="range" min="0" max="3" step="0.1" value="1" style="width:90px">
+  <span class="val-label" id="windSpdVal">1.0×</span>
+</div>
+
+<div class="meta">
+  <span id="fpsEl">— fps</span>
+  <span id="phaseEl">assembling</span>
+  <span id="countEl">65 536 particles</span>
+</div>
+
+<script type="module">
+// ── Constants ─────────────────────────────────────────────────────────────────
+const IMG_W = 256, IMG_H = 256;  // source image size (fixed across all instances)
+const CW    = 512, CH   = 512;   // GL canvas internal resolution (px)
+const NS    = 256, NG   = 16;    // noise texture size, grid divisions
+let   ANIM  = 4.5;               // seconds for one-way trip  (mutable: duration slider)
+let   HOLD  = 2.0;               // seconds to hold each extreme (mutable: hold slider)
+
+// ── Easing functions ─────────────────────────────────────────────────────────
+// Easing is fully computed in JS; the shader receives the already-eased value.
+// This allows any curve (including elastic overshoot beyond [0,1]).
+const EASINGS = {
+  'smooth':      t => t * t * (3 - 2 * t),                          // smoothstep
+  'linear':      t => t,
+  'ease-in':     t => t * t * t,                                     // cubic in
+  'ease-out':    t => 1 - Math.pow(1 - t, 3),                       // cubic out
+  'ease-in-out': t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2, // cubic io
+  'sine':        t => -(Math.cos(Math.PI * t) - 1) / 2,             // sine io
+  'elastic': t => {
+    if (t <= 0) return 0; if (t >= 1) return 1;
+    const c5 = (2 * Math.PI) / 4.5;
+    return t < 0.5
+      ? -(Math.pow(2,  20*t - 10) * Math.sin((20*t - 11.125) * c5)) / 2
+      :  (Math.pow(2, -20*t + 10) * Math.sin((20*t - 11.125) * c5)) / 2 + 1;
+  },
+  'bounce': t => {                                                    // ease-out bounce
+    const n = 7.5625, d = 2.75;
+    if (t < 1/d)     { return n*t*t; }
+    if (t < 2/d)     { t -= 1.5/d;  return n*t*t + 0.75; }
+    if (t < 2.5/d)   { t -= 2.25/d; return n*t*t + 0.9375; }
+    t -= 2.625/d; return n*t*t + 0.984375;
+  },
+};
+let curEasing  = 'smooth';
+let curWindStr = 0.30;
+let curWindSpd = 1.00;
+
+// ── HSL [0,1] → RGB [0,255] ───────────────────────────────────────────────────
+function hsl(h, s, l) {
+  const c  = (1 - Math.abs(2 * l - 1)) * s;
+  const x  = c * (1 - Math.abs((h * 6) % 2 - 1));
+  const m  = l - c / 2;
+  const h6 = h * 6;
+  let r, g, b;
+  if      (h6 < 1) { r = c; g = x; b = 0; }
+  else if (h6 < 2) { r = x; g = c; b = 0; }
+  else if (h6 < 3) { r = 0; g = c; b = x; }
+  else if (h6 < 4) { r = 0; g = x; b = c; }
+  else if (h6 < 5) { r = x; g = 0; b = c; }
+  else             { r = c; g = 0; b = x; }
+  return [(r + m) * 255 | 0, (g + m) * 255 | 0, (b + m) * 255 | 0];
+}
+
+// ── Wang hash → deterministic float [0, 1) ────────────────────────────────────
+function rnd(n) {
+  n = (Math.imul(n ^ (n >>> 16), 0x45d9f3b)) >>> 0;
+  n = (Math.imul(n ^ (n >>> 16), 0x45d9f3b)) >>> 0;
+  n = (n ^ (n >>> 16)) >>> 0;
+  return n / 4294967296;
+}
+
+// ── Source image: plasma mandala + KAMPOS text overlay ───────────────────────
+function buildImage() {
+  const cv  = document.createElement('canvas');
+  cv.width  = IMG_W;
+  cv.height = IMG_H;
+  const ctx = cv.getContext('2d');
+  const id  = ctx.createImageData(IMG_W, IMG_H);
+  const d   = id.data;
+  const PI  = Math.PI;
+
+  for (let y = 0; y < IMG_H; y++) {
+    for (let x = 0; x < IMG_W; x++) {
+      const nx  = x / IMG_W * 2 - 1;      // [-1, 1]
+      const ny  = y / IMG_H * 2 - 1;
+      const r   = Math.sqrt(nx * nx + ny * ny);
+      const a   = Math.atan2(ny, nx);      // [-π, π]
+      // layered plasma: radial rings + spiral petals + diagonal waves
+      const v   = 0.45 * Math.sin(r * 9.5)
+                + 0.30 * Math.sin(a * 5 + r * 7)
+                + 0.25 * Math.sin(nx * 9 + ny * 6);
+      const hue = ((v + 1) * 0.5 + a / (PI * 2) * 0.4 + 0.5) % 1;
+      const lit = 0.48 + 0.12 * Math.sin(r * 5 + a * 2);
+      const [R, G, B] = hsl(hue, 0.88, Math.max(0.2, Math.min(0.75, lit)));
+      const i   = (y * IMG_W + x) * 4;
+      d[i] = R;  d[i + 1] = G;  d[i + 2] = B;  d[i + 3] = 255;
+    }
+  }
+  ctx.putImageData(id, 0, 0);
+
+  // White text overlay blended with 'screen' to preserve colours underneath
+  ctx.globalCompositeOperation = 'screen';
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle    = 'rgba(255,255,255,0.78)';
+  ctx.font         = 'bold 54px monospace';
+  ctx.fillText('KAM', IMG_W / 2, IMG_H / 2 - 29);
+  ctx.fillText('POS', IMG_W / 2, IMG_H / 2 + 29);
+
+  return cv;
+}
+
+// ── Smooth tileable RG8 value noise ───────────────────────────────────────────
+function buildNoise() {
+  // Two independent random grids — one per channel — so wind vectors aren't correlated
+  const gR = new Float32Array(NG * NG);
+  const gG = new Float32Array(NG * NG);
+  for (let i = 0; i < NG * NG; i++) { gR[i] = Math.random(); gG[i] = Math.random(); }
+
+  function sampleGrid(g, gx, gy) {
+    const xi = Math.floor(gx) % NG;
+    const yi = Math.floor(gy) % NG;
+    const tx = gx - Math.floor(gx);
+    const ty = gy - Math.floor(gy);
+    const sx = tx * tx * (3 - 2 * tx);   // Hermite smooth-step
+    const sy = ty * ty * (3 - 2 * ty);
+    const v00 = g[  yi          * NG +  xi          ];
+    const v10 = g[  yi          * NG + (xi + 1) % NG];
+    const v01 = g[ (yi + 1) % NG * NG +  xi          ];
+    const v11 = g[ (yi + 1) % NG * NG + (xi + 1) % NG];
+    return v00 * (1 - sx) * (1 - sy)
+         + v10 *      sx  * (1 - sy)
+         + v01 * (1 - sx) *      sy
+         + v11 *      sx  *      sy;
+  }
+
+  const out = new Uint8Array(NS * NS * 2);
+  for (let y = 0; y < NS; y++) {
+    for (let x = 0; x < NS; x++) {
+      const gx = x / NS * NG;
+      const gy = y / NS * NG;
+      const b  = (y * NS + x) * 2;
+      out[b    ] = sampleGrid(gR, gx, gy) * 255 | 0;
+      out[b + 1] = sampleGrid(gG, gx, gy) * 255 | 0;
+    }
+  }
+  return out;
+}
+
+// ── Particle data: (startX, startY, endX, endY) packed as RGBA32F ─────────────
+// iw × ih defines the particle grid; end positions fill the NDC canvas uniformly.
+function buildPData(iw, ih) {
+  const count = iw * ih;
+  const d = new Float32Array(count * 4);
+  for (let py = 0; py < ih; py++) {
+    for (let px = 0; px < iw; px++) {
+      const i  = py * iw + px;
+      // End: pixel centre mapped to NDC, Y flipped (WebGL Y-up)
+      const ex = (px + 0.5) / iw * 2 - 1;
+      const ey = 1 - (py + 0.5) / ih * 2;
+      // Start: spread ±3× beyond NDC limits — particles arrive from off-screen
+      const sx = (rnd(i * 2    ) * 2 - 1) * 3.0;
+      const sy = (rnd(i * 2 + 1) * 2 - 1) * 3.0;
+      d[i * 4    ] = sx;  d[i * 4 + 1] = sy;
+      d[i * 4 + 2] = ex;  d[i * 4 + 3] = ey;
+    }
+  }
+  return d;
+}
+
+// ── Text source image ─────────────────────────────────────────────────────────
+// Renders `text` on a transparent 256×256 canvas; font size auto-scales to fit.
+// The transparent background means those particles are discarded by the FS.
+function buildTextImage(text, color = '#ffffff') {
+  const cv  = document.createElement('canvas');
+  cv.width  = IMG_W;
+  cv.height = IMG_H;
+  const ctx = cv.getContext('2d');
+  ctx.clearRect(0, 0, IMG_W, IMG_H);   // fully transparent background
+
+  // Split on explicit newlines; auto-wrap if one line is too wide
+  const rawLines = text.split('\n').filter(l => l.trim().length > 0);
+  if (rawLines.length === 0) return cv;
+
+  // Binary-search for the largest font size that fits all lines
+  const maxW = IMG_W * 0.90;
+  let size = 120;
+  const face = s => `bold ${s}px -apple-system, BlinkMacSystemFont, Arial, sans-serif`;
+  while (size > 8) {
+    ctx.font = face(size);
+    const fits = rawLines.every(l => ctx.measureText(l).width <= maxW);
+    // Ensure all lines + spacing fit vertically
+    const totalH = rawLines.length * size * 1.2;
+    if (fits && totalH <= IMG_H * 0.90) break;
+    size -= 2;
+  }
+
+  ctx.font         = face(size);
+  ctx.fillStyle    = color;
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+
+  const lineH     = size * 1.2;
+  const totalH    = rawLines.length * lineH;
+  const startY    = (IMG_H - totalH) / 2 + lineH / 2;
+  rawLines.forEach((line, i) => ctx.fillText(line, IMG_W / 2, startY + i * lineH));
+
+  return cv;
+}
+
+// ── GLSL shaders (compiled once per instance, shared source) ─────────────────
+// Each invocation handles one particle identified by gl_VertexID.
+// u_w / u_ptSz are uniforms so the shader never needs recompiling on grid change.
+const VS = /* glsl */ `#version 300 es
+precision highp   float;
+precision highp   int;
+precision highp   sampler2D;
+
+uniform sampler2D u_pd;       // RGBA32F — (startX, startY, endX, endY) per particle
+uniform sampler2D u_noise;    // RG8     — smooth tileable wind noise, REPEAT wrap
+uniform float     u_t;        // eased animation progress — computed in JS, not raw
+uniform float     u_wt;       // wind time (advances continuously for moving wind)
+uniform int       u_w;        // particle data texture width (equals grid size)
+uniform float     u_ptSz;     // point size in pixels (set by JS based on grid density)
+uniform float     u_windStr;  // wind displacement multiplier  [0 … 1.5]
+uniform float     u_windSpd;  // wind scroll speed multiplier  [0 … 3]
+
+out vec2 v_uv;
+
+void main() {
+  // Fetch this particle's start/end data from the data texture
+  ivec2 tc = ivec2(gl_VertexID % u_w, gl_VertexID / u_w);
+  vec4  pd = texelFetch(u_pd, tc, 0);
+  vec2  sp = pd.xy;   // start position (NDC)
+  vec2  ep = pd.zw;   // end   position (NDC)
+
+  // u_t arrives already eased from JS (supports elastic overshoot outside [0,1])
+  float t    = u_t;
+  vec2  base = mix(sp, ep, t);
+
+  // Sample scrolling noise; map [0,1] channel range → [-1,1] wind vector
+  // Anisotropic scroll (0.20 / 0.13 ratio) prevents the noise moving in a straight line
+  vec2  nuv  = base * 0.5 + 0.5 + vec2(u_wt * u_windSpd * 0.20, u_wt * u_windSpd * 0.13);
+  vec2  wind = texture(u_noise, nuv).rg * 2.0 - 1.0;
+
+  // Envelope: full wind at t=0.5, zero at both endpoints → particles land exactly
+  // sin responds naturally to eased t (including slight overshoot)
+  float env  = sin(3.14159265 * t);
+  // Scale by travel distance so distant particles arc more expressively
+  float dist = length(ep - sp);
+  vec2  offs = wind * env * dist * u_windStr;
+
+  // UV for colour lookup: end position in NDC → texture UV (flip Y for GL convention)
+  v_uv = vec2(ep.x * 0.5 + 0.5, 0.5 - ep.y * 0.5);
+
+  gl_Position  = vec4(base + offs, 0.0, 1.0);
+  gl_PointSize = u_ptSz;
+}`;
+
+// ── Fragment shader ───────────────────────────────────────────────────────────
+// Alpha is sampled from the image so transparent-background sources (text mode)
+// naturally hide background particles. Blending must be enabled on the GL context.
+const FS = /* glsl */ `#version 300 es
+precision mediump float;
+uniform sampler2D u_img;
+in  vec2 v_uv;
+out vec4 fragColor;
+void main() {
+  vec2 pc = gl_PointCoord - 0.5;
+  if (dot(pc, pc) > 0.25) discard;        // circular clip
+  vec4 col = texture(u_img, v_uv);
+  if (col.a < 0.04) discard;              // skip transparent-background pixels
+  fragColor = col;
+}`;
+
+// ── Shared CPU-side data ──────────────────────────────────────────────────────
+// The source image is built once; each GL context uploads its own copy.
+// Particle data is cached so switching grid size with N canvases only computes
+// buildPData once rather than N times.
+let sharedImage = buildImage();  // let — replaced when source mode changes
+
+let _cachedPData = null, _cachedSize = 0;
+function getSharedPData(size) {
+  if (_cachedSize !== size) {
+    _cachedPData = buildPData(size, size);
+    _cachedSize  = size;
+  }
+  return _cachedPData;
+}
+
+// ── ParticleSystem ────────────────────────────────────────────────────────────
+// Each instance wraps one WebGL2 context. Instances are independent: they share
+// animation progress (rawT, windT) but have different per-instance noise textures
+// so each canvas shows a unique wind pattern while all assemble the same image.
+class ParticleSystem {
+  constructor(canvas, showThumb) {
+    const gl = canvas.getContext('webgl2');
+    if (!gl) throw new Error('WebGL 2 not available');
+    this.gl        = gl;
+    this.drawCount = 0;
+    this.pdTex     = null;
+    this._build(showThumb);
+  }
+
+  // ── private ──────────────────────────────────────────────────────────────
+  _mkShader(type, src) {
+    const { gl } = this;
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS))
+      throw new Error(gl.getShaderInfoLog(s));
+    return s;
+  }
+
+  _mkTex(unit, iF, fmt, type, w, h, src, filt, wrap) {
+    const { gl } = this;
+    gl.activeTexture(gl.TEXTURE0 + unit);
+    const t = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filt);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filt);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap);
+    if (src instanceof HTMLCanvasElement)
+      gl.texImage2D(gl.TEXTURE_2D, 0, iF, fmt, type, src);
+    else
+      gl.texImage2D(gl.TEXTURE_2D, 0, iF, w, h, 0, fmt, type, src);
+    return t;
+  }
+
+  _build(showThumb) {
+    const { gl } = this;
+
+    const prog = gl.createProgram();
+    gl.attachShader(prog, this._mkShader(gl.VERTEX_SHADER,   VS));
+    gl.attachShader(prog, this._mkShader(gl.FRAGMENT_SHADER, FS));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS))
+      throw new Error(gl.getProgramInfoLog(prog));
+    gl.useProgram(prog);
+    this.prog = prog;
+
+    this.L = {};
+    ['u_pd','u_noise','u_img','u_t','u_wt','u_w','u_ptSz','u_windStr','u_windSpd']
+      .forEach(n => { this.L[n] = gl.getUniformLocation(prog, n); });
+    gl.uniform1i(this.L.u_pd,    0);
+    gl.uniform1i(this.L.u_noise, 1);
+    gl.uniform1i(this.L.u_img,   2);
+
+    // Per-instance noise: different Math.random() seed → each canvas has unique wind
+    this._mkTex(1, gl.RG8,  gl.RG,   gl.UNSIGNED_BYTE, NS, NS, buildNoise(),  gl.LINEAR,  gl.REPEAT);
+    // Image texture — stored so updateImage() can replace it without rebuilding
+    this.imgTex = this._mkTex(2, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, 0, 0, sharedImage, gl.NEAREST, gl.CLAMP_TO_EDGE);
+
+    // Empty VAO required by WebGL2 even with no vertex attributes
+    gl.bindVertexArray(gl.createVertexArray());
+    gl.viewport(0, 0, CW, CH);
+    gl.clearColor(0.036, 0.036, 0.07, 1.0);
+    gl.disable(gl.DEPTH_TEST);
+    // Alpha blending: lets transparent-background sources (text mode) work naturally
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+    // Set wind defaults from current module-level values so instances created
+    // after the user adjusts sliders inherit the correct settings.
+    gl.uniform1f(this.L.u_windStr, curWindStr);
+    gl.uniform1f(this.L.u_windSpd, curWindSpd);
+
+    if (showThumb) {
+      const thumb = gl.canvas.parentElement.querySelector('.thumb');
+      if (thumb) {
+        const tctx = thumb.getContext('2d');
+        tctx.clearRect(0, 0, thumb.width, thumb.height);
+        tctx.drawImage(sharedImage, 0, 0);
+      }
+    }
+  }
+
+  // Replace the image texture in-place (no rebuild needed)
+  updateImage(imgCanvas) {
+    const { gl } = this;
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, this.imgTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgCanvas);
+  }
+
+  // Update wind uniforms without touching anything else (called on slider change)
+  setWind(str, spd) {
+    this.gl.uniform1f(this.L.u_windStr, str);
+    this.gl.uniform1f(this.L.u_windSpd, spd);
+  }
+
+  // ── public ───────────────────────────────────────────────────────────────
+  applyGrid(size) {
+    const { gl } = this;
+    if (this.pdTex) {
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      gl.deleteTexture(this.pdTex);
+    }
+    // CPU data is cached globally — only computed once per size change
+    const data = getSharedPData(size);
+    gl.activeTexture(gl.TEXTURE0);
+    this.pdTex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, this.pdTex);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, size, size, 0, gl.RGBA, gl.FLOAT, data);
+    this.drawCount = size * size;
+    gl.uniform1i(this.L.u_w,    size);
+    gl.uniform1f(this.L.u_ptSz, Math.max(1, CW / size));
+  }
+
+  draw(rawT, windT) {
+    const { gl } = this;
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.uniform1f(this.L.u_t,  rawT);
+    gl.uniform1f(this.L.u_wt, windT);
+    gl.drawArrays(gl.POINTS, 0, this.drawCount);
+  }
+
+  destroy() {
+    if (this.pdTex) this.gl.deleteTexture(this.pdTex);
+    // Explicit context loss frees GPU memory immediately
+    const ext = this.gl.getExtension('WEBGL_lose_context');
+    if (ext) ext.loseContext();
+  }
+}
+
+// ── Instance management ───────────────────────────────────────────────────────
+const gridEl         = document.getElementById('grid');
+let   instances      = [];
+let   currentGSize   = 256;
+
+// Canvas count → [grid columns, max-width px] lookup
+const LAYOUT = [, [1, 520], [2, 1060], [2, 1060], [2, 1060], [3, 1600], [3, 1600]];
+
+function setCanvasCount(n) {
+  // Remove instances beyond n
+  while (instances.length > n) {
+    instances.pop().destroy();
+    gridEl.removeChild(gridEl.lastElementChild);
+  }
+  // Add new instances up to n (apply current grid to each new one)
+  while (instances.length < n) {
+    const isFirst = instances.length === 0;
+    const wrap    = document.createElement('div');
+    wrap.className = 'wrap';
+
+    const cvs = document.createElement('canvas');
+    cvs.width = CW;  cvs.height = CH;
+    wrap.appendChild(cvs);
+
+    if (isFirst) {
+      const tip = document.createElement('span');
+      tip.className   = 'tip';
+      tip.textContent = 'target';
+      wrap.appendChild(tip);
+
+      // const thumb = document.createElement('canvas');
+      // thumb.className = 'thumb';
+      // thumb.width     = IMG_W;
+      // thumb.height    = IMG_H;
+      // wrap.appendChild(thumb);
+    }
+
+    gridEl.appendChild(wrap);
+
+    const sys = new ParticleSystem(cvs, isFirst);
+    sys.applyGrid(currentGSize);
+    instances.push(sys);
+  }
+
+  // Update grid CSS layout
+  const [cols, maxW] = LAYOUT[n];
+  gridEl.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+  gridEl.style.maxWidth             = `min(${maxW}px, 96vw)`;
+
+  // Update segmented button highlight
+  document.querySelectorAll('#canvasSel .seg').forEach(b => {
+    b.classList.toggle('active', +b.dataset.n === n);
+  });
+}
+
+function applyGridAll(size) {
+  currentGSize = size;
+  instances.forEach(sys => sys.applyGrid(size));
+  countEl.textContent = (size * size).toLocaleString() + ' particles';
+  // Reset animation so all canvases restart together
+  rawT = 0; windT = 0; phase = 0; phElap = 0;
+  bar.value = 0;
+  playing = true;
+  btn.textContent = 'Pause';
+  phaseEl.textContent = PHASE_NAMES[0];
+}
+
+// ── Source-image management ───────────────────────────────────────────────────
+// Push a new image into every live instance and refresh the thumbnail,
+// then restart the animation so viewers see the new image being assembled.
+function applyImageToAll(imgCanvas) {
+  sharedImage = imgCanvas;
+  instances.forEach(sys => sys.updateImage(imgCanvas));
+  // Refresh thumbnail (first .wrap only)
+  const thumb = gridEl.querySelector('.thumb');
+  if (thumb) {
+    const tctx = thumb.getContext('2d');
+    tctx.clearRect(0, 0, thumb.width, thumb.height);
+    tctx.drawImage(imgCanvas, 0, 0);
+  }
+  // Restart so the new image assembles from scratch
+  rawT = 0; windT = 0; phase = 0; phElap = 0;
+  bar.value = 0;
+  playing = true;
+  btn.textContent = 'Pause';
+  phaseEl.textContent = PHASE_NAMES[0];
+}
+
+// ── DOM ───────────────────────────────────────────────────────────────────────
+const btn          = document.getElementById('btn');
+const bar          = document.getElementById('bar');
+const rst          = document.getElementById('rst');
+const fpsEl        = document.getElementById('fpsEl');
+const phaseEl      = document.getElementById('phaseEl');
+const countEl      = document.getElementById('countEl');
+const gridSel      = document.getElementById('gridSel');
+const textInput    = document.getElementById('textInput');
+const colorInput   = document.getElementById('colorInput');
+const textControls = document.getElementById('textControls');
+const durSlider    = document.getElementById('durSlider');
+const durVal       = document.getElementById('durVal');
+const holdSlider   = document.getElementById('holdSlider');
+const holdVal      = document.getElementById('holdVal');
+const easingSel    = document.getElementById('easingSel');
+const windStrSlider = document.getElementById('windStrSlider');
+const windStrVal   = document.getElementById('windStrVal');
+const windSpdSlider = document.getElementById('windSpdSlider');
+const windSpdVal   = document.getElementById('windSpdVal');
+
+// ── Source mode state ─────────────────────────────────────────────────────────
+let sourceMode  = 'plasma';   // 'plasma' | 'text'
+let textDebounce = null;
+
+function setSourceMode(mode) {
+  sourceMode = mode;
+  document.querySelectorAll('#modeSel .seg').forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+  textControls.classList.toggle('visible', mode === 'text');
+  applyImageToAll(mode === 'text'
+    ? buildTextImage(textInput.value.trim() || 'KAMPOS', colorInput.value)
+    : buildImage());
+}
+
+// ── Animation state (shared across all instances) ─────────────────────────────
+const PHASE_NAMES = ['assembling', 'assembled', 'dispersing', 'dispersed'];
+let playing   = true,  scrubbing = false;
+let rawT      = 0,     windT     = 0;
+let phase     = 0,     phElap    = 0;
+let prevTs    = null,  fpsSmth   = 60;
+
+function drawScene() {
+  // Apply the chosen easing curve to the raw linear progress before passing to shaders.
+  // Elastic can return values slightly outside [0,1] — that's intentional (overshoot).
+  const easedT = EASINGS[curEasing](rawT);
+  instances.forEach(sys => sys.draw(easedT, windT));
+}
+
+function tick(ts) {
+  requestAnimationFrame(tick);
+  if (prevTs === null) { prevTs = ts; return; }
+  const dt = Math.min((ts - prevTs) / 1000, 0.1);
+  prevTs = ts;
+  fpsSmth += (1 / dt - fpsSmth) * 0.06;
+  fpsEl.textContent = Math.round(fpsSmth) + ' fps';
+
+  windT += dt;  // wind always advances, even when paused
+
+  if (playing && !scrubbing) {
+    phElap += dt;
+    if (phase === 0) {
+      rawT = Math.min(phElap / ANIM, 1);
+      if (rawT >= 1) { phase = 1; phElap = 0; }
+    } else if (phase === 1) {
+      rawT = 1;
+      if (phElap >= HOLD) { phase = 2; phElap = 0; }
+    } else if (phase === 2) {
+      rawT = Math.max(0, 1 - phElap / ANIM);
+      if (rawT <= 0) { phase = 3; phElap = 0; }
+    } else {
+      rawT = 0;
+      if (phElap >= HOLD) { phase = 0; phElap = 0; }
+    }
+    bar.value = Math.round(rawT * 1000);
+    phaseEl.textContent = PHASE_NAMES[phase];
+  }
+
+  drawScene();
+}
+
+// ── Event handlers ────────────────────────────────────────────────────────────
+btn.addEventListener('click', () => {
+  playing = !playing;
+  btn.textContent = playing ? 'Pause' : 'Play';
+});
+
+bar.addEventListener('pointerdown', () => {
+  scrubbing = true;
+  playing   = false;
+  btn.textContent = 'Play';
+});
+bar.addEventListener('input', () => {
+  rawT = parseInt(bar.value, 10) / 1000;
+  phaseEl.textContent = rawT < 0.01 ? 'dispersed' : rawT > 0.99 ? 'assembled' : '—';
+});
+window.addEventListener('pointerup', () => { scrubbing = false; });
+
+rst.addEventListener('click', () => {
+  rawT = 0; windT = 0; phase = 0; phElap = 0;
+  bar.value = 0;
+  playing = true;
+  btn.textContent = 'Pause';
+  phaseEl.textContent = PHASE_NAMES[0];
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ') { e.preventDefault(); btn.click(); }
+});
+
+gridSel.addEventListener('change', () => {
+  applyGridAll(parseInt(gridSel.value, 10));
+});
+
+document.getElementById('canvasSel').addEventListener('click', e => {
+  const seg = e.target.closest('.seg');
+  if (seg) setCanvasCount(+seg.dataset.n);
+});
+
+document.getElementById('modeSel').addEventListener('click', e => {
+  const seg = e.target.closest('.seg');
+  if (seg && seg.dataset.mode !== sourceMode) setSourceMode(seg.dataset.mode);
+});
+
+// Debounce text input — rebuild after 600 ms of no typing
+textInput.addEventListener('input', () => {
+  clearTimeout(textDebounce);
+  textDebounce = setTimeout(() => {
+    if (sourceMode === 'text')
+      applyImageToAll(buildTextImage(textInput.value.trim() || 'KAMPOS', colorInput.value));
+  }, 600);
+});
+// Also apply immediately on Enter
+textInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    clearTimeout(textDebounce);
+    if (sourceMode === 'text')
+      applyImageToAll(buildTextImage(textInput.value.trim() || 'KAMPOS', colorInput.value));
+  }
+});
+
+colorInput.addEventListener('input', () => {
+  if (sourceMode === 'text')
+    applyImageToAll(buildTextImage(textInput.value.trim() || 'KAMPOS', colorInput.value));
+});
+
+// ── Animation control handlers ────────────────────────────────────────────────
+durSlider.addEventListener('input', () => {
+  ANIM = parseFloat(durSlider.value);
+  durVal.textContent = ANIM.toFixed(1) + ' s';
+});
+
+holdSlider.addEventListener('input', () => {
+  HOLD = parseFloat(holdSlider.value);
+  holdVal.textContent = HOLD.toFixed(1) + ' s';
+});
+
+easingSel.addEventListener('change', () => {
+  curEasing = easingSel.value;
+});
+
+windStrSlider.addEventListener('input', () => {
+  curWindStr = parseFloat(windStrSlider.value);
+  windStrVal.textContent = curWindStr.toFixed(2);
+  instances.forEach(sys => sys.setWind(curWindStr, curWindSpd));
+});
+
+windSpdSlider.addEventListener('input', () => {
+  curWindSpd = parseFloat(windSpdSlider.value);
+  windSpdVal.textContent = curWindSpd.toFixed(1) + '×';
+  instances.forEach(sys => sys.setWind(curWindStr, curWindSpd));
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+setCanvasCount(1);   // creates first canvas, applies currentGSize (256) to it
+countEl.textContent  = (currentGSize * currentGSize).toLocaleString() + ' particles';
+phaseEl.textContent  = PHASE_NAMES[0];
+
+requestAnimationFrame(tick);
+</script>
+
+</body>
+</html>
